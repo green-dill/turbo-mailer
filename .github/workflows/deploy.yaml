@@ -65,7 +65,7 @@ jobs:
             echo "charts_changed=false" >> $GITHUB_ENV
           fi
 
-      - uses: helmfile/helmfile-action@v1.9.1
+      - uses: helmfile/helmfile-action@v1.9.2
         if: env.charts_changed == 'true'
         with:
           helmfile-args: lint
@@ -222,6 +222,6 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      - uses: helmfile/helmfile-action@v1.9.1
+      - uses: helmfile/helmfile-action@v1.9.2
         with:
           helmfile-args: --environment ${{ env.ENVIRONMENT }} sync
