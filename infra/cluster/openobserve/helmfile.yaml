@@ -1,0 +1,23 @@
+helmfiles:
+  - path: ../common/helmfile.yaml
+
+repositories:
+  - name: openobserve
+    url: https://charts.openobserve.ai
+
+releases:
+  - name: openobserve
+    namespace: openobserve
+    createNamespace: true
+    chart: openobserve/openobserve-standalone
+    values:
+      - openobserve-standalone.yaml
+
+  - name: openobserve-collector
+    namespace: openobserve
+    createNamespace: true
+    chart: openobserve/openobserve-collector
+    values:
+      - openobserve-collector.yaml
+    needs:
+      - openobserve

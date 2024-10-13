@@ -1,0 +1,148 @@
+sha: ""
+
+frontend:
+  replicaCount: 1
+
+  image:
+    repository: turbo-mailer-frontend
+    pullPolicy: Always
+    tag: ""
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+api:
+  replicaCount: 1
+
+  image:
+    repository: turbo-mailer-server
+    pullPolicy: Always
+    tag: ""
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  resources: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  config: |
+    # TODO: Add config
+
+worker:
+  replicaCount: 1
+
+  image:
+    repository: turbo-mailer-server
+    pullPolicy: Always
+    tag: ""
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  resources: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values: [worker]
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: password
+  master:
+    disableCommands: []
+    persistence:
+      enabled: true
+      size: 5Gi
+  replica:
+    replicaCount: 0
+
+rabbitmq:
+  enabled: true
+  auth:
+    username: user
+    password: password
+  persistence:
+    enabled: true
+    size: 10Gi
+  replicaCount: 1
+  resources: {}
+
+postgresql:
+  enabled: true
+  architecture: standalone
+  auth:
+    postgresPassword: password
+    username: turbomailer
+    password: password
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources: {}

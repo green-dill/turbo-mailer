@@ -1,0 +1,10 @@
+helmfiles:
+  - path: ../common/helmfile.yaml
+
+releases:
+  - name: uptime-kuma
+    namespace: uptime-kuma
+    createNamespace: true
+    chart: ./../../../charts/uptime-kuma
+    values:
+      - values.yaml

@@ -1,0 +1,10 @@
+exporters:
+  otlphttp/openobserve:
+    endpoint: http://openobserve-openobserve-standalone.openobserve.svc:5080/api/default
+    headers:
+      Authorization: Basic YWRtaW5Ad3JpdGUzNjAuY246a21rQ0QydXNMTzg1R1diOQ==
+  otlphttp/openobserve_k8s_events:
+    endpoint: https://openobserve-openobserve-standalone.openobserve.svc:5080/api/default
+    headers:
+      Authorization: Basic YWRtaW5Ad3JpdGUzNjAuY246a21rQ0QydXNMTzg1R1diOQ==
+      stream-name: k8s_events

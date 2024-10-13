@@ -1,0 +1,227 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - test
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]*"
+    paths-ignore:
+      - "infra/**"
+      - "docs/**"
+      - "**/*.md"
+      - "deploy/**"
+      - "charts/**"
+  workflow_dispatch:
+    inputs:
+      env_input:
+        description: "Deployment environment"
+        required: true
+        type: choice
+        default: test
+        options:
+          - test
+          - dev
+          - prod
+      ref:
+        description: "The particular branch or commit you wish to deploy"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.inputs.env_input }}
+  cancel-in-progress: true
+
+env:
+  ENVIRONMENT: |
+    ${{
+      github.ref_type == 'tag' && 'prod' ||
+      github.ref == 'refs/heads/master' && 'master' ||
+      github.ref == 'refs/heads/develop' && 'dev' ||
+      github.ref == 'refs/heads/test' && 'test' ||
+      github.event.inputs.env_input || 'unknown'
+    }}
+  # The strange names are because these images are planned to be pushed to a public Docker Hub repository
+  FRONTEND_REPO: turbo-mailer-frontend-c5d94258
+  SERVER_REPO: turbo-mailer-server-c5d94258
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: green-dill/turbo-mailer/.github/actions/lint@develop
+
+      - name: Check for changes in charts directory
+        id: check_charts
+        run: |
+          if git diff --name-only ${{ github.event.before }} HEAD | grep -q "^charts/"; then
+            echo "charts_changed=true" >> $GITHUB_ENV
+          else
+            echo "charts_changed=false" >> $GITHUB_ENV
+          fi
+
+      - uses: helmfile/helmfile-action@v1.9.1
+        if: env.charts_changed == 'true'
+        with:
+          helmfile-args: lint
+
+  build:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: server
+            context: ./turbo-mailer-server
+            repo: ${{ env.SERVER_REPO }}
+          - name: frontend
+            context: ./turbo-mailer-frontend
+            repo: ${{ env.FRONTEND_REPO }}
+    steps:
+      - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
+
+      - name: Setup | Use Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup | Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Images | ${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: ${{ matrix.context }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            COMMITID=${{ env.GIT_SHA }}
+            ENVIRONMENT=${{ env.ENVIRONMENT }}
+          tags: ${{ secrets.DOCKER_REGISTRY }}/${{ matrix.repo }}:${{ env.TARGET_REF }}
+
+  update_manifest:
+    name: Update manifest
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
+
+      - name: Setup | Install ruamel.yaml
+        run: pip install ruamel.yaml
+
+      - name: Manifest | Update
+        shell: python
+        run: |
+          import os
+          from ruamel.yaml import YAML
+
+          env = "${{ env.ENVIRONMENT }}"
+          sha = "${{ github.sha }}"
+          target_ref = "${{ env.TARGET_REF }}"
+          docker_registry = "${{ secrets.DOCKER_REGISTRY }}"
+          server_repo = "${{ env.SERVER_REPO }}"
+          frontend_repo = "${{ env.FRONTEND_REPO }}"
+
+          def update(file, updates):
+              if not os.path.exists(file):
+                  print(f"{file} not found")
+                  return
+
+              yaml = YAML()
+              yaml.preserve_quotes = True
+              with open(file, "r") as f:
+                  data = yaml.load(f)
+
+              def merge(source, destination):
+                  for key, value in source.items():
+                      if isinstance(value, dict):
+                          node = destination.setdefault(key, {})
+                          merge(value, node)
+                      else:
+                          destination[key] = value
+                  return destination
+
+              merge(updates, data)
+
+              with open(file, "w") as f:
+                  yaml.dump(data, f)
+
+          # Update charts/turbo-mailer/values.yaml
+          update("charts/turbo-mailer/values.yaml", {
+              "sha": sha
+          })
+
+          # Update deploy/values-*.yaml
+          if env == "prod":
+              env_file = "deploy/values-prod.yaml"
+          else:
+              env_file = "deploy/values-test.yaml"
+
+          update(env_file, {
+              "frontend": {
+                  "image": {
+                      "repository": f"{docker_registry}/{frontend_repo}",
+                      "tag": target_ref
+                  }
+              },
+              "api": {
+                  "image": {
+                      "repository": f"{docker_registry}/{server_repo}",
+                      "tag": target_ref
+                  }
+              },
+              "worker": {
+                  "image": {
+                      "repository": f"{docker_registry}/{server_repo}",
+                      "tag": target_ref
+                  }
+              }
+          })
+
+      - name: Manifest | Commit and push
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          if [[ -n $(git status -s) ]]; then
+            commit_args=(
+              -a
+              -m "chore(ci): ${{ github.ref_name }} $(expr substr '${{ github.sha }}' 1 7)"
+              -m "update manifest for deployment, ${{ github.repository }} build:${{ github.run_number }}"
+            )
+            if [[ "${{ github.event_name }}" == 'push' ]]; then
+              commit_args+=(
+                -m "Co-authored-by: ${{ github.event.pusher.name }} <${{ github.event.pusher.email }}>"
+              )
+            fi
+            git commit "${commit_args[@]}"
+            git pull --rebase
+            git push
+          fi
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: update_manifest
+    if: contains(['dev', 'test', 'prod'], env.ENVIRONMENT)
+    steps:
+      - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
+
+      - name: KUBECONFIG | Setup
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - uses: helmfile/helmfile-action@v1.9.1
+        with:
+          helmfile-args: --environment ${{ env.ENVIRONMENT }} sync
