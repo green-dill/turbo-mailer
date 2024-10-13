@@ -68,4 +68,31 @@ We would like to thank all the contributors who have helped make Turbo Mailer be
   </a>
 </div>
 
+## Contributing
 
+We welcome contributions from the community! If you'd like to contribute to this project, please read our [Contributing Guidelines](CONTRIBUTING.md) for detailed information on how to get started, our code style, commit message conventions, and the pull request process.
+
+Here's a quick overview of how to contribute:
+
+1. Clone the repository
+2. Create a new branch for your work (use `bugfix/`, `feature/`, or `improvement/` prefixes)
+3. Make your changes
+4. Commit your changes with a descriptive commit message
+5. Push your branch and open a Pull Request
+
+For more detailed information, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+
+## Important Notice
+
+**Turbo Mailer is not an open-source project.**
+
+Please be aware of the following points:
+
+- **Proprietary Software**: Turbo Mailer is a proprietary software product. All rights are reserved.
+- **No Public Distribution**: The source code, binaries, and related materials are not available for public distribution or use.
+- **No Unauthorized Modifications**: Users are not permitted to modify, reverse engineer, or create derivative works based on Turbo Mailer without explicit permission.
+- **Confidentiality**: All information related to Turbo Mailer's architecture, algorithms, and implementation details should be treated as confidential.
+- **Support**: Technical support is provided exclusively to licensed users as per the terms of their agreement.
+- **Updates and Maintenance**: Software updates and maintenance are managed solely by our development team.
+- **Feedback**: While we appreciate user feedback, any suggestions or ideas submitted become the property of Turbo Mailer.
+For inquiries about licensing, support, or partnership opportunities, please contact our technical support team at yinheli@gmail.com.
