@@ -1,0 +1,36 @@
+name: checkout
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup | Set target ref
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          # For workflow_dispatch, use the input ref
+          TARGET_REF="${{ github.event.inputs.ref }}"
+        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+          # For tag pushes, use the tag name
+          TARGET_REF="${{ github.ref_name }}"
+        else
+          # For branch pushes, use the branch name
+          TARGET_REF="${{ github.ref_name }}"
+        fi
+        # Replace '/' with '-' in TARGET_REF
+        TARGET_REF="${TARGET_REF//\//-}"
+        echo "TARGET_REF=$TARGET_REF" >> $GITHUB_ENV
+
+    - name: Setup | Console output
+      shell: bash
+      run: |
+        echo "ENVIRONMENT: $ENVIRONMENT"
+        echo "TARGET_REF: $TARGET_REF"
+
+    - name: Setup | Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ env.TARGET_REF }}
+
+    - name: Setup | Get commit hash
+      shell: bash
+      run: echo "GIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV

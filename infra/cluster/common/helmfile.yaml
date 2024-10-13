@@ -1,0 +1,4 @@
+helmDefaults:
+  createNamespace: true
+  atomic: true
+  timeout: 1800
