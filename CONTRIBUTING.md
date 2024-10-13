@@ -8,7 +8,7 @@ Thank you for considering contributing to our project! We welcome all forms of c
 2. Create your branch using the appropriate naming convention:
    - For bug fixes: `git checkout -b bugfix/DescriptiveBugfixName`
    - For new features: `git checkout -b feature/DescriptiveFeatureName`
-   - For improvements: `git checkout -b improvement/DescriptiveImprovementName`
+   - For hotfixes: `git checkout -b hotfix/DescriptiveHotfixName`
 3. Make your changes in the new branch
 4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 5. Push to the branch (`git push origin feature/AmazingFeature`)

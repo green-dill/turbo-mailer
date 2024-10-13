@@ -75,7 +75,7 @@ We welcome contributions from the community! If you'd like to contribute to this
 Here's a quick overview of how to contribute:
 
 1. Clone the repository
-2. Create a new branch for your work (use `bugfix/`, `feature/`, or `improvement/` prefixes)
+2. Create a new branch for your work (use `bugfix/`, `feature/`, or `hotfix/` prefixes)
 3. Make your changes
 4. Commit your changes with a descriptive commit message
 5. Push your branch and open a Pull Request
