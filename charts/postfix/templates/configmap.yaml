@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postfix.fullname" . }}
+  labels:
+    {{- include "postfix.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postfix
+data:
+  main.cf: |
+    {{- tpl .Values.postfix_main_cf . | nindent 4 }}
+  mailname: |
+    {{- tpl .Values.mailname . | nindent 4 }}

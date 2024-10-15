@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "postfix.fullname" . }}
+  labels:
+    {{- include "postfix.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postfix
+    domain: {{ tpl .Values.domain . | quote }}
+spec:
+  # postfix is a single instance service
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "postfix.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: postfix
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "postfix.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/component: postfix
+        config/checksum: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha1sum }}
+        domain: {{ tpl .Values.domain . | quote }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- if .Values.checkDNS.enabled }}
+        - name: {{ .Chart.Name }}-check-dns
+          image: python:3.12-slim
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install dnspython requests
+
+              python3 << 'EOF'
+              import dns.resolver
+              import requests
+              import os
+
+              domain = "{{ .Values.domain }}"
+
+              def get_external_ip():
+                  try:
+                      response = requests.get('https://api.ipify.org')
+                      return response.text
+                  except Exception as e:
+                      print(f"Error getting external IP: {str(e)}")
+                      return None
+
+              external_ip = get_external_ip()
+              if not external_ip:
+                  print("Failed to get external IP")
+                  exit(1)
+
+              print(f"Current external IP: {external_ip}")
+
+              try:
+                  answers = dns.resolver.resolve(domain, 'TXT')
+                  spf_record = next((str(rdata) for rdata in answers for txt in rdata.strings if txt.startswith(b'v=spf1')), None)
+
+                  if spf_record:
+                      if f"ip4:{external_ip}" in spf_record:
+                          print(f"SPF record for {domain} includes the current external IP: {external_ip}")
+                          exit(0)
+                      else:
+                          print(f"Error: SPF record for {domain} does not include the current external IP: {external_ip}")
+                          print(f"Current SPF record: {spf_record}")
+                          exit(1)
+                  else:
+                      print(f"Error: No SPF record found for {domain}")
+                      exit(1)
+              except Exception as e:
+                  print(f"Error checking SPF record: {str(e)}")
+                  exit(1)
+              EOF
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: smtp
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/postfix/main.cf
+              subPath: main.cf
+            - name: mailname
+              mountPath: /etc/mailname
+              subPath: mailname
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "postfix.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

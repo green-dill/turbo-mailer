@@ -5,8 +5,14 @@ helmDefaults:
 
 environments:
   dev:
+    values:
+      - deploy/env-dev.yaml
   test:
+    values:
+      - deploy/env-test.yaml
   prod:
+    values:
+      - deploy/env-prod.yaml
 
 ---
 
@@ -16,3 +22,27 @@ releases:
     chart: ./charts/turbo-mailer
     values:
       - deploy/values-{{ .Environment.Name }}.yaml
+      - worker:
+          domains:
+            {{- range .Values.emailDomains }}
+            - {{ .domain }}
+            {{- end }}
+
+  {{- range .Values.emailDomains }}
+  - name: postfix-{{ .domain | sha1sum | trunc 4 }}
+    namespace: turbo-mailer-{{ $.Environment.Name }}
+    chart: ./charts/postfix
+    values:
+      - domain: {{ .domain }}
+      {{- if .serverLabels }}
+      - affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    {{- range .serverLabels }}
+                    - {key: {{ . }}, operator: Exists}
+                    {{- end }}
+      {{- end }}
+  {{- end }}
+

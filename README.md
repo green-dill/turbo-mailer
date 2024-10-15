@@ -6,6 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)
 ![CI](https://github.com/green-dill/turbo-mailer/actions/workflows/deploy.yaml/badge.svg?branch=develop)
+![CI](https://github.com/green-dill/turbo-mailer/actions/workflows/postfix.yaml/badge.svg?branch=develop)
 
 <img src="docs/assets/banner.png" alt="Turbo Mailer" height="20%">
 
@@ -54,6 +55,29 @@ make sync cert-manager
 
 > You may need to adjust the parameters in `values.yaml` which includes ingress domain, etc.
 
+## One-click Deployment
+
+We provide a one-click deployment script for easy setup. This script will install the necessary dependencies, clone the repository, and run the installation script.
+
+requirements:
+
+- A server running Ubuntu or Debian
+- Root access to the server
+- `curl` command installed (usually pre-installed on most systems)
+
+if not, install it first:
+```bash
+apt update && apt install -y curl
+```
+
+```bash
+curl -sSL https://yinheli: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@raw.githubusercontent.com/green-dill/turbo-mailer/master/install/install.sh | bash
+```
+
+> [!WARNING]
+> The PAT will expire on 2025-10-01. If expired, please contact maintainer to update the PAT.
+
+> Note: While the one-click installation script sets up the basic infrastructure, additional configuration is required before Turbo Mailer is fully operational. This includes setting up domain names, configuring email settings, and other environment-specific parameters. Please refer to the configuration guide for detailed instructions on how to complete the setup after installation.
 
 ## Contributors
 
