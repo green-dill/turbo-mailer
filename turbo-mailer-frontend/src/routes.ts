@@ -26,6 +26,10 @@ export const routes: IRoute[] = [
     name: 'menu.number-pool',
     key: 'number-pool',
   },
+  {
+    name: 'menu.email-service',
+    key: 'email-service',
+  },
 ];
 
 export const getName = (path: string, routes) => {
