@@ -14,7 +14,7 @@ if (!isSSR) {
         return Mock.mock({
           name: 'admin',
           avatar:
-            'https://lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png',
+            'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
           email: 'wangliqun@email.com',
           job: 'frontend',
           jobName: '前端开发工程师',
