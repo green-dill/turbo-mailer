@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 export type IRoute = AuthParams & {
   name: string;
-  key: string;
+  key?: string;
   // 当前页是否展示面包屑
   breadcrumb?: boolean;
   children?: IRoute[];
@@ -25,10 +25,20 @@ export const routes: IRoute[] = [
   {
     name: 'menu.number-pool',
     key: 'number-pool',
+    children: [
+      {
+        name: 'menu.number-pool.list',
+        key: 'number-pool/list',
+      },
+    ],
   },
   {
     name: 'menu.email-service',
     key: 'email-service',
+  },
+  {
+    name: 'menu.email-tasks',
+    key: 'email-tasks',
   },
 ];
 

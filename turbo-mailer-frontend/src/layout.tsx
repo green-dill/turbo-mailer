@@ -6,7 +6,7 @@ import {
   IconDashboard,
   IconTag,
   IconMenuFold,
-  IconMenuUnfold, IconCommand, IconCustomerService,
+  IconMenuUnfold, IconCommand, IconCustomerService, IconLoop,
 } from '@arco-design/web-react/icon';
 import { useSelector } from 'react-redux';
 import qs from 'query-string';
@@ -35,6 +35,8 @@ function getIconFromKey(key) {
       return <IconCommand className={styles.icon} />;
     case 'email-service':
       return <IconCustomerService className={styles.icon} />;
+    case 'email-tasks':
+      return <IconLoop className={styles.icon} />;
     default:
       return <div className={styles['icon-empty']} />;
   }
