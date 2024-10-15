@@ -6,7 +6,7 @@ import {
   IconDashboard,
   IconTag,
   IconMenuFold,
-  IconMenuUnfold,
+  IconMenuUnfold, IconCommand,
 } from '@arco-design/web-react/icon';
 import { useSelector } from 'react-redux';
 import qs from 'query-string';
@@ -33,6 +33,8 @@ function getIconFromKey(key) {
       return <IconDashboard className={styles.icon} />;
     case 'example':
       return <IconTag className={styles.icon} />;
+    case 'number-pool':
+      return <IconCommand className={styles.icon} />;
     default:
       return <div className={styles['icon-empty']} />;
   }
