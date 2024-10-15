@@ -31,8 +31,6 @@ function getIconFromKey(key) {
   switch (key) {
     case 'dashboard':
       return <IconDashboard className={styles.icon} />;
-    case 'example':
-      return <IconTag className={styles.icon} />;
     case 'number-pool':
       return <IconCommand className={styles.icon} />;
     default:
