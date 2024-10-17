@@ -25,6 +25,8 @@ export default {
   'menu.number-pool.list': 'Number Pool List',
   'menu.email-task': 'Email Task',
   'menu.email-task.list': 'Email Task List',
+  'menu.email-service': 'Email Service',
+  'menu.email-service.guide': 'Email Service Guide',
   'menu.profile': 'Profile',
   'menu.profile.basic': 'Basic Profile',
   'menu.profile.advanced': 'Advanced Profile',

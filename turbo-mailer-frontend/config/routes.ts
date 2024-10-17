@@ -62,9 +62,25 @@ export default [
     ],
   },
   {
+    path: '/email-service',
+    name: 'email-service',
+    icon: 'setting',
+    routes: [
+      {
+        path: '/email-service',
+        redirect: '/email-service/guide',
+      },
+      {
+        path: '/email-service/guide',
+        name: 'guide',
+        component: './EmailService',
+      },
+    ],
+  },
+  {
     path: '/email-task',
     name: 'email-task',
-    icon: 'table',
+    icon: 'mail',
     routes: [
       {
         path: '/email-task',
@@ -76,6 +92,12 @@ export default [
         component: './EmailTask/List',
       },
     ],
+  },
+  {
+    name: 'email-report',
+    redirect: 'https://baidu.com/',
+    href: 'https://baidu.com/',
+    target: '_blank'
   },
   {
     path: '/',
