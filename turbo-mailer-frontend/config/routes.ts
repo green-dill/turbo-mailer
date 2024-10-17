@@ -45,7 +45,6 @@ export default [
       },
     ],
   },
-
   {
     path: '/number-pool',
     name: 'number-pool',
@@ -59,6 +58,22 @@ export default [
         path: '/number-pool/list',
         name: 'list',
         component: './NumberPool/List',
+      },
+    ],
+  },
+  {
+    path: '/email-task',
+    name: 'email-task',
+    icon: 'table',
+    routes: [
+      {
+        path: '/email-task',
+        redirect: '/email-task/list',
+      },
+      {
+        path: '/email-task/list',
+        name: 'list',
+        component: './EmailTask/List',
       },
     ],
   },

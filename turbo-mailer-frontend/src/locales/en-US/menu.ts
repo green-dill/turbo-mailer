@@ -23,6 +23,8 @@ export default {
   'menu.form.advanced-form': 'Advanced Form',
   'menu.number-pool': 'Number Pool',
   'menu.number-pool.list': 'Number Pool List',
+  'menu.email-task': 'Email Task',
+  'menu.email-task.list': 'Email Task List',
   'menu.profile': 'Profile',
   'menu.profile.basic': 'Basic Profile',
   'menu.profile.advanced': 'Advanced Profile',

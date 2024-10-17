@@ -9,7 +9,6 @@ import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-component
 
 const NumberPoolList: React.FC = () => {
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<Partial<NumberPool.NumberPoolListItem>>({});
   const actionRef = useRef<ActionType>();
 
   /**
@@ -107,7 +106,6 @@ const NumberPoolList: React.FC = () => {
           key='edit'
           onClick={() => {
             handleModalOpen(true);
-            setSelectedRow(record);
           }}
         >
           编辑
@@ -118,7 +116,6 @@ const NumberPoolList: React.FC = () => {
           onConfirm={async () => {
             const success = await handleRemove(record);
             if (success) {
-              setSelectedRow({});
               if (actionRef.current) {
                 actionRef.current.reload();
               }

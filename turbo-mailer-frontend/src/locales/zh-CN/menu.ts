@@ -23,6 +23,8 @@ export default {
   'menu.form.advanced-form': '高级表单',
   'menu.number-pool': '号池管理',
   'menu.number-pool.list': '号池管理列表',
+  'menu.email-task': '邮件任务',
+  'menu.email-task.list': '邮件任务列表',
   'menu.profile': '详情页',
   'menu.profile.basic': '基础详情页',
   'menu.profile.advanced': '高级详情页',
