@@ -45,11 +45,22 @@ export default [
       },
     ],
   },
+
   {
-    name: 'list.table-list',
+    path: '/number-pool',
+    name: 'number-pool',
     icon: 'table',
-    path: '/list',
-    component: './TableList',
+    routes: [
+      {
+        path: '/number-pool',
+        redirect: '/number-pool/list',
+      },
+      {
+        path: '/number-pool/list',
+        name: 'list',
+        component: './NumberPool/List',
+      },
+    ],
   },
   {
     path: '/',

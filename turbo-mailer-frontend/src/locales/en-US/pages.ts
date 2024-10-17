@@ -1,6 +1,5 @@
 export default {
-  'pages.layouts.userLayout.title':
-    'Turbo mailer is a marketing email delivery system',
+  'pages.layouts.userLayout.title': 'Turbo mailer is a marketing email delivery system',
   'pages.login.accountLogin.tab': 'Account Login',
   'pages.login.accountLogin.errorMessage': 'Incorrect username/password',
   'pages.login.failure': 'Login failed, please try again!',
