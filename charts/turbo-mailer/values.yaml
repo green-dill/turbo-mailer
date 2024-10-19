@@ -110,6 +110,7 @@ worker:
             - key: app.kubernetes.io/component
               operator: In
               values: [worker]
+          topologyKey: kubernetes.io/hostname
 
 redis:
   enabled: true
