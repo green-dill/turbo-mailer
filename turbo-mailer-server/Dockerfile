@@ -7,7 +7,7 @@ COPY go.sum .
 RUN go mod download
 COPY . .
 RUN go build -o target/turbo-mailer \
-    -ldflags "-s -w -X turbo-mailer-server/cmd.version=${TAG} -X turbo-mailer-server/cmd.commitID=$(expr substr "$COMMITID" 1 7)" main.go
+    -ldflags "-s -w -X turbo-mailer-server/version.Version=${TAG} -X turbo-mailer-server/version.CommitID=$(expr substr "$COMMITID" 1 7)" main.go
 
 
 FROM debian:bookworm-slim
@@ -19,7 +19,6 @@ RUN mkdir -p /app && chown -R appuser:appuser /app
 USER appuser
 ENV TZ=Asia/Shanghai
 WORKDIR /app
-COPY --from=builder --chown=appuser:appuser /app/README.md /app/
 COPY --from=builder --chown=appuser:appuser /app/target/ /app/
 COPY --from=builder --chown=appuser:appuser /app/docs/ /app/docs/
 CMD ["./turbo-mailer", "serve"]

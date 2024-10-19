@@ -1,4 +1,4 @@
-name: Build Postfix Image
+name: Build Postfix
 
 on:
   push:

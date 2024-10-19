@@ -45,7 +45,6 @@ env:
       github.ref == 'refs/heads/test' && 'test' ||
       github.event.inputs.env_input || 'unknown'
     }}
-  # The strange names are because these images are planned to be pushed to a public Docker Hub repository
   FRONTEND_REPO: ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-frontend
   SERVER_REPO: ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-server
 
@@ -54,7 +53,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: green-dill/turbo-mailer/.github/actions/lint@develop
+      - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
 
       - name: Check for changes in charts directory
         id: check_charts
@@ -77,12 +76,13 @@ jobs:
       fail-fast: true
       matrix:
         include:
+          # repo name can't use env expression, so we have to use hardcoded name
           - name: server
             context: ./turbo-mailer-server
-            repo: ${{ env.SERVER_REPO }}
+            repo: turbo-mailer-server
           - name: frontend
             context: ./turbo-mailer-frontend
-            repo: ${{ env.FRONTEND_REPO }}
+            repo: turbo-mailer-frontend
     steps:
       - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
 
@@ -92,7 +92,6 @@ jobs:
       - name: Setup | Login to DockerHub
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
@@ -107,7 +106,7 @@ jobs:
           build-args: |
             COMMITID=${{ env.GIT_SHA }}
             ENVIRONMENT=${{ env.ENVIRONMENT }}
-          tags: ${{ secrets.DOCKER_REGISTRY }}/${{ matrix.repo }}:${{ env.TARGET_REF }}
+          tags: ${{ secrets.DOCKER_USERNAME}}/${{ matrix.repo }}:${{ env.TARGET_REF }}
 
   update_manifest:
     name: Update manifest
@@ -125,12 +124,11 @@ jobs:
           import os
           from ruamel.yaml import YAML
 
-          env = "${{ env.ENVIRONMENT }}"
-          sha = "${{ github.sha }}"
-          target_ref = "${{ env.TARGET_REF }}"
-          docker_registry = "${{ secrets.DOCKER_REGISTRY }}"
-          server_repo = "${{ env.SERVER_REPO }}"
-          frontend_repo = "${{ env.FRONTEND_REPO }}"
+          env = os.environ['ENVIRONMENT']
+          sha = os.environ['GITHUB_SHA']
+          target_ref = os.environ['TARGET_REF']
+          server_repo = os.environ['SERVER_REPO']
+          frontend_repo = os.environ['FRONTEND_REPO']
 
           def update(file, updates):
               if not os.path.exists(file):
@@ -170,19 +168,19 @@ jobs:
           update(env_file, {
               "frontend": {
                   "image": {
-                      "repository": f"{docker_registry}/{frontend_repo}",
+                      "repository": f"{frontend_repo}",
                       "tag": target_ref
                   }
               },
               "api": {
                   "image": {
-                      "repository": f"{docker_registry}/{server_repo}",
+                      "repository": f"{server_repo}",
                       "tag": target_ref
                   }
               },
               "worker": {
                   "image": {
-                      "repository": f"{docker_registry}/{server_repo}",
+                      "repository": f"{server_repo}",
                       "tag": target_ref
                   }
               }
@@ -212,75 +210,34 @@ jobs:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
     needs: update_manifest
-    if: contains(['dev', 'test', 'prod'], env.ENVIRONMENT) && secrets.KUBECONFIG != ''
     steps:
+      - name: Set deployment condition
+        run: |
+          if [[ "${{ github.event.inputs.env_input }}" =~ ^(dev|test|prod)$ ]] || \
+             [[ "${{ github.ref }}" =~ ^refs/heads/(develop|test)$ ]] || \
+             [[ "${{ github.ref_type }}" == "tag" ]]; then
+            if [[ -n "${{ secrets.KUBECONFIG }}" ]]; then
+              echo "SHOULD_DEPLOY=true" >> $GITHUB_ENV
+            else
+              echo "SHOULD_DEPLOY=false" >> $GITHUB_ENV
+              echo "Deployment skipped: KUBECONFIG is not set"
+            fi
+          else
+            echo "SHOULD_DEPLOY=false" >> $GITHUB_ENV
+            echo "Deployment skipped: Environment condition not met"
+          fi
+
       - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
+        if: env.SHOULD_DEPLOY == 'true'
 
       - name: KUBECONFIG | Setup
+        if: env.SHOULD_DEPLOY == 'true'
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - uses: helmfile/helmfile-action@v1.9.1
+        if: env.SHOULD_DEPLOY == 'true'
         with:
           helmfile-args: --environment ${{ env.ENVIRONMENT }} sync
-
-  notify:
-    name: Send Discord Notification
-    needs: [lint, build, update_manifest, deploy]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Lint Notification
-        uses: sarisia/actions-status-discord@v1
-        if: needs.lint.result != 'skipped'
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Lint Job"
-          description: "Lint job for ${{ github.ref_name }}"
-          color: ${{ needs.lint.result == 'success' && '0x00ff00' || '0xff0000' }}
-          status: ${{ needs.lint.result }}
-
-      - name: Build Notification
-        uses: sarisia/actions-status-discord@v1
-        if: needs.build.result != 'skipped'
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Build Job"
-          description: "Build job for ${{ github.ref_name }}"
-          color: ${{ needs.build.result == 'success' && '0x00ff00' || '0xff0000' }}
-          status: ${{ needs.build.result }}
-
-      - name: Update Manifest Notification
-        uses: sarisia/actions-status-discord@v1
-        if: needs.update_manifest.result != 'skipped'
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Update Manifest Job"
-          description: "Update manifest job for ${{ github.ref_name }}"
-          color: ${{ needs.update_manifest.result == 'success' && '0x00ff00' || '0xff0000' }}
-          status: ${{ needs.update_manifest.result }}
-
-      - name: Deploy Notification
-        uses: sarisia/actions-status-discord@v1
-        if: needs.deploy.result != 'skipped'
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Deploy Job"
-          description: "Deploy job for ${{ github.ref_name }} to ${{ env.ENVIRONMENT }}"
-          color: ${{ needs.deploy.result == 'success' && '0x00ff00' || '0xff0000' }}
-          status: ${{ needs.deploy.result }}
-
-      - name: Overall Workflow Notification
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Workflow Summary"
-          description: "Overall workflow status for ${{ github.ref_name }}"
-          color: ${{ job.status == 'success' && '0x00ff00' || '0xff0000' }}
-          status: ${{ job.status }}
-          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          username: GitHub Actions
-          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-

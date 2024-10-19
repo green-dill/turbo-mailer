@@ -1,5 +1,5 @@
 {{- if .Values.frontend.ingress.enabled -}}
-{{- $fullName := concat (include "turbo-mailer.fullname" .) "-frontend" -}}
+{{- $fullName := printf "%s-frontend" (include "turbo-mailer.fullname" .) -}}
 {{- $svcPort := .Values.frontend.service.port -}}
 {{- if and .Values.frontend.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.frontend.ingress.annotations "kubernetes.io/ingress.class") }}
