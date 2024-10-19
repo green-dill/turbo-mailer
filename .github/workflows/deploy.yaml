@@ -46,8 +46,8 @@ env:
       github.event.inputs.env_input || 'unknown'
     }}
   # The strange names are because these images are planned to be pushed to a public Docker Hub repository
-  FRONTEND_REPO: turbo-mailer-frontend-c5d94258
-  SERVER_REPO: turbo-mailer-server-c5d94258
+  FRONTEND_REPO: ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-frontend
+  SERVER_REPO: ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-server
 
 jobs:
   lint:
@@ -225,3 +225,62 @@ jobs:
       - uses: helmfile/helmfile-action@v1.9.1
         with:
           helmfile-args: --environment ${{ env.ENVIRONMENT }} sync
+
+  notify:
+    name: Send Discord Notification
+    needs: [lint, build, update_manifest, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Lint Notification
+        uses: sarisia/actions-status-discord@v1
+        if: needs.lint.result != 'skipped'
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Lint Job"
+          description: "Lint job for ${{ github.ref_name }}"
+          color: ${{ needs.lint.result == 'success' && '0x00ff00' || '0xff0000' }}
+          status: ${{ needs.lint.result }}
+
+      - name: Build Notification
+        uses: sarisia/actions-status-discord@v1
+        if: needs.build.result != 'skipped'
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Build Job"
+          description: "Build job for ${{ github.ref_name }}"
+          color: ${{ needs.build.result == 'success' && '0x00ff00' || '0xff0000' }}
+          status: ${{ needs.build.result }}
+
+      - name: Update Manifest Notification
+        uses: sarisia/actions-status-discord@v1
+        if: needs.update_manifest.result != 'skipped'
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Update Manifest Job"
+          description: "Update manifest job for ${{ github.ref_name }}"
+          color: ${{ needs.update_manifest.result == 'success' && '0x00ff00' || '0xff0000' }}
+          status: ${{ needs.update_manifest.result }}
+
+      - name: Deploy Notification
+        uses: sarisia/actions-status-discord@v1
+        if: needs.deploy.result != 'skipped'
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Deploy Job"
+          description: "Deploy job for ${{ github.ref_name }} to ${{ env.ENVIRONMENT }}"
+          color: ${{ needs.deploy.result == 'success' && '0x00ff00' || '0xff0000' }}
+          status: ${{ needs.deploy.result }}
+
+      - name: Overall Workflow Notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Workflow Summary"
+          description: "Overall workflow status for ${{ github.ref_name }}"
+          color: ${{ job.status == 'success' && '0x00ff00' || '0xff0000' }}
+          status: ${{ job.status }}
+          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+

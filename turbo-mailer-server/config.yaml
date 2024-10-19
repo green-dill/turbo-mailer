@@ -1,0 +1,5 @@
+# local development configuration
+
+server:
+  address: :5000
+

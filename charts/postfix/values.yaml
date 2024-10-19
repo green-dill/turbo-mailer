@@ -1,0 +1,102 @@
+image:
+  repository: yinheli/turbo-mailer-postfix
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 25
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+domain: mail.example.com
+
+postfix_main_cf: |
+  myhostname = {{ .Values.domain }}
+  myorigin = /etc/mailname
+  mydestination = localhost
+  mynetworks = 127.0.0.0/8 [::1]/128 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+  relayhost =
+
+  smtpd_banner = $myhostname ESMTP
+  biff = no
+  smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
+
+  smtp_tls_security_level = may
+  smtp_tls_loglevel = 1
+  smtp_host_lookup = dns
+  smtp_tls_CAfile =
+  smtp_enforce_tls = yes
+
+  maximal_backoff_time = 10m
+  minimal_backoff_time = 10s
+  queue_run_delay = 10s
+  bounce_queue_lifetime = 1d
+  maximal_queue_lifetime = 1d
+
+  alias_maps = hash:/etc/aliases
+  alias_database = hash:/etc/aliases
+
+  header_checks = regexp:/etc/postfix/header_checks
+
+  compatibility_level = 3.6
+
+mailname: |
+  {{ .Values.domain }}
+
+checkDNS:
+  enabled: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: postfix
+          operator: Exists
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: domain
+            operator: In
+            values:
+            - "{{ .Values.domain }}"
+        topologyKey: "kubernetes.io/hostname"

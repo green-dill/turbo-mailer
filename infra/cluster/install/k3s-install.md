@@ -26,6 +26,8 @@ cat <<'EOF' > /etc/rancher/k3s/registries.yaml
 mirrors:
   "*":
 EOF
+
+systemctl restart k3s
 ```
 
 ## Join k3s node

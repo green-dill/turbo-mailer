@@ -96,6 +96,8 @@ worker:
 
   resources: {}
 
+  domains: []
+
   nodeSelector: {}
   tolerations: []
   affinity:

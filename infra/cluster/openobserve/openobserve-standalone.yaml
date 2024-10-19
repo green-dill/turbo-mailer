@@ -1,9 +1,9 @@
 auth:
-  ZO_ROOT_USER_EMAIL: "admin@write360.cn"
+  ZO_ROOT_USER_EMAIL: "admin@turbomx.org"
   ZO_ROOT_USER_PASSWORD: "pPX6PmA2ZRECjVEu3SGe"
 
 config:
-  ZO_COMPACT_DATA_RETENTION_DAYS: "30"
+  ZO_COMPACT_DATA_RETENTION_DAYS: "7"
 
 ingress:
   enabled: true
@@ -23,11 +23,11 @@ ingress:
       chunked_transfer_encoding on;
       proxy_ignore_headers 'X-Accel-Buffering';
   hosts:
-    - host: openobserve.report.write360.cn
+    - host: openobserve.turbomx.org
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
     - secretName: openobserve-tls
       hosts:
-        - openobserve.report.write360.cn
+        - openobserve.turbomx.org

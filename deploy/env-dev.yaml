@@ -1,0 +1,6 @@
+emailDomains:
+  - domain: mail.example.com
+    serverLabels:
+      - server-1
+      - server-2
+

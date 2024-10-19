@@ -1,0 +1,22 @@
+basePath: /api
+info:
+  contact: {}
+  title: Turbo Mailer API
+  version: 0.1.0
+paths:
+  /admin/dashboard/stats:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve statistics for the admin dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Get dashboard statistics
+      tags:
+      - Admin
+swagger: "2.0"
