@@ -19,7 +19,7 @@ frontend:
 
   service:
     type: ClusterIP
-    port: 5000
+    port: 80
 
   ingress:
     enabled: false
@@ -71,7 +71,8 @@ api:
   affinity: {}
 
   config: |
-    # TODO: Add config
+    server:
+      address: ":5000"
 
 worker:
   replicaCount: 1

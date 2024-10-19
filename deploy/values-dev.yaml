@@ -2,9 +2,9 @@ frontend:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-frontend
+    repository: yinheli/turbo-mailer-frontend
     pullPolicy: Always
-    tag: ""
+    tag: "develop"
 
   ingress:
     enabled: true
@@ -24,15 +24,15 @@ api:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-server
+    repository: yinheli/turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "develop"
 
 worker:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-server
+    repository: yinheli/turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "develop"
 

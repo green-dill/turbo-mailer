@@ -160,10 +160,14 @@ jobs:
           })
 
           # Update deploy/values-*.yaml
-          if env == "prod":
+          if env == "dev":
+              env_file = "deploy/values-dev.yaml"
+          elif env == "test":
+              env_file = "deploy/values-test.yaml"
+          elif env == "prod":
               env_file = "deploy/values-prod.yaml"
           else:
-              env_file = "deploy/values-test.yaml"
+              raise ValueError(f"Unsupported environment: {env}")
 
           update(env_file, {
               "frontend": {

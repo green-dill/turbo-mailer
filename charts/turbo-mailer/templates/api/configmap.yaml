@@ -4,9 +4,8 @@ metadata:
   name: {{ include "turbo-mailer.fullname" . }}-server-config
   labels:
     {{- include "turbo-mailer.labels" . | nindent 4 }}
-
   annotations:
     checksum/config: {{ .Values.api.config | sha256sum | trunc 32 }}
 data:
-  config.yaml: |
-    {{ .Values.api.config | indent 4 }}
+  config.yaml:
+    {{- .Values.api.config | toYaml | indent 4 }}

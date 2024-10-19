@@ -39,22 +39,19 @@ spec:
             {{- toYaml .Values.frontend.securityContext | nindent 12 }}
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
-          command:
-            - /app/turbo-mailer
-            - worker
           ports:
             - name: http
               containerPort: {{ .Values.frontend.service.port }}
               protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 1
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 2
-            successThreshold: 1
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 1
+          #   periodSeconds: 10
+          #   timeoutSeconds: 5
+          #   failureThreshold: 2
+          #   successThreshold: 1
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
       {{- with .Values.frontend.nodeSelector }}
