@@ -2,37 +2,37 @@ frontend:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-frontend
+    repository: yinheli/turbo-mailer-frontend
     pullPolicy: Always
-    tag: ""
+    tag: "develop"
 
   ingress:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:
-      - host: turbo-mailer.local
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
+    - host: turbo-mailer.local
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
     tls:
-      - secretName: turbo-mailer-tls
-        hosts:
-          - turbo-mailer.local
+    - secretName: turbo-mailer-tls
+      hosts:
+      - turbo-mailer.local
 
 api:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-server
+    repository: yinheli/turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "develop"
 
 worker:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-server
+    repository: yinheli/turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "develop"
 
