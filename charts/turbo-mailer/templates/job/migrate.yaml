@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "turbo-mailer.fullname" . }}-migrate
+  labels:
+    {{- include "turbo-mailer.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      name: {{ include "turbo-mailer.fullname" . }}-migrate
+      labels:
+        {{- include "turbo-mailer.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command:
+            - /app/turbo-mailer
+            - migrate
+          env:
+            - name: CONFIG_FILE
+              value: /app/config/config.yaml
+          volumeMounts:
+            - name: config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "turbo-mailer.fullname" . }}-server-config
+

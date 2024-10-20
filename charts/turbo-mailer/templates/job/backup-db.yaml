@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "turbo-mailer.fullname" . }}-backup-db
+  labels:
+    {{- include "turbo-mailer.labels" . | nindent 4 }}
+spec:
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 10
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: bitnami/postgresql:{{ .Values.postgresql.image.tag }}
+            command:
+            - /bin/sh
+            - -c
+            - |
+              NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+              BACKUP_FILE="/backups/${NAMESPACE}_backup_$(date +%Y%m%d_%H%M%S).dump.gz"
+              PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -F c | gzip > $BACKUP_FILE
+              # Keep only the last 10 backup files
+              ls -t /backups/${NAMESPACE}_backup_*.dump.gz | tail -n +11 | xargs -r rm --
+            env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "turbo-mailer.fullname" . }}-postgresql
+                  key: postgres-password
+            - name: POSTGRES_HOST
+              value: {{ include "turbo-mailer.fullname" . }}-postgresql
+            - name: POSTGRES_USER
+              value: posgres
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.auth.database }}
+            volumeMounts:
+            - name: backup
+              mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup
+            hostPath:
+              path: /data/backup
+              type: DirectoryOrCreate

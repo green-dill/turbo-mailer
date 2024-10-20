@@ -241,7 +241,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 	return nil
 }
 
-func (d *dispatcher) selectPool(pools []models.TaskPool) (poolID uint, err error) {
+func (d *dispatcher) selectPool(pools []*models.TaskPool) (poolID uint, err error) {
 	totalWeight := 0
 	for _, pool := range pools {
 		if pool.Weight <= 0 {
