@@ -250,4 +250,4 @@ jobs:
       - uses: helmfile/helmfile-action@v1.9.1
         if: env.SHOULD_DEPLOY == 'true'
         with:
-          helmfile-args: --environment ${{ env.ENVIRONMENT }} sync
+          helmfile-args: --environment ${{ env.ENVIRONMENT }} apply
