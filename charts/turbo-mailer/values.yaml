@@ -1,4 +1,4 @@
-sha: "383cd11431e4bc216f24a36b74997a30778745c9"
+sha: "42c9e08ac0efafb763d75c07382ef07c8dbe8fa2"
 
 frontend:
   replicaCount: 1
