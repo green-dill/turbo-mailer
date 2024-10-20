@@ -90,7 +90,7 @@ func serve() {
 
 	go func() {
 		addr := viper.GetString("server.address")
-		log.Info().Str("address", addr).Msg("Starting server")
+		log.Info().Str("address", addr).Str("mode", mode).Msg("Starting server")
 		if err := e.Start(addr); err != nil {
 			log.Fatal().Err(err).Msg("Failed to start server")
 		}
