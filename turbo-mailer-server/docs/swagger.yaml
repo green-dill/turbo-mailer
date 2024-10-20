@@ -21,6 +21,15 @@ definitions:
     - password
     - username
     type: object
+  auth.ProfileResponse:
+    properties:
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
 info:
   contact: {}
   title: Turbo Mailer API
@@ -89,6 +98,21 @@ paths:
               type: string
             type: object
       summary: User logout
+      tags:
+      - Auth
+  /api/v1/auth/profile:
+    get:
+      description: Retrieve the profile of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.ProfileResponse'
+      security:
+      - JWT: []
+      summary: Get user profile
       tags:
       - Auth
   /api/v1/dashboard/stats:

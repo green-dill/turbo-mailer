@@ -117,6 +117,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/profile": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Retrieve the profile of the currently authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get user profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ProfileResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dashboard/stats": {
             "get": {
                 "description": "Retrieve statistics for the admin dashboard",
@@ -166,6 +191,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.ProfileResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "username": {

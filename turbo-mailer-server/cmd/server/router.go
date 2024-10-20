@@ -13,6 +13,7 @@ func route(e *echo.Echo) {
 	g.POST("/auth/login", auth.Login)
 	g.POST("/auth/logout", auth.Logout)
 	g.POST("/auth/change-password", auth.ChangePassword)
+	g.GET("/auth/profile", auth.Profile)
 
 	g.GET("/dashboard/stats", todo)
 
