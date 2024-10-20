@@ -37,7 +37,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ENVIRONMENT: |
+  ENVIRONMENT: |-
     ${{
       github.ref_type == 'tag' && 'prod' ||
       github.ref == 'refs/heads/master' && 'master' ||
@@ -130,6 +130,12 @@ jobs:
           server_repo = os.environ['SERVER_REPO']
           frontend_repo = os.environ['FRONTEND_REPO']
 
+          print(f"Environment: {env}")
+          print(f"SHA: {sha}")
+          print(f"Target Ref: {target_ref}")
+          print(f"Server Repo: {server_repo}")
+          print(f"Frontend Repo: {frontend_repo}")
+
           def update(file, updates):
               if not os.path.exists(file):
                   print(f"{file} not found")
@@ -160,16 +166,16 @@ jobs:
           })
 
           # Update deploy/values-*.yaml
-          if env == "dev":
-              env_file = "deploy/values-dev.yaml"
-          elif env == "test":
-              env_file = "deploy/values-test.yaml"
-          elif env == "prod":
-              env_file = "deploy/values-prod.yaml"
+          if env in ["dev", "develop"]:
+              deploy_file = "deploy/values-dev.yaml"
+          elif env in ["test", "staging"]:
+              deploy_file = "deploy/values-test.yaml"
+          elif env in ["prod", "production", "master"]:
+              deploy_file = "deploy/values-prod.yaml"
           else:
               raise ValueError(f"Unsupported environment: {env}")
 
-          update(env_file, {
+          update(deploy_file, {
               "frontend": {
                   "image": {
                       "repository": f"{frontend_repo}",
