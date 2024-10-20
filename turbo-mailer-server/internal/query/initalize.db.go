@@ -60,7 +60,7 @@ func initializeDb() {
 		}
 	}
 
-	if db, err := buildOrm(dbMap["llm"]); err != nil {
+	if db, err := buildOrm(dbMap["turbo-mailer"]); err != nil {
 		log.Fatal().Err(err).Msg("init db")
 	} else {
 		DB = db
@@ -87,7 +87,7 @@ func initializeRedis() {
 	if err := viper.UnmarshalKey("redis", &cfgMap); err != nil {
 		log.Fatal().Err(err).Msg("parse redis config")
 	}
-	if c, ok := cfgMap["redis"]; ok {
+	if c, ok := cfgMap["turbo-mailer"]; ok {
 		Redis = newRedis(c)
 	}
 }

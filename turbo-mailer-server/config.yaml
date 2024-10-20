@@ -3,3 +3,22 @@
 server:
   address: :5000
 
+database:
+  turbo-mailer:
+    uri: "postgres://turbomailer:password@127.0.0.1:15432/turbo-mailer?sslmode=disable"
+
+redis:
+  turbo-mailer:
+    name: "turbo-mailer"
+    addr: "127.0.0.1:16379"
+    password: "password"
+    db: 0
+    poolSize: 10
+    maxRetries: 3
+    prefix: "dev"
+
+rabbitmq:
+  url: "amqp://user:password@127.0.0.1:5672"
+
+log:
+  level: debug

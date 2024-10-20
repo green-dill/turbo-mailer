@@ -11,6 +11,7 @@ import (
 	_ "turbo-mailer-server/docs"
 	"turbo-mailer-server/internal/dispatch"
 	"turbo-mailer-server/internal/echox"
+	"turbo-mailer-server/internal/initialize"
 	"turbo-mailer-server/internal/validator"
 	"turbo-mailer-server/internal/worker"
 	"turbo-mailer-server/version"
@@ -42,7 +43,7 @@ var Cmd = &cobra.Command{
 			return
 		}
 
-		// initialize.Do(cmd.Context())
+		initialize.Do(cmd.Context())
 		serve()
 	},
 }

@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"time"
+	"turbo-mailer-server/internal/initialize"
 	"turbo-mailer-server/internal/query"
 
 	"github.com/rs/zerolog/log"
@@ -13,6 +14,7 @@ var Cmd = &cobra.Command{
 	Short: "Migrate database",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("migrate database")
+		initialize.Do(cmd.Context())
 		start := time.Now()
 		if err := query.Migrate(); err != nil {
 			log.Fatal().Err(err).Msg("migrate failed")
