@@ -248,7 +248,14 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      - uses: helmfile/helmfile-action@v1.9.1
+      - name: Helmfile | Diff
+        uses: helmfile/helmfile-action@v1.9.1
+        if: env.SHOULD_DEPLOY == 'true'
+        with:
+          helmfile-args: --environment ${{ env.ENVIRONMENT }} diff
+
+      - name: Helmfile | Apply
+        uses: helmfile/helmfile-action@v1.9.1
         if: env.SHOULD_DEPLOY == 'true'
         with:
           helmfile-args: --environment ${{ env.ENVIRONMENT }} apply
