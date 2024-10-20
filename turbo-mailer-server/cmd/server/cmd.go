@@ -18,6 +18,7 @@ import (
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo-contrib/pprof"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
@@ -60,6 +61,19 @@ func serve() {
 		Timeout: 60 * time.Second,
 	}))
 	e.Use(echoprometheus.NewMiddleware("turbo_mailer"))
+	e.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(viper.GetString("jwt.secret")),
+		TokenLookup: "header:Authorization,cookie:jwt",
+		Skipper: func(c echo.Context) bool {
+			skipPaths := []string{"/api/v1/auth/login", "/swagger/*", "/metrics", "/version", "/health"}
+			for _, path := range skipPaths {
+				if c.Path() == path {
+					return true
+				}
+			}
+			return false
+		},
+	}))
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 	e.HideBanner = true
 	e.HidePort = true
@@ -70,9 +84,9 @@ func serve() {
 
 	e.GET("/metrics", echoprometheus.NewHandler())
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	e.GET("/version", func(c echo.Context) error {
-		return c.String(http.StatusOK, fmt.Sprintf("%s-%s", version.Version, version.CommitID))
-	})
+	e.GET("/", versionApi)
+	e.GET("/version", versionApi)
+
 	e.GET("/health", healthCheck)
 
 	if mode == "api" {
@@ -107,4 +121,8 @@ func serve() {
 		log.Fatal().Err(err).Msg("Failed to shutdown server")
 	}
 	log.Info().Msg("Server shutdown successfully")
+}
+
+func versionApi(c echo.Context) error {
+	return c.String(http.StatusOK, fmt.Sprintf("%s-%s", version.Version, version.CommitID))
 }

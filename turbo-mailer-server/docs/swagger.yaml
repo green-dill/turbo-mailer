@@ -1,10 +1,97 @@
 basePath: /api
+definitions:
+  auth.ChangePasswordRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  auth.Credentials:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
 info:
   contact: {}
   title: Turbo Mailer API
   version: 0.1.0
 paths:
-  /admin/dashboard/stats:
+  /api/v1/auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change the authenticated user's password
+      parameters:
+      - description: Change password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Change user password
+      tags:
+      - Auth
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and return a JWT token
+      parameters:
+      - description: User credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - Auth
+  /api/v1/auth/logout:
+    post:
+      description: Invalidate the user's JWT token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User logout
+      tags:
+      - Auth
+  /api/v1/dashboard/stats:
     get:
       consumes:
       - application/json

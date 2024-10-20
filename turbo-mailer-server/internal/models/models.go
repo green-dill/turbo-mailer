@@ -10,5 +10,6 @@ var (
 		&TaskLog{},
 		&TaskLogArchive{},
 		&TaskPool{},
+		&User{},
 	}
 )

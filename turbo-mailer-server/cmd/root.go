@@ -5,6 +5,7 @@ import (
 	"os"
 	"turbo-mailer-server/cmd/migrate"
 	"turbo-mailer-server/cmd/server"
+	"turbo-mailer-server/cmd/user"
 	"turbo-mailer-server/internal/config"
 	"turbo-mailer-server/version"
 
@@ -27,6 +28,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(server.Cmd)
 	rootCmd.AddCommand(migrate.Cmd)
+	rootCmd.AddCommand(user.Cmd)
 }
 
 func Execute() {

@@ -25,6 +25,7 @@ var (
 	TaskLog        *taskLog
 	TaskLogArchive *taskLogArchive
 	TaskPool       *taskPool
+	User           *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -37,6 +38,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	TaskLog = &Q.TaskLog
 	TaskLogArchive = &Q.TaskLogArchive
 	TaskPool = &Q.TaskPool
+	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -50,6 +52,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		TaskLog:        newTaskLog(db, opts...),
 		TaskLogArchive: newTaskLogArchive(db, opts...),
 		TaskPool:       newTaskPool(db, opts...),
+		User:           newUser(db, opts...),
 	}
 }
 
@@ -64,6 +67,7 @@ type Query struct {
 	TaskLog        taskLog
 	TaskLogArchive taskLogArchive
 	TaskPool       taskPool
+	User           user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -79,6 +83,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		TaskLog:        q.TaskLog.clone(db),
 		TaskLogArchive: q.TaskLogArchive.clone(db),
 		TaskPool:       q.TaskPool.clone(db),
+		User:           q.User.clone(db),
 	}
 }
 
@@ -101,6 +106,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		TaskLog:        q.TaskLog.replaceDB(db),
 		TaskLogArchive: q.TaskLogArchive.replaceDB(db),
 		TaskPool:       q.TaskPool.replaceDB(db),
+		User:           q.User.replaceDB(db),
 	}
 }
 
@@ -113,6 +119,7 @@ type queryCtx struct {
 	TaskLog        ITaskLogDo
 	TaskLogArchive ITaskLogArchiveDo
 	TaskPool       ITaskPoolDo
+	User           IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -125,6 +132,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		TaskLog:        q.TaskLog.WithContext(ctx),
 		TaskLogArchive: q.TaskLogArchive.WithContext(ctx),
 		TaskPool:       q.TaskPool.WithContext(ctx),
+		User:           q.User.WithContext(ctx),
 	}
 }
 

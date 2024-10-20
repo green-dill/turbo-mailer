@@ -47,6 +47,7 @@ func Initialize(configPath ...string) {
 
 	viper.SetDefault("server.address", "0.0.0.0:5000")
 	viper.SetDefault("log.level", "info")
+	viper.SetDefault("jwt.secret", "secret")
 
 	if lvl, err := zerolog.ParseLevel(viper.GetString("log.level")); err == nil {
 		log.Logger = log.Logger.Level(lvl)

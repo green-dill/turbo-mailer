@@ -41,6 +41,19 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Pools", "models.TaskPool"),
+		Pool: struct {
+			field.RelationField
+			Senders struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Pools.Pool", "models.Pool"),
+			Senders: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Pools.Pool.Senders", "models.PoolSender"),
+			},
+		},
 	}
 
 	_task.fillFieldMap()
@@ -144,6 +157,13 @@ type taskManyToManyPools struct {
 	db *gorm.DB
 
 	field.RelationField
+
+	Pool struct {
+		field.RelationField
+		Senders struct {
+			field.RelationField
+		}
+	}
 }
 
 func (a taskManyToManyPools) Where(conds ...field.Expr) *taskManyToManyPools {

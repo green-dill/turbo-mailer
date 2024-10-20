@@ -14,7 +14,7 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{string}	string	"ok"
-//	@Router			/admin/dashboard/stats [get]
+//	@Router			/api/v1/dashboard/stats [get]
 func Stats(c echo.Context) error {
 	return c.JSON(http.StatusOK, "ok")
 }

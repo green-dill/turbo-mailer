@@ -26,9 +26,23 @@ func newTaskPool(db *gorm.DB, opts ...gen.DOOption) taskPool {
 
 	tableName := _taskPool.taskPoolDo.TableName()
 	_taskPool.ALL = field.NewAsterisk(tableName)
+	_taskPool.ID = field.NewUint(tableName, "id")
+	_taskPool.CreatedAt = field.NewTime(tableName, "created_at")
+	_taskPool.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_taskPool.DeletedAt = field.NewField(tableName, "deleted_at")
 	_taskPool.TaskID = field.NewUint(tableName, "task_id")
 	_taskPool.PoolID = field.NewUint(tableName, "pool_id")
 	_taskPool.Weight = field.NewInt(tableName, "weight")
+	_taskPool.Pool = taskPoolHasOnePool{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Pool", "models.Pool"),
+		Senders: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Pool.Senders", "models.PoolSender"),
+		},
+	}
 
 	_taskPool.fillFieldMap()
 
@@ -38,10 +52,15 @@ func newTaskPool(db *gorm.DB, opts ...gen.DOOption) taskPool {
 type taskPool struct {
 	taskPoolDo taskPoolDo
 
-	ALL    field.Asterisk
-	TaskID field.Uint
-	PoolID field.Uint
-	Weight field.Int
+	ALL       field.Asterisk
+	ID        field.Uint
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
+	TaskID    field.Uint
+	PoolID    field.Uint
+	Weight    field.Int
+	Pool      taskPoolHasOnePool
 
 	fieldMap map[string]field.Expr
 }
@@ -58,6 +77,10 @@ func (t taskPool) As(alias string) *taskPool {
 
 func (t *taskPool) updateTableName(table string) *taskPool {
 	t.ALL = field.NewAsterisk(table)
+	t.ID = field.NewUint(table, "id")
+	t.CreatedAt = field.NewTime(table, "created_at")
+	t.UpdatedAt = field.NewTime(table, "updated_at")
+	t.DeletedAt = field.NewField(table, "deleted_at")
 	t.TaskID = field.NewUint(table, "task_id")
 	t.PoolID = field.NewUint(table, "pool_id")
 	t.Weight = field.NewInt(table, "weight")
@@ -85,10 +108,15 @@ func (t *taskPool) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *taskPool) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 3)
+	t.fieldMap = make(map[string]field.Expr, 8)
+	t.fieldMap["id"] = t.ID
+	t.fieldMap["created_at"] = t.CreatedAt
+	t.fieldMap["updated_at"] = t.UpdatedAt
+	t.fieldMap["deleted_at"] = t.DeletedAt
 	t.fieldMap["task_id"] = t.TaskID
 	t.fieldMap["pool_id"] = t.PoolID
 	t.fieldMap["weight"] = t.Weight
+
 }
 
 func (t taskPool) clone(db *gorm.DB) taskPool {
@@ -99,6 +127,81 @@ func (t taskPool) clone(db *gorm.DB) taskPool {
 func (t taskPool) replaceDB(db *gorm.DB) taskPool {
 	t.taskPoolDo.ReplaceDB(db)
 	return t
+}
+
+type taskPoolHasOnePool struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Senders struct {
+		field.RelationField
+	}
+}
+
+func (a taskPoolHasOnePool) Where(conds ...field.Expr) *taskPoolHasOnePool {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a taskPoolHasOnePool) WithContext(ctx context.Context) *taskPoolHasOnePool {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a taskPoolHasOnePool) Session(session *gorm.Session) *taskPoolHasOnePool {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a taskPoolHasOnePool) Model(m *models.TaskPool) *taskPoolHasOnePoolTx {
+	return &taskPoolHasOnePoolTx{a.db.Model(m).Association(a.Name())}
+}
+
+type taskPoolHasOnePoolTx struct{ tx *gorm.Association }
+
+func (a taskPoolHasOnePoolTx) Find() (result *models.Pool, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a taskPoolHasOnePoolTx) Append(values ...*models.Pool) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a taskPoolHasOnePoolTx) Replace(values ...*models.Pool) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a taskPoolHasOnePoolTx) Delete(values ...*models.Pool) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a taskPoolHasOnePoolTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a taskPoolHasOnePoolTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type taskPoolDo struct{ gen.DO }

@@ -2,12 +2,17 @@ package server
 
 import (
 	"net/http"
+	"turbo-mailer-server/internal/api/admin/auth"
 
 	"github.com/labstack/echo/v4"
 )
 
 func route(e *echo.Echo) {
 	g := e.Group("/api/v1")
+
+	g.POST("/auth/login", auth.Login)
+	g.POST("/auth/logout", auth.Logout)
+	g.POST("/auth/change-password", auth.ChangePassword)
 
 	g.GET("/dashboard/stats", todo)
 
