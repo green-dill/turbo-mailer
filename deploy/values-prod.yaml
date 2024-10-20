@@ -11,14 +11,14 @@ frontend:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:
-      - host: turbo-mailer.local
+      - host: dashboard.turbomx.org
         paths:
           - path: /
             pathType: ImplementationSpecific
     tls:
       - secretName: turbo-mailer-tls
         hosts:
-          - turbo-mailer.local
+          - dashboard.turbomx.org
 
 api:
   replicaCount: 2
