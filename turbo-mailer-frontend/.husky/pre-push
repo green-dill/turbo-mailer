@@ -1,0 +1,7 @@
+current_branch=$(git symbolic-ref --short HEAD)
+
+protected_branches="develop master test"
+
+if echo "$protected_branches" | grep -q "$current_branch"; then
+  git pull --rebase origin "$current_branch" || exit 1
+fi
