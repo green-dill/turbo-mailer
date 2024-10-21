@@ -2,6 +2,7 @@ package pool
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
@@ -19,14 +20,14 @@ import (
 //	@Produce		json
 //	@Param			id			path	int		true	"Pool ID"
 //	@Param			page		query	int		false	"Page number"					default(1)
-//	@Param			page_size	query	int		false	"Page size"						default(10)
+//	@Param			pageSize	query	int		false	"Page size"						default(10)
 //	@Param			sort		query	string	false	"Sort order: 'asc' or 'desc'"	default(desc)
-//	@Param			search		query	string	false	"Search by from_email"
+//	@Param			search		query	string	false	"Search by fromEmail"
 //	@Security		JWT
 //	@Success		200	{object}	schema.Page[models.PoolSender]
 //	@Failure		400	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
-//	@Router			/pool-senders/{id} [get]
+//	@Router			/api/v1/pool-senders/{id} [get]
 func SenderList(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -36,17 +37,14 @@ func SenderList(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Pool ID"})
 	}
 
+	// Get query parameters as url.Values
+	queryParams := c.QueryParams()
+
 	// Parse query parameters
-	page, _ := strconv.Atoi(c.QueryParam("page"))
-	if page < 1 {
-		page = 1
-	}
-	pageSize, _ := strconv.Atoi(c.QueryParam("page_size"))
-	if pageSize < 1 {
-		pageSize = 10
-	}
-	sort := c.QueryParam("sort")
-	search := c.QueryParam("search")
+	page := parseIntParam(queryParams, "page", 1)
+	pageSize := parseIntParam(queryParams, "pageSize", 10)
+	sort := queryParams.Get("sort")
+	search := queryParams.Get("search")
 
 	// Build query
 	q := query.PoolSender.WithContext(ctx).Where(query.PoolSender.PoolID.Eq(uint(poolID)))
@@ -80,36 +78,44 @@ func SenderList(c echo.Context) error {
 	}
 
 	// Build next and prev URLs
-	baseURL := c.Request().URL.Path + "?"
-	nextPage := page + 1
-	prevPage := page - 1
-	next := ""
-	prev := ""
-
-	if int64(nextPage*pageSize) <= total {
-		next = baseURL + "page=" + strconv.Itoa(nextPage) + "&page_size=" + strconv.Itoa(pageSize)
-		if sort != "" {
-			next += "&sort=" + sort
-		}
-		if search != "" {
-			next += "&search=" + search
-		}
-	}
-
-	if prevPage > 0 {
-		prev = baseURL + "page=" + strconv.Itoa(prevPage) + "&page_size=" + strconv.Itoa(pageSize)
-		if sort != "" {
-			prev += "&sort=" + sort
-		}
-		if search != "" {
-			prev += "&search=" + search
-		}
-	}
+	next, prev := buildPaginationURLs(c.Request().URL, page, pageSize, total, queryParams)
 
 	// Create page response
 	pageResponse := schema.NewPage(total, page, pageSize, poolSenders, next, prev)
 
 	return c.JSON(http.StatusOK, pageResponse)
+}
+
+// Helper function to parse integer parameters
+func parseIntParam(params url.Values, key string, defaultValue int) int {
+	if value, err := strconv.Atoi(params.Get(key)); err == nil && value > 0 {
+		return value
+	}
+	return defaultValue
+}
+
+// Helper function to build pagination URLs
+func buildPaginationURLs(currentURL *url.URL, page, pageSize int, total int64, params url.Values) (next, prev string) {
+	nextPage := page + 1
+	prevPage := page - 1
+
+	if int64(nextPage*pageSize) <= total {
+		nextURL := *currentURL
+		nextParams := params
+		nextParams.Set("page", strconv.Itoa(nextPage))
+		nextURL.RawQuery = nextParams.Encode()
+		next = nextURL.String()
+	}
+
+	if prevPage > 0 {
+		prevURL := *currentURL
+		prevParams := params
+		prevParams.Set("page", strconv.Itoa(prevPage))
+		prevURL.RawQuery = prevParams.Encode()
+		prev = prevURL.String()
+	}
+
+	return next, prev
 }
 
 // SenderStore
@@ -125,7 +131,7 @@ func SenderList(c echo.Context) error {
 //	@Success		201	{object}	models.PoolSender
 //	@Failure		400	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
-//	@Router			/pool-senders/{id} [post]
+//	@Router			/api/v1/pool-senders/{id} [post]
 func SenderStore(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -153,7 +159,7 @@ func SenderStore(c echo.Context) error {
 
 	// Validate required fields
 	if poolSender.FromName == "" || poolSender.FromEmail == "" || poolSender.Domain == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "FromName, FromEmail, and Domain are required"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "fromName, fromEmail, and domain are required"})
 	}
 
 	err = query.PoolSender.WithContext(ctx).Create(poolSender)
@@ -176,7 +182,7 @@ func SenderStore(c echo.Context) error {
 //	@Success		204	"No Content"
 //	@Failure		400	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
-//	@Router			/pool-senders/{sid} [delete]
+//	@Router			/api/v1/pool-senders/{sid} [delete]
 func SenderDelete(c echo.Context) error {
 	ctx := c.Request().Context()
 	senderID, err := strconv.ParseUint(c.Param("sid"), 10, 32)

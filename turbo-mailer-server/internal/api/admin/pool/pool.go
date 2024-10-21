@@ -25,7 +25,7 @@ import (
 //	@Failure		400			{object}	map[string]string
 //	@Failure		500			{object}	map[string]string
 //	@Security		JWT
-//	@Router			/pools [get]
+//	@Router			/api/v1/pool [get]
 func List(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -117,7 +117,7 @@ func List(c echo.Context) error {
 //	@Failure		400	{object}	map[string]string
 //	@Failure		404	{object}	map[string]string
 //	@Security		JWT
-//	@Router			/pools/{id} [get]
+//	@Router			/api/v1/pool/{id} [get]
 func Get(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -145,7 +145,7 @@ func Get(c echo.Context) error {
 //	@Failure		400		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Security		JWT
-//	@Router			/pools [post]
+//	@Router			/api/v1/pool [post]
 func Store(c echo.Context) error {
 	ctx := c.Request().Context()
 	pool := new(models.Pool)
@@ -180,7 +180,7 @@ type UpdatePool struct {
 //	@Failure		404		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
 //	@Security		JWT
-//	@Router			/pools/{id} [put]
+//	@Router			/api/v1/pool/{id} [put]
 func Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -226,7 +226,7 @@ func Update(c echo.Context) error {
 //	@Failure		400	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
 //	@Security		JWT
-//	@Router			/pools/{id} [delete]
+//	@Router			/api/v1/pool/{id} [delete]
 func Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)

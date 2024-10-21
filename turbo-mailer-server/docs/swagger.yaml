@@ -1,4 +1,4 @@
-basePath: /api
+basePath: /
 definitions:
   auth.ChangePasswordRequest:
     properties:
@@ -32,15 +32,15 @@ definitions:
     type: object
   dashboard.DashboardStats:
     properties:
-      pool_count:
+      poolCount:
         type: integer
-      task_count:
+      taskCount:
         type: integer
-      task_state_count:
+      taskStateCount:
         additionalProperties:
           type: integer
         type: object
-      top_pools:
+      topPools:
         items:
           $ref: '#/definitions/dashboard.TopPool'
         type: array
@@ -49,7 +49,7 @@ definitions:
     properties:
       name:
         type: string
-      sender_count:
+      senderCount:
         type: integer
     type: object
   gorm.DeletedAt:
@@ -164,7 +164,7 @@ definitions:
     type: object
   schema.Page-models_Pool:
     properties:
-      current_page:
+      currentPage:
         description: Current page number
         type: integer
       list:
@@ -181,13 +181,13 @@ definitions:
       total:
         description: Total number of records
         type: integer
-      total_pages:
+      totalPages:
         description: Total number of pages
         type: integer
     type: object
   schema.Page-models_PoolSender:
     properties:
-      current_page:
+      currentPage:
         description: Current page number
         type: integer
       list:
@@ -204,13 +204,13 @@ definitions:
       total:
         description: Total number of records
         type: integer
-      total_pages:
+      totalPages:
         description: Total number of pages
         type: integer
     type: object
   schema.Page-models_Task:
     properties:
-      current_page:
+      currentPage:
         description: Current page number
         type: integer
       list:
@@ -227,7 +227,7 @@ definitions:
       total:
         description: Total number of records
         type: integer
-      total_pages:
+      totalPages:
         description: Total number of pages
         type: integer
     type: object
@@ -333,136 +333,7 @@ paths:
       summary: Get dashboard statistics
       tags:
       - Admin
-  /pool-senders/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a paginated list of pool senders for a specific pool with optional
-        sorting and filtering
-      parameters:
-      - description: Pool ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Page size
-        in: query
-        name: page_size
-        type: integer
-      - default: desc
-        description: 'Sort order: ''asc'' or ''desc'''
-        in: query
-        name: sort
-        type: string
-      - description: Search by from_email
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schema.Page-models_PoolSender'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - JWT: []
-      summary: List all pool senders for a specific pool
-      tags:
-      - Pool Senders
-    post:
-      consumes:
-      - application/json
-      description: Create a new pool sender with the provided details for a specific
-        pool
-      parameters:
-      - description: Pool ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Pool Sender object
-        in: body
-        name: poolSender
-        required: true
-        schema:
-          $ref: '#/definitions/models.PoolSender'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.PoolSender'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - JWT: []
-      summary: Create a new pool sender for a specific pool
-      tags:
-      - Pool Senders
-  /pool-senders/{sid}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a pool sender by ID
-      parameters:
-      - description: Pool Sender ID
-        in: path
-        name: sid
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - JWT: []
-      summary: Delete a pool sender
-      tags:
-      - Pool Senders
-  /pools:
+  /api/v1/pool:
     get:
       consumes:
       - application/json
@@ -546,7 +417,136 @@ paths:
       summary: Create a new pool
       tags:
       - Pools
-  /pools/{id}:
+  /api/v1/pool-senders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of pool senders for a specific pool with optional
+        sorting and filtering
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      - default: desc
+        description: 'Sort order: ''asc'' or ''desc'''
+        in: query
+        name: sort
+        type: string
+      - description: Search by fromEmail
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schema.Page-models_PoolSender'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: List all pool senders for a specific pool
+      tags:
+      - Pool Senders
+    post:
+      consumes:
+      - application/json
+      description: Create a new pool sender with the provided details for a specific
+        pool
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Pool Sender object
+        in: body
+        name: poolSender
+        required: true
+        schema:
+          $ref: '#/definitions/models.PoolSender'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PoolSender'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Create a new pool sender for a specific pool
+      tags:
+      - Pool Senders
+  /api/v1/pool-senders/{sid}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a pool sender by ID
+      parameters:
+      - description: Pool Sender ID
+        in: path
+        name: sid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Delete a pool sender
+      tags:
+      - Pool Senders
+  /api/v1/pool/{id}:
     delete:
       consumes:
       - application/json
@@ -659,7 +659,7 @@ paths:
       summary: Update a pool
       tags:
       - Pools
-  /tasks:
+  /api/v1/tasks:
     get:
       consumes:
       - application/json
@@ -673,7 +673,7 @@ paths:
       - default: 10
         description: Page size
         in: query
-        name: page_size
+        name: pageSize
         type: integer
       - default: desc
         description: 'Sort order: ''asc'' or ''desc'''
@@ -720,7 +720,7 @@ paths:
         type: string
       - description: Context type (html or text)
         in: formData
-        name: context_type
+        name: contextType
         required: true
         type: string
       - description: Content file (html or text)
@@ -740,7 +740,7 @@ paths:
         type: string
       - description: Max dispatch per hour
         in: formData
-        name: max_dispatch_pre_hour
+        name: maxDispatchPerHour
         required: true
         type: integer
       produces:
@@ -767,7 +767,7 @@ paths:
       summary: Create a new task
       tags:
       - Tasks
-  /tasks/{id}:
+  /api/v1/tasks/{id}:
     delete:
       consumes:
       - application/json
@@ -850,7 +850,7 @@ paths:
         type: string
       - description: Context type (html or text)
         in: formData
-        name: context_type
+        name: contextType
         type: string
       - description: Content file (html or text)
         in: formData
@@ -866,7 +866,7 @@ paths:
         type: string
       - description: Max dispatch per hour
         in: formData
-        name: max_dispatch_pre_hour
+        name: maxDispatchPerHour
         type: integer
       produces:
       - application/json
@@ -898,7 +898,7 @@ paths:
       summary: Update a task
       tags:
       - Tasks
-  /tasks/{id}/start-immediately:
+  /api/v1/tasks/{id}/start-immediately:
     post:
       consumes:
       - application/json
@@ -941,7 +941,7 @@ paths:
       summary: Start a task immediately
       tags:
       - Tasks
-  /tasks/{id}/test:
+  /api/v1/tasks/{id}/test:
     post:
       consumes:
       - application/json
@@ -989,7 +989,7 @@ paths:
       summary: Test a task
       tags:
       - Tasks
-  /tasks/content-template:
+  /api/v1/tasks/content-template:
     get:
       consumes:
       - application/json
@@ -1018,7 +1018,7 @@ paths:
       summary: Download content template
       tags:
       - Tasks
-  /tasks/receivers-template:
+  /api/v1/tasks/receivers-template:
     get:
       consumes:
       - application/json

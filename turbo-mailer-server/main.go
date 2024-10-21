@@ -10,7 +10,7 @@ import (
 
 // @title		Turbo Mailer API
 // @version	0.1.0
-// @BasePath	/api
+// @BasePath	/
 func main() {
 	cmd.Execute()
 }

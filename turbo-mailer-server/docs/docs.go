@@ -170,203 +170,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/pool-senders/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get a paginated list of pool senders for a specific pool with optional sorting and filtering",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Pool Senders"
-                ],
-                "summary": "List all pool senders for a specific pool",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Pool ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "default": "desc",
-                        "description": "Sort order: 'asc' or 'desc'",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search by from_email",
-                        "name": "search",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schema.Page-models_PoolSender"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Create a new pool sender with the provided details for a specific pool",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Pool Senders"
-                ],
-                "summary": "Create a new pool sender for a specific pool",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Pool ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Pool Sender object",
-                        "name": "poolSender",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.PoolSender"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.PoolSender"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/pool-senders/{sid}": {
-            "delete": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Delete a pool sender by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Pool Senders"
-                ],
-                "summary": "Delete a pool sender",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Pool Sender ID",
-                        "name": "sid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/pools": {
+        "/api/v1/pool": {
             "get": {
                 "security": [
                     {
@@ -496,7 +300,203 @@ const docTemplate = `{
                 }
             }
         },
-        "/pools/{id}": {
+        "/api/v1/pool-senders/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get a paginated list of pool senders for a specific pool with optional sorting and filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pool Senders"
+                ],
+                "summary": "List all pool senders for a specific pool",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Pool ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order: 'asc' or 'desc'",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by fromEmail",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Page-models_PoolSender"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Create a new pool sender with the provided details for a specific pool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pool Senders"
+                ],
+                "summary": "Create a new pool sender for a specific pool",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Pool ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Pool Sender object",
+                        "name": "poolSender",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PoolSender"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.PoolSender"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pool-senders/{sid}": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete a pool sender by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pool Senders"
+                ],
+                "summary": "Delete a pool sender",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Pool Sender ID",
+                        "name": "sid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pool/{id}": {
             "get": {
                 "security": [
                     {
@@ -672,7 +672,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks": {
+        "/api/v1/tasks": {
             "get": {
                 "security": [
                     {
@@ -702,7 +702,7 @@ const docTemplate = `{
                         "type": "integer",
                         "default": 10,
                         "description": "Page size",
-                        "name": "page_size",
+                        "name": "pageSize",
                         "in": "query"
                     },
                     {
@@ -774,7 +774,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Context type (html or text)",
-                        "name": "context_type",
+                        "name": "contextType",
                         "in": "formData",
                         "required": true
                     },
@@ -802,7 +802,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Max dispatch per hour",
-                        "name": "max_dispatch_pre_hour",
+                        "name": "maxDispatchPerHour",
                         "in": "formData",
                         "required": true
                     }
@@ -835,7 +835,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/content-template": {
+        "/api/v1/tasks/content-template": {
             "get": {
                 "security": [
                     {
@@ -881,7 +881,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/receivers-template": {
+        "/api/v1/tasks/receivers-template": {
             "get": {
                 "security": [
                     {
@@ -909,7 +909,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/{id}": {
+        "/api/v1/tasks/{id}": {
             "get": {
                 "security": [
                     {
@@ -997,7 +997,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Context type (html or text)",
-                        "name": "context_type",
+                        "name": "contextType",
                         "in": "formData"
                     },
                     {
@@ -1021,7 +1021,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Max dispatch per hour",
-                        "name": "max_dispatch_pre_hour",
+                        "name": "maxDispatchPerHour",
                         "in": "formData"
                     }
                 ],
@@ -1112,7 +1112,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/{id}/start-immediately": {
+        "/api/v1/tasks/{id}/start-immediately": {
             "post": {
                 "security": [
                     {
@@ -1179,7 +1179,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/{id}/test": {
+        "/api/v1/tasks/{id}/test": {
             "post": {
                 "security": [
                     {
@@ -1303,19 +1303,19 @@ const docTemplate = `{
         "dashboard.DashboardStats": {
             "type": "object",
             "properties": {
-                "pool_count": {
+                "poolCount": {
                     "type": "integer"
                 },
-                "task_count": {
+                "taskCount": {
                     "type": "integer"
                 },
-                "task_state_count": {
+                "taskStateCount": {
                     "type": "object",
                     "additionalProperties": {
                         "type": "integer"
                     }
                 },
-                "top_pools": {
+                "topPools": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dashboard.TopPool"
@@ -1329,7 +1329,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "sender_count": {
+                "senderCount": {
                     "type": "integer"
                 }
             }
@@ -1504,7 +1504,7 @@ const docTemplate = `{
         "schema.Page-models_Pool": {
             "type": "object",
             "properties": {
-                "current_page": {
+                "currentPage": {
                     "description": "Current page number",
                     "type": "integer"
                 },
@@ -1527,7 +1527,7 @@ const docTemplate = `{
                     "description": "Total number of records",
                     "type": "integer"
                 },
-                "total_pages": {
+                "totalPages": {
                     "description": "Total number of pages",
                     "type": "integer"
                 }
@@ -1536,7 +1536,7 @@ const docTemplate = `{
         "schema.Page-models_PoolSender": {
             "type": "object",
             "properties": {
-                "current_page": {
+                "currentPage": {
                     "description": "Current page number",
                     "type": "integer"
                 },
@@ -1559,7 +1559,7 @@ const docTemplate = `{
                     "description": "Total number of records",
                     "type": "integer"
                 },
-                "total_pages": {
+                "totalPages": {
                     "description": "Total number of pages",
                     "type": "integer"
                 }
@@ -1568,7 +1568,7 @@ const docTemplate = `{
         "schema.Page-models_Task": {
             "type": "object",
             "properties": {
-                "current_page": {
+                "currentPage": {
                     "description": "Current page number",
                     "type": "integer"
                 },
@@ -1591,7 +1591,7 @@ const docTemplate = `{
                     "description": "Total number of records",
                     "type": "integer"
                 },
-                "total_pages": {
+                "totalPages": {
                     "description": "Total number of pages",
                     "type": "integer"
                 }
@@ -1604,7 +1604,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1.0",
 	Host:             "",
-	BasePath:         "/api",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Turbo Mailer API",
 	Description:      "",

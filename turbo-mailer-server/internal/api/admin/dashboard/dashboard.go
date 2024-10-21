@@ -9,15 +9,15 @@ import (
 )
 
 type DashboardStats struct {
-	PoolCount      int64            `json:"pool_count"`
-	TopPools       []TopPool        `json:"top_pools"`
-	TaskCount      int64            `json:"task_count"`
-	TaskStateCount map[string]int64 `json:"task_state_count"`
+	PoolCount      int64            `json:"poolCount"`
+	TopPools       []TopPool        `json:"topPools"`
+	TaskCount      int64            `json:"taskCount"`
+	TaskStateCount map[string]int64 `json:"taskStateCount"`
 }
 
 type TopPool struct {
 	Name        string `json:"name"`
-	SenderCount int    `json:"sender_count"`
+	SenderCount int    `json:"senderCount"`
 }
 
 // Stats
