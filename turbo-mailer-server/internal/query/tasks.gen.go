@@ -36,6 +36,7 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	_task.Receivers = field.NewField(tableName, "receivers")
 	_task.State = field.NewString(tableName, "state")
 	_task.MaxDispatchPreHour = field.NewInt(tableName, "max_dispatch_pre_hour")
+	_task.ScheduleAt = field.NewTime(tableName, "schedule_at")
 	_task.LastDispatchAt = field.NewTime(tableName, "last_dispatch_at")
 	_task.Pools = taskManyToManyPools{
 		db: db.Session(&gorm.Session{}),
@@ -75,6 +76,7 @@ type task struct {
 	Receivers          field.Field
 	State              field.String
 	MaxDispatchPreHour field.Int
+	ScheduleAt         field.Time
 	LastDispatchAt     field.Time
 	Pools              taskManyToManyPools
 
@@ -103,6 +105,7 @@ func (t *task) updateTableName(table string) *task {
 	t.Receivers = field.NewField(table, "receivers")
 	t.State = field.NewString(table, "state")
 	t.MaxDispatchPreHour = field.NewInt(table, "max_dispatch_pre_hour")
+	t.ScheduleAt = field.NewTime(table, "schedule_at")
 	t.LastDispatchAt = field.NewTime(table, "last_dispatch_at")
 
 	t.fillFieldMap()
@@ -128,7 +131,7 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *task) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 12)
+	t.fieldMap = make(map[string]field.Expr, 13)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["updated_at"] = t.UpdatedAt
@@ -139,6 +142,7 @@ func (t *task) fillFieldMap() {
 	t.fieldMap["receivers"] = t.Receivers
 	t.fieldMap["state"] = t.State
 	t.fieldMap["max_dispatch_pre_hour"] = t.MaxDispatchPreHour
+	t.fieldMap["schedule_at"] = t.ScheduleAt
 	t.fieldMap["last_dispatch_at"] = t.LastDispatchAt
 
 }

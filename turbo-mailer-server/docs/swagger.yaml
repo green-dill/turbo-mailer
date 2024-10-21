@@ -102,6 +102,59 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.Task:
+    properties:
+      content:
+        type: string
+      context_type:
+        description: MIME type
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      last_dispatch_at:
+        type: string
+      max_dispatch_pre_hour:
+        type: integer
+      pools:
+        items:
+          $ref: '#/definitions/models.TaskPool'
+        type: array
+      receivers:
+        items:
+          type: string
+        type: array
+      schedule_at:
+        type: string
+      state:
+        type: string
+      subject:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.TaskPool:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      pool:
+        $ref: '#/definitions/models.Pool'
+      pool_id:
+        type: integer
+      task_id:
+        type: integer
+      updatedAt:
+        type: string
+      weight:
+        type: integer
+    type: object
   pool.UpdatePool:
     properties:
       description:
@@ -141,6 +194,29 @@ definitions:
         description: List of data items
         items:
           $ref: '#/definitions/models.PoolSender'
+        type: array
+      next:
+        description: URL for the next page
+        type: string
+      prev:
+        description: URL for the previous page
+        type: string
+      total:
+        description: Total number of records
+        type: integer
+      total_pages:
+        description: Total number of pages
+        type: integer
+    type: object
+  schema.Page-models_Task:
+    properties:
+      current_page:
+        description: Current page number
+        type: integer
+      list:
+        description: List of data items
+        items:
+          $ref: '#/definitions/models.Task'
         type: array
       next:
         description: URL for the next page
@@ -583,4 +659,381 @@ paths:
       summary: Update a pool
       tags:
       - Pools
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of tasks with optional sorting and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: desc
+        description: 'Sort order: ''asc'' or ''desc'''
+        in: query
+        name: sort
+        type: string
+      - description: Search by task subject
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schema.Page-models_Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: List all tasks with pagination
+      tags:
+      - Tasks
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new task with the provided details and uploaded files
+      parameters:
+      - description: Task subject
+        in: formData
+        name: subject
+        required: true
+        type: string
+      - description: Context type (html or text)
+        in: formData
+        name: context_type
+        required: true
+        type: string
+      - description: Content file (html or text)
+        in: formData
+        name: content
+        required: true
+        type: file
+      - description: Receivers CSV file
+        in: formData
+        name: receivers
+        required: true
+        type: file
+      - description: Task state
+        in: formData
+        name: state
+        required: true
+        type: string
+      - description: Max dispatch per hour
+        in: formData
+        name: max_dispatch_pre_hour
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Create a new task
+      tags:
+      - Tasks
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Delete a task
+      tags:
+      - Tasks
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Get a specific task
+      tags:
+      - Tasks
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update an existing task's details and files
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Task subject
+        in: formData
+        name: subject
+        type: string
+      - description: Context type (html or text)
+        in: formData
+        name: context_type
+        type: string
+      - description: Content file (html or text)
+        in: formData
+        name: content
+        type: file
+      - description: Receivers CSV file
+        in: formData
+        name: receivers
+        type: file
+      - description: Task state
+        in: formData
+        name: state
+        type: string
+      - description: Max dispatch per hour
+        in: formData
+        name: max_dispatch_pre_hour
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Update a task
+      tags:
+      - Tasks
+  /tasks/{id}/start-immediately:
+    post:
+      consumes:
+      - application/json
+      description: Immediately start a task by setting its schedule time to now
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Start a task immediately
+      tags:
+      - Tasks
+  /tasks/{id}/test:
+    post:
+      consumes:
+      - application/json
+      description: Test a task by sending a test email to the specified address
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Email address to send the test to
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Test a task
+      tags:
+      - Tasks
+  /tasks/content-template:
+    get:
+      consumes:
+      - application/json
+      description: Download a template file for the task content (HTML or plain text)
+      parameters:
+      - description: Template type (html or text)
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Template file
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Download content template
+      tags:
+      - Tasks
+  /tasks/receivers-template:
+    get:
+      consumes:
+      - application/json
+      description: Download a template CSV file for the task receivers with example
+        email addresses
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV template file
+          schema:
+            type: file
+      security:
+      - JWT: []
+      summary: Download receivers template
+      tags:
+      - Tasks
 swagger: "2.0"

@@ -21,6 +21,7 @@ type Task struct {
 	State              string      `gorm:"column:state;type:varchar(255);not null" json:"state"`
 	Pools              []*TaskPool `gorm:"many2many:task_pool_ref;" json:"pools"`
 	MaxDispatchPreHour int         `gorm:"column:max_dispatch_pre_hour;type:int;not null" json:"max_dispatch_pre_hour"`
+	ScheduleAt         *time.Time  `gorm:"column:schedule_at;default:null" json:"schedule_at"`
 	LastDispatchAt     *time.Time  `gorm:"column:last_dispatch_at;not null" json:"last_dispatch_at"`
 }
 

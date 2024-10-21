@@ -5,6 +5,7 @@ import (
 	"turbo-mailer-server/internal/api/admin/auth"
 	"turbo-mailer-server/internal/api/admin/dashboard"
 	"turbo-mailer-server/internal/api/admin/pool"
+	"turbo-mailer-server/internal/api/admin/task"
 
 	"github.com/labstack/echo/v4"
 )
@@ -28,13 +29,13 @@ func route(e *echo.Echo) {
 	g.POST("/pool-senders/:id", pool.SenderStore)
 	g.DELETE("/pool-senders/:sid", pool.SenderDelete)
 
-	g.GET("/task", todo)
-	g.GET("/task/:id", todo)
-	g.POST("/task", todo)
-	g.PUT("/task/:id", todo)
-	g.DELETE("/task/:id", todo)
-	g.POST("/task/:id/test", todo)
-	g.POST("/task/:id/start-immediately", todo)
+	g.GET("/task", task.List)
+	g.GET("/task/:id", task.Get)
+	g.POST("/task", task.Store)
+	g.POST("/task/:id", task.Update)
+	g.DELETE("/task/:id", task.Delete)
+	g.POST("/task/:id/test", task.Test)
+	g.POST("/task/:id/start-immediately", task.StartImmediately)
 
 	g.GET("/mail-server-dns", todo)
 }
