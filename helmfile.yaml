@@ -33,8 +33,10 @@ releases:
     namespace: turbo-mailer-{{ $.Environment.Name }}
     chart: ./charts/postfix
     values:
+      - image:
+          tag: latest
       - checkDNS:
-          enabled: true
+          enabled: false
       - replicaCount: {{ len .serverLabels }}
       - domain: {{ .domain }}
       {{- if .serverLabels }}
