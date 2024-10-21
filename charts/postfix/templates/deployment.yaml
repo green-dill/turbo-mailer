@@ -126,10 +126,16 @@ spec:
             - name: config
               mountPath: /etc/postfix/main.cf
               subPath: main.cf
+            - name: dkimkeys
+              mountPath: /etc/dkimkeys
       volumes:
         - name: config
           configMap:
             name: {{ include "postfix.fullname" . }}
+        - name: dkimkeys
+          hostPath:
+            path: /etc/dkimkeys/{{ .Values.domain }}
+            type: DirectoryOrCreate
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

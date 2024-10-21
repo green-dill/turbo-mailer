@@ -5,6 +5,8 @@ if [ ! -d /etc/dkimkeys ]; then
     mkdir -p /etc/dkimkeys
 fi
 
+chmod -R 600 /etc/dkimkeys
+
 if [ ! -f /etc/dkimkeys/mail.private ]; then
     opendkim-genkey -s mail -d $DOMAIN -D /etc/dkimkeys
     chown opendkim:opendkim /etc/dkimkeys/mail.private
