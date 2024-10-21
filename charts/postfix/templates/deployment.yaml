@@ -38,19 +38,20 @@ spec:
       initContainers:
         {{- if .Values.checkDNS.enabled }}
         - name: {{ .Chart.Name }}-check-dns
-          image: python:3.12-slim
-          imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c"]
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python3"]
           args:
+            - "-c"
             - |
-              pip install dnspython requests
-
-              python3 << 'EOF'
               import dns.resolver
               import requests
               import os
+              import time
 
               domain = "{{ .Values.domain }}"
+              max_attempts = 60
+              delay = 30
 
               def get_external_ip():
                   try:
@@ -60,32 +61,44 @@ spec:
                       print(f"Error getting external IP: {str(e)}")
                       return None
 
-              external_ip = get_external_ip()
-              if not external_ip:
-                  print("Failed to get external IP")
-                  exit(1)
+              def check_spf_record(domain, external_ip):
+                  try:
+                      answers = dns.resolver.resolve(domain, 'TXT')
+                      spf_record = next((str(rdata) for rdata in answers for txt in rdata.strings if txt.startswith(b'v=spf1')), None)
 
-              print(f"Current external IP: {external_ip}")
-
-              try:
-                  answers = dns.resolver.resolve(domain, 'TXT')
-                  spf_record = next((str(rdata) for rdata in answers for txt in rdata.strings if txt.startswith(b'v=spf1')), None)
-
-                  if spf_record:
-                      if f"ip4:{external_ip}" in spf_record:
-                          print(f"SPF record for {domain} includes the current external IP: {external_ip}")
-                          exit(0)
+                      if spf_record:
+                          if f"ip4:{external_ip}" in spf_record:
+                              print(f"SPF record for {domain} includes the current external IP: {external_ip}")
+                              return True
+                          else:
+                              print(f"Error: SPF record for {domain} does not include the current external IP: {external_ip}")
+                              print(f"Current SPF record: {spf_record}")
+                              return False
                       else:
-                          print(f"Error: SPF record for {domain} does not include the current external IP: {external_ip}")
-                          print(f"Current SPF record: {spf_record}")
-                          exit(1)
+                          print(f"Error: No SPF record found for {domain}")
+                          return False
+                  except Exception as e:
+                      print(f"Error checking SPF record: {str(e)}")
+                      return False
+
+              for attempt in range(max_attempts):
+                  external_ip = get_external_ip()
+                  if not external_ip:
+                      print("Failed to get external IP")
+                      time.sleep(delay)
+                      continue
+
+                  print(f"Current external IP: {external_ip}")
+
+                  if check_spf_record(domain, external_ip):
+                      exit(0)
+
+                  if attempt < max_attempts - 1:
+                      print(f"Attempt {attempt + 1} failed. Retrying in {delay} seconds...")
+                      time.sleep(delay)
                   else:
-                      print(f"Error: No SPF record found for {domain}")
+                      print(f"All {max_attempts} attempts failed. Exiting with error.")
                       exit(1)
-              except Exception as e:
-                  print(f"Error checking SPF record: {str(e)}")
-                  exit(1)
-              EOF
         {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -93,6 +106,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DOMAIN
+              value: {{ .Values.domain }}
           ports:
             - name: smtp
               containerPort: {{ .Values.service.port }}
