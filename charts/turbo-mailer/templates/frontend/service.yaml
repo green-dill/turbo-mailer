@@ -4,6 +4,8 @@ metadata:
   name: {{ include "turbo-mailer.fullname" . }}-frontend
   labels:
     {{- include "turbo-mailer.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   type: {{ .Values.frontend.service.type }}
   ports:

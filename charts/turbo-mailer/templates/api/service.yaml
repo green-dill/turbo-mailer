@@ -5,6 +5,8 @@ metadata:
   labels:
     {{- include "turbo-mailer.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   type: {{ .Values.api.service.type }}
   ports:

@@ -1,0 +1,20 @@
+{{- if .Values.api.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "turbo-mailer.fullname" . }}-api
+  labels:
+    {{- include "turbo-mailer.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  {{- if .Values.api.pdb.minAvailable }}
+  minAvailable: {{ .Values.api.pdb.minAvailable }}
+  {{- end }}
+  {{- if .Values.api.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.api.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "turbo-mailer.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+{{- end }}
