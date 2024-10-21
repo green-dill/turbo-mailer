@@ -1,5 +1,5 @@
 //go:generate go run internal/models/generator/generator.go
-//go:generate swag init
+//go:generate swag init --parseVendor --parseDependency --parseInternal
 //go:generate swag fmt
 package main
 

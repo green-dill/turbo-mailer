@@ -20,11 +20,12 @@ type TopPool struct {
 	SenderCount int    `json:"sender_count"`
 }
 
-// Stats godoc
+// Stats
 //
 //	@Summary		Get dashboard statistics
 //	@Description	Retrieve statistics for the admin dashboard
 //	@Tags			Admin
+//	@Security		JWT
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	DashboardStats

@@ -52,6 +52,109 @@ definitions:
       sender_count:
         type: integer
     type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.Pool:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      sender_count:
+        type: integer
+      senders:
+        items:
+          $ref: '#/definitions/models.PoolSender'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  models.PoolSender:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      domain:
+        type: string
+      from_email:
+        type: string
+      from_name:
+        type: string
+      id:
+        type: integer
+      pool_id:
+        type: integer
+      reply_to:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  pool.UpdatePool:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  schema.Page-models_Pool:
+    properties:
+      current_page:
+        description: Current page number
+        type: integer
+      list:
+        description: List of data items
+        items:
+          $ref: '#/definitions/models.Pool'
+        type: array
+      next:
+        description: URL for the next page
+        type: string
+      prev:
+        description: URL for the previous page
+        type: string
+      total:
+        description: Total number of records
+        type: integer
+      total_pages:
+        description: Total number of pages
+        type: integer
+    type: object
+  schema.Page-models_PoolSender:
+    properties:
+      current_page:
+        description: Current page number
+        type: integer
+      list:
+        description: List of data items
+        items:
+          $ref: '#/definitions/models.PoolSender'
+        type: array
+      next:
+        description: URL for the next page
+        type: string
+      prev:
+        description: URL for the previous page
+        type: string
+      total:
+        description: Total number of records
+        type: integer
+      total_pages:
+        description: Total number of pages
+        type: integer
+    type: object
 info:
   contact: {}
   title: Turbo Mailer API
@@ -149,7 +252,335 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dashboard.DashboardStats'
+      security:
+      - JWT: []
       summary: Get dashboard statistics
       tags:
       - Admin
+  /pool-senders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of pool senders for a specific pool with optional
+        sorting and filtering
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: desc
+        description: 'Sort order: ''asc'' or ''desc'''
+        in: query
+        name: sort
+        type: string
+      - description: Search by from_email
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schema.Page-models_PoolSender'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: List all pool senders for a specific pool
+      tags:
+      - Pool Senders
+    post:
+      consumes:
+      - application/json
+      description: Create a new pool sender with the provided details for a specific
+        pool
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Pool Sender object
+        in: body
+        name: poolSender
+        required: true
+        schema:
+          $ref: '#/definitions/models.PoolSender'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PoolSender'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Create a new pool sender for a specific pool
+      tags:
+      - Pool Senders
+  /pool-senders/{sid}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a pool sender by ID
+      parameters:
+      - description: Pool Sender ID
+        in: path
+        name: sid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Delete a pool sender
+      tags:
+      - Pool Senders
+  /pools:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of pools with optional sorting and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: desc
+        description: 'Sort order: ''asc'' or ''desc'''
+        in: query
+        name: sort
+        type: string
+      - description: Search by pool name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schema.Page-models_Pool'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: List all pools with pagination
+      tags:
+      - Pools
+    post:
+      consumes:
+      - application/json
+      description: Create a new pool with the provided details
+      parameters:
+      - description: Pool object
+        in: body
+        name: pool
+        required: true
+        schema:
+          $ref: '#/definitions/models.Pool'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Pool'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Create a new pool
+      tags:
+      - Pools
+  /pools/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a pool by ID
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Delete a pool
+      tags:
+      - Pools
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific pool by ID
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Pool'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Get a specific pool
+      tags:
+      - Pools
+    put:
+      consumes:
+      - application/json
+      description: Update an existing pool's details
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated pool object
+        in: body
+        name: pool
+        required: true
+        schema:
+          $ref: '#/definitions/pool.UpdatePool'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Pool'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - JWT: []
+      summary: Update a pool
+      tags:
+      - Pools
 swagger: "2.0"
