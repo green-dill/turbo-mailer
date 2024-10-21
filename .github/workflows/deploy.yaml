@@ -71,7 +71,7 @@ jobs:
           helmfile-args: lint
 
   build:
-    name: Build docker image
+    name: Build docker image | ${{ matrix.name }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
