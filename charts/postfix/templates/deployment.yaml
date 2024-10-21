@@ -110,9 +110,6 @@ spec:
             - name: config
               mountPath: /etc/postfix/main.cf
               subPath: main.cf
-            - name: mailname
-              mountPath: /etc/mailname
-              subPath: mailname
       volumes:
         - name: config
           configMap:

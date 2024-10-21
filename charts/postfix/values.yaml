@@ -43,7 +43,7 @@ domain: mail.example.com
 
 postfix_main_cf: |
   myhostname = {{ .Values.domain }}
-  myorigin = /etc/mailname
+  myorigin = $myhostname
   mydestination = localhost
   mynetworks = 127.0.0.0/8 [::1]/128 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
   relayhost =
