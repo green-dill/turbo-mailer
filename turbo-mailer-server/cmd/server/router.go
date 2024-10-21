@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"turbo-mailer-server/internal/api/admin/auth"
+	"turbo-mailer-server/internal/api/admin/dashboard"
 
 	"github.com/labstack/echo/v4"
 )
@@ -15,7 +16,7 @@ func route(e *echo.Echo) {
 	g.POST("/auth/change-password", auth.ChangePassword)
 	g.GET("/auth/profile", auth.Profile)
 
-	g.GET("/dashboard/stats", todo)
+	g.GET("/dashboard/stats", dashboard.Stats)
 
 	g.GET("/pool", todo)
 	g.GET("/pool/:id", todo)

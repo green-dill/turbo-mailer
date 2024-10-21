@@ -30,6 +30,28 @@ definitions:
       username:
         type: string
     type: object
+  dashboard.DashboardStats:
+    properties:
+      pool_count:
+        type: integer
+      task_count:
+        type: integer
+      task_state_count:
+        additionalProperties:
+          type: integer
+        type: object
+      top_pools:
+        items:
+          $ref: '#/definitions/dashboard.TopPool'
+        type: array
+    type: object
+  dashboard.TopPool:
+    properties:
+      name:
+        type: string
+      sender_count:
+        type: integer
+    type: object
 info:
   contact: {}
   title: Turbo Mailer API
@@ -124,9 +146,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/dashboard.DashboardStats'
       summary: Get dashboard statistics
       tags:
       - Admin

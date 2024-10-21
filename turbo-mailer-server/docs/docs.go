@@ -157,9 +157,9 @@ const docTemplate = `{
                 "summary": "Get dashboard statistics",
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/dashboard.DashboardStats"
                         }
                     }
                 }
@@ -209,6 +209,40 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "dashboard.DashboardStats": {
+            "type": "object",
+            "properties": {
+                "pool_count": {
+                    "type": "integer"
+                },
+                "task_count": {
+                    "type": "integer"
+                },
+                "task_state_count": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "top_pools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.TopPool"
+                    }
+                }
+            }
+        },
+        "dashboard.TopPool": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "sender_count": {
+                    "type": "integer"
                 }
             }
         }
