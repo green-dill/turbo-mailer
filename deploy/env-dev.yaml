@@ -1,6 +1,5 @@
-emailDomains: []
-  # - domain: mail.example.com
-  #   serverLabels:
-  #     - server-1
-  #     - server-2
+emailDomains:
+  - domain: mail.turbomx.org
+    serverLabels:
+      - postfix/mail-trubomx-org
 

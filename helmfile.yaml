@@ -29,10 +29,13 @@ releases:
             {{- end }}
 
   {{- range .Values.emailDomains }}
-  - name: postfix-{{ .domain | sha1sum | trunc 4 }}
+  - name: postfix-{{ .domain | sha1sum | trunc 8 }}
     namespace: turbo-mailer-{{ $.Environment.Name }}
     chart: ./charts/postfix
     values:
+      - checkDNS:
+          enabled: true
+      - replicaCount: {{ len .serverLabels }}
       - domain: {{ .domain }}
       {{- if .serverLabels }}
       - affinity:
