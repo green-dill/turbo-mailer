@@ -45,4 +45,5 @@ jobs:
           file: ./charts/postfix/container/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-postfix:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-postfix:latest
+            ${{ secrets.DOCKER_USERNAME }}/turbo-mailer-postfix:${{ github.ref_name }}
