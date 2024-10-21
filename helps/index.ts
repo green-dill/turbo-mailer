@@ -42,6 +42,36 @@ function cleanupProcesses() {
   });
 }
 
+async function printK8sStatus(): Promise<void> {
+  console.log('Fetching Kubernetes cluster status...');
+  const command = `kubectl get node,svc,ing,pod -n ${namespace}`;
+
+  return new Promise((resolve, reject) => {
+    const process = spawn('kubectl', ['get', 'node,svc,ing,pod', '-n', namespace], { stdio: 'pipe', shell: true, env });
+
+    let output = '';
+
+    process.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    process.stderr.on('data', (data) => {
+      console.error(`Error: ${data.toString().trimEnd()}`);
+    });
+
+    process.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`Command exited with code ${code}`);
+        reject(new Error(`Command exited with code ${code}`));
+      } else {
+        console.log(output.trimEnd());
+        resolve();
+      }
+    });
+  });
+}
+
+
 function main() {
   inquirer
     .prompt([
@@ -81,5 +111,12 @@ function main() {
     process.exit(0);
   });
 }
+
+console.log('--------------------------------');
+
+await printK8sStatus();
+
+console.log('--------------------------------\n\n');
+
 
 main();
