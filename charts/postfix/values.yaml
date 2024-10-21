@@ -91,7 +91,7 @@ opendkim.conf: |
   Socket local:/var/run/opendkim/opendkim.sock
 
 checkDNS:
-  enabled: true
+  enabled: false
 
 nodeSelector: {}
 
