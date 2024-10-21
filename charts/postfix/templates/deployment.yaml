@@ -39,7 +39,7 @@ spec:
         {{- if .Values.checkDNS.enabled }}
         - name: {{ .Chart.Name }}-check-dns
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ if eq (.Values.image.tag | default .Chart.AppVersion) "latest" }}Always{{ else }}{{ .Values.image.pullPolicy }}{{ end }}
           command: ["python3"]
           args:
             - "-c"
@@ -105,7 +105,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ if eq (.Values.image.tag | default .Chart.AppVersion) "latest" }}Always{{ else }}{{ .Values.image.pullPolicy }}{{ end }}
           env:
             - name: DOMAIN
               value: {{ .Values.domain }}
