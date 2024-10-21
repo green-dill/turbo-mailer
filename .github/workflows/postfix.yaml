@@ -9,6 +9,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]*'
     paths:
       - 'charts/postfix/**'
+      - '.github/workflows/postfix.yaml'
 
 jobs:
   build:
