@@ -35,12 +35,16 @@ releases:
     values:
       - image:
           tag: latest
-      - checkDNS:
+        checkDNS:
           enabled: false
-      - replicaCount: {{ len .serverLabels }}
-      - domain: {{ .domain }}
-      {{- if .serverLabels }}
-      - affinity:
+        {{- if and (hasKey . "dkimPrivateKey") .dkimPrivateKey }}
+        dkimPrivateKey: |
+          {{- printf "\n%s" .dkimPrivateKey | indent 10 }}
+        {{- end }}
+        replicaCount: {{ len .serverLabels }}
+        domain: {{ .domain }}
+        {{- if .serverLabels }}
+        affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
@@ -48,6 +52,6 @@ releases:
                     {{- range .serverLabels }}
                     - {key: {{ . }}, operator: Exists}
                     {{- end }}
-      {{- end }}
+        {{- end }}
   {{- end }}
 

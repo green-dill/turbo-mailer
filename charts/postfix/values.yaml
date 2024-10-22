@@ -90,6 +90,8 @@ opendkim.conf: |
   Selector mail
   Socket local:/var/run/opendkim/opendkim.sock
 
+
+
 checkDNS:
   enabled: false
 

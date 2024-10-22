@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@octokit/auth-action": "^5.1.1",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "inquirer": "^12.0.0",
     "octokit": "^4.0.2",

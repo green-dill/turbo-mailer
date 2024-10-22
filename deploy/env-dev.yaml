@@ -1,5 +1,36 @@
 emailDomains:
   - domain: mail.turbomx.org
+    # mail._domainkey.mail.example.com
+    # v=DKIM1; k=rsa; h=sha256; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiMAtzpNXyxGAYvGkN6zD4f9GJ1pAkgwP23Ko6Y/sbGj7KsIN/IEfdfAjLhXc3z+Ay+j/IO4rO+uuC0+5KbrEIsXwfmlwnDJ39zvyq72xmbWKrH65TCXOWwY9jJfRlu+CRty301N+bBOQ2fCywrx3ug5JQa0pZyHoV2ad87J13lO4FKWEcZ4opCTZ3kwurf04KyPrR4VWZjLI4WiIUy3n2LACdtzAJVQoGUYsi8FwIA03mRzQjRx0FSJrv9K89tfwQrv9jChdk3TRMIPxHkAal+BBil8wOzlm28eSvV7xCS0Jo+eJIQyHZyqFnuiioETT0DTxLgFwiETCIN1dreRHsQIDAQAB
+    dkimPrivateKey: |-
+      -----BEGIN PRIVATE KEY-----
+      MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCIwC3Ok1fLEYBi
+      8aQ3rMPh/0YnWkCSDA/bcqjpj+xsaPsqwg38gR918CMuFdzfP4DL6P8g7is7664L
+      T7kpusQixfB+aXCcMnf3O/KrvbGZtYqsfrlMJc5bBj2Ml9GW74JG3LfTU35sE5DZ
+      8LLCvHe6DklBrSlnIehXZp3zsnXeU7gUpYRxniikJNneTC6t/TgrI+tHhVZmMsjh
+      aIhTLefYsAJ23MAlVCgZRiyLwXAgDTeZHNCNHHQVImu/0rz21/BCu/2MKF2TdNEw
+      g/EeQBqX4EGKXzA7OWbbx5K9XvEJLQmj54khDIdnKoWe6KKgRNPQNPEuAXCIRMIg
+      3V2t5EexAgMBAAECggEAP8X31sWKBM6lo/7yyXANbcChk8qYIEP1xS5krX+MD0aq
+      E1eqNB53cIXLsjtJ5Ob1hqKjEFVh3jDb2rSUMmzB+UF8FUfQ11cF8UuIsSTmxTsP
+      b8AtY+ChqntvirhmatBJXgiixa/DXl2FiM2iYASKhT8SVMmPbGQ4uUHG2ZZZN5P+
+      2f7spNQBk4F1EJzt3sHOPBlEtz46QKhvYBx4F66+TLdFgb2CJ/1mlXkucwOShfvq
+      gmX/uI4U02gSEQ1UUmLsoEi8Khs5RXsjtXLFyEKwcO5A1jyTJxkt3OWzyqUluCVb
+      0PetL/uTs6FLVAQH/oWC59IoQlkEfgnjmZCNTYf67QKBgQC7mQOk7Nb51t4T/TX1
+      TSdC0qmcXYqMduFUNlsRsaz9T0l165lwmlhqtAnrhH+aOjJz3JwdkqGCyvS0jth+
+      8L0evVNE/HGvInZt8k3etUTsMax8NUH/t5/uxrmwnmKlb79DnkxNLySZEVE/FkLd
+      I584osh0IvORXMdyl1fhcVGExwKBgQC6nPAPHS0vH85pUoIYrjEw/i/nkJtQOv/O
+      CXpm23np8lC6L3xE84eZjhRTWoyhRjfnNOfO9V9ZLMmd4s7b7ui+6n1DjEr6UsTm
+      jymff13c8cbEA2jhpaVODNUe66g0RPJGqPIEn5ZVUXn2uSrijkywmc9+Z32vqxaj
+      lGApjhZnxwKBgQCtwrIkbhdFPOdgfnYfKwKFm5jss5vkNSzLErnRrs/7pRf2+G2c
+      Zeolk3NoycZjdSpMNPgJUEr3WcPFBlazZYrW0Sgyyt0GChbGCdxkv2QCnpQUTERA
+      drXVtg5C8MGQWOxA1nv4NgVhHjAyDg2KxTbyf5zKLaGLb/NxSYtlzs9h+wKBgQCR
+      IabNilpusOTeIo4NVcPqH3XwORWhcxEpE1P/lKefG5ZPBsk18tQ9xzLllKGUd8DY
+      btvtqAVsnBl9Ujyg7ZBTkpizJPPW9PIvgZ3UbsD4KYz1OtWh0CrcpbxGHO6nIAvw
+      ikoW8GqBliktidrhcdwQ6L5nx2MHcR7dP3L+PoQMVwKBgAiA4OTz9K0UZeIiAmBZ
+      HvsaBbHLVjgsdu9kUk4JQQeKbcSeALZfuWI8lJGEVgoVWFp/UP6hC3tN5lBppWC3
+      YVrofgUxfwdDaqpMSYgB9DSBlbRF5r12vG2Ot20SyKQoTbvPQUJHxiGIzM3VvS7g
+      unR9dzP/wJD/YbRid6N40MMM
+      -----END PRIVATE KEY-----
     serverLabels:
       - postfix/mail-trubomx-org
 

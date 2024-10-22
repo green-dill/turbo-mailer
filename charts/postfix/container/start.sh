@@ -8,30 +8,19 @@ fi
 chmod -R 600 /etc/dkimkeys
 
 if [ ! -f /etc/dkimkeys/mail.private ]; then
+    echo "Generating DKIM key..."
     opendkim-genkey -s mail -d $DOMAIN -D /etc/dkimkeys
     chown opendkim:opendkim /etc/dkimkeys/mail.private
-
-    # test dkim key
-    # opendkim-testkey -s mail -d $DOMAIN -vvv
 fi
 
 # Function to get external IP with retry
 get_external_ip() {
-    local max_attempts=10
-    local attempt=1
-    local delay=5
+    EXTERNAL_IP=$(curl -s --max-time 10 --retry 10 --retry-delay 5 https://api.ipify.org)
+    if [ -n "$EXTERNAL_IP" ]; then
+        return 0
+    fi
 
-    while [ $attempt -le $max_attempts ]; do
-        EXTERNAL_IP=$(curl -s --max-time 10 https://api.ipify.org)
-        if [ -n "$EXTERNAL_IP" ]; then
-            return 0
-        fi
-        echo "Attempt $attempt failed. Retrying in $delay seconds..."
-        sleep $delay
-        attempt=$((attempt + 1))
-    done
-
-    echo "Warning: Failed to retrieve external IP address after $max_attempts attempts."
+    echo "Warning: Failed to retrieve external IP address after 10 attempts."
     return 1
 }
 
@@ -70,6 +59,38 @@ echo "validating DKIM key, use following command:"
 echo "opendkim-testkey -s mail -d $DOMAIN -v"
 echo ""
 
+
+echo "************************************************"
+
+echo "================================================"
+echo "Checking DNS records:"
+echo ""
+
+# Check MX record
+echo "MX record for $DOMAIN:"
+dig +short MX $DOMAIN
+echo ""
+
+# Check SPF record
+echo "SPF record for $DOMAIN:"
+dig +short TXT $DOMAIN
+echo ""
+
+# Check DKIM record
+echo "DKIM record for mail._domainkey.$DOMAIN:"
+dig +short TXT mail._domainkey.$DOMAIN
+echo ""
+
+echo "================================================"
+echo ""
+echo "If the records are not visible or incorrect, please ensure you have added"
+echo "the SPF and DKIM records to your DNS as instructed above."
+echo ""
+
+echo "================================================"
+echo "Testing DKIM key:"
+opendkim-testkey -s mail -d $DOMAIN -v || true
+echo "================================================"
 
 [ ! -f /var/spool/postfix/etc/resolv.conf ] && cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf || true
 
