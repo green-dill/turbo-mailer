@@ -10,3 +10,5 @@ data:
     {{- tpl .Values.postfix_main_cf . | nindent 4 }}
   mailname: |
     {{- tpl .Values.mailname . | nindent 4 }}
+  opendkim.conf: |
+    {{- tpl .Values.opendkim . | nindent 4 }}

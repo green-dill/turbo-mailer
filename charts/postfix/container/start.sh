@@ -97,5 +97,10 @@ echo "================================================"
 
 [ ! -f /var/spool/postfix/etc/resolv.conf ] && cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf || true
 
-/usr/sbin/opendkim
-/usr/sbin/postfix start-fg
+# /usr/sbin/opendkim
+# /usr/sbin/postfix start-fg
+
+service postfix start
+service opendkim start
+
+rsyslogd -n

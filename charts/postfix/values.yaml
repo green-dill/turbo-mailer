@@ -71,7 +71,7 @@ postfix_main_cf: |
 
   milter_default_action = accept
   milter_protocol = 6
-  smtpd_milters = local:/var/run/opendkim/opendkim.sock
+  smtpd_milters = inet:localhost:8891
   non_smtpd_milters = $smtpd_milters
 
   compatibility_level = 3.6
@@ -79,7 +79,7 @@ postfix_main_cf: |
 mailname: |
   {{ .Values.domain }}
 
-opendkim.conf: |
+opendkim: |
   Syslog yes
   SyslogSuccess yes
   LogWhy yes
@@ -88,9 +88,7 @@ opendkim.conf: |
   Domain {{ .Values.domain }}
   KeyFile /etc/dkimkeys/mail.private
   Selector mail
-  Socket local:/var/run/opendkim/opendkim.sock
-
-
+  Socket inet:8891@localhost
 
 checkDNS:
   enabled: false
