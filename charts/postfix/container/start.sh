@@ -2,15 +2,17 @@
 set -e
 
 if [ ! -d /etc/dkimkeys ]; then
-    mkdir -p /etc/dkimkeys
+    mkdir -p /etc/dkimkeys || true
 fi
 
-chmod -R 600 /etc/dkimkeys
+if [[ -w /etc/dkimkeys ]]; then
+    chmod -R 600 /etc/dkimkeys
 
-if [ ! -f /etc/dkimkeys/mail.private ]; then
-    echo "Generating DKIM key..."
-    opendkim-genkey -s mail -d $DOMAIN -D /etc/dkimkeys
-    chown opendkim:opendkim /etc/dkimkeys/mail.private
+    if [[ ! -f /etc/dkimkeys/mail.private ]]; then
+        echo "Generating DKIM key..."
+        opendkim-genkey -s mail -d "$DOMAIN" -D /etc/dkimkeys
+        chown opendkim:opendkim /etc/dkimkeys/mail.private
+    fi
 fi
 
 # Function to get external IP with retry
@@ -44,15 +46,16 @@ echo "This helps ensure your emails are not marked as spam."
 echo "If 'YOUR_SERVER_IP' is shown, please replace it with your actual server IP."
 echo ""
 
-
-echo "================================================"
-echo "DKIM DNS record for $DOMAIN:"
-# Extract the content inside the parentheses and trim whitespace
-echo "add this to your DNS TXT record for: mail._domainkey.$DOMAIN"
-echo ""
-cat /etc/dkimkeys/mail.txt
-echo ""
-echo "================================================"
+if [[ -f /etc/dkimkeys/mail.txt ]]; then
+    echo "================================================"
+    echo "DKIM DNS record for $DOMAIN:"
+    # Extract the content inside the parentheses and trim whitespace
+    echo "add this to your DNS TXT record for: mail._domainkey.$DOMAIN"
+    echo ""
+    cat /etc/dkimkeys/mail.txt
+    echo ""
+        echo "================================================"
+fi
 
 echo ""
 echo "validating DKIM key, use following command:"

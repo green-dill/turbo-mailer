@@ -1,8 +1,7 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -yq vim curl procps dnsutils postfix opendkim opendkim-tools python3 python3-pip && \
-    pip3 install dnspython requests && \
-    apt-get clean && \
+RUN apt-get update && apt-get install -yq vim curl procps dnsutils postfix opendkim opendkim-tools && \
+    apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/dkimkeys
