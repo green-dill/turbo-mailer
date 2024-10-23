@@ -2,31 +2,54 @@ import React, {useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask, } from './service';
-import {Button, message, Popconfirm} from "antd";
+import { addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask } from './service';
+import {Button, Drawer, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import {ModalForm, ProFormDateTimePicker, ProFormRadio, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
-import {ProFormUploadButton} from "@ant-design/pro-form";
+import {
+  ModalForm, ProFormDateTimePicker, ProFormRadio, ProFormText, ProFormTextArea, ProFormUploadButton
+} from "@ant-design/pro-components";
 
 const EmailTaskList: React.FC = () => {
+  /**
+   * @en-US Pop-up window of new window
+   * @zh-CN 新建窗口的弹窗
+   *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
+  /**
+   * @en-US The pop-up window of the distribution update window
+   * @zh-CN 分布更新窗口的弹窗
+   * */
+  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
+
   const actionRef = useRef<ActionType>();
+  const [currentRow, setCurrentRow] = useState<EmailTask.EmailTaskListItem>();
 
   /**
-   * 添加或修改邮件任务
+   * 添加邮件任务
    * @param fields 邮件任务
    */
-  const handleSubmit = async (fields: EmailTask.EmailTaskListItem) => {
+  const handleAdd = async (fields: EmailTask.EmailTaskListItem) => {
     try {
-      const response = fields.id ? await updateEmailTask(fields) : await addEmailTask(fields);
-      if (response && response.code === 200) {
-        message.success('编辑成功');
-      } else {
-        message.error('编辑失败请重试！');
-      }
+      await addEmailTask(fields);
+      message.success('添加成功');
       return true;
     } catch (error) {
       message.error('添加失败请重试！');
+      return false;
+    }
+  };
+
+  /**
+   * 修改邮件任务
+   * @param fields 邮件任务
+   */
+  const handleUpdate = async (fields: EmailTask.EmailTaskListItem) => {
+    try {
+      await updateEmailTask(fields);
+      message.success('编辑成功');
+      return true;
+    } catch (error) {
+      message.error('编辑失败请重试！');
       return false;
     }
   };
@@ -37,10 +60,8 @@ const EmailTaskList: React.FC = () => {
    */
   const handleRemove = async (fields: EmailTask.EmailTaskListItem) => {
     try {
-      const response = await removeEmailTask(fields);
-      if (response && response.code === 200) {
-        message.success('删除成功');
-      }
+      await removeEmailTask(fields);
+      message.success('删除成功');
       return true;
     } catch (error) {
       message.error('删除失败请重试！');
@@ -49,79 +70,84 @@ const EmailTaskList: React.FC = () => {
   };
 
   const columns: ProColumns<EmailTask.EmailTaskListItem>[] = [
-    // id?: number;
-    //     title?: string;
-    //     recipients?: string;
-    //     numberPoolId?: number[];
-    //     sendInterval?: string;
-    //     taskStartedAt?: Date;
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'ID',
       hideInSearch: true,
+      hideInForm: true,
       hideInTable: true,
     },
     {
-      title: '邮件标题',
-      dataIndex: 'title',
-      tooltip: '支持模板语法',
+      title: '标题',
+      dataIndex: 'subject',
     },
     {
-      title: '邮件内容地址',
+      title: '类型',
+      dataIndex: 'context_type',
+      hideInSearch: true,
+    },
+    {
+      title: '内容',
       dataIndex: 'content',
-      tooltip: 'HTML/TET 文件，支持模板语法',
       hideInSearch: true,
     },
     {
-      title: '收件人数量',
-      dataIndex: 'recipients',
+      title: '接收者',
+      dataIndex: 'receivers',
       hideInSearch: true,
+      hideInForm: true,
       sorter: true,
     },
     {
-      title: '号池列表',
-      dataIndex: 'numberPoolIds',
+      title: '状态',
+      dataIndex: 'state',
       hideInSearch: true,
+      hideInForm: true,
+      sorter: true,
+    },
+    {
+      title: '号池',
+      dataIndex: 'pools',
+      hideInSearch: true,
+      hideInForm: true,
+      sorter: true,
     },
     {
       title: '发送频率',
-      dataIndex: 'sendInterval',
+      dataIndex: 'max_dispatch_pre_hour',
       hideInSearch: true,
+      hideInForm: true,
+      sorter: true,
     },
     {
-      title: '任务开始时间',
-      dataIndex: 'taskStartedAt',
+      title: '调度时间',
+      dataIndex: 'schedule_at',
       hideInSearch: true,
+      hideInForm: true,
+      sorter: true,
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      valueEnum: {
-        0: {
-          text: '正常',
-          status: 'Success',
-        },
-        1: {
-          text: '禁用',
-          status: 'Error',
-        },
-      },
-      filters: true,
-      onFilter: true,
+      title: '上传调度时间',
+      dataIndex: 'last_dispatch_at',
+      hideInSearch: true,
+      hideInForm: true,
+      sorter: true,
     },
     {
       title: '创建时间',
-      dataIndex: 'createdAt',
+      dataIndex: 'CreatedAt',
       valueType: 'date',
       hideInSearch: true,
+      hideInForm: true,
       sorter: true,
       defaultSortOrder: 'descend',
     },
     {
       title: '更新时间',
-      dataIndex: 'updatedAt',
+      dataIndex: 'UpdatedAt',
       valueType: 'date',
       hideInSearch: true,
+      hideInForm: true,
       sorter: true,
     },
     {
@@ -135,7 +161,8 @@ const EmailTaskList: React.FC = () => {
           style={{padding: 0}}
           key='edit'
           onClick={() => {
-            handleModalOpen(true);
+            handleUpdateModalOpen(true);
+            setCurrentRow(record);
           }}
         >
           编辑
@@ -154,26 +181,6 @@ const EmailTaskList: React.FC = () => {
         >
           <Button style={{padding: 0}} type="link" size="small">删除</Button>
         </Popconfirm>,
-        <Popconfirm
-          key='test'
-          title="输入测试邮件地址"
-        >
-          <Button style={{padding: 0}} type="link" size="small">测试</Button>
-        </Popconfirm>,
-        <Popconfirm
-          key='start'
-          title="确定开始发送吗？"
-          onConfirm={async () => {
-            const success = await handleRemove(record);
-            if (success) {
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
-          }}
-        >
-          <Button style={{padding: 0}} type="link" size="small">开始</Button>
-        </Popconfirm>,
       ],
     },
   ];
@@ -181,9 +188,9 @@ const EmailTaskList: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<EmailTask.EmailTaskListItem, API.PageParams>
-        headerTitle="邮件任务列表"
+        headerTitle="任务列表"
         actionRef={actionRef}
-        rowKey="id"
+        rowKey="ID"
         search={{
           labelWidth: 120,
         }}
@@ -196,14 +203,15 @@ const EmailTaskList: React.FC = () => {
         columns={columns}
       />
       <ModalForm
-        title='创建邮件任务'
+        title="添加邮件任务"
         width="400px"
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
-          const success = await handleSubmit(value as NumberPool.NumberPoolListItem);
+          const success = await handleAdd(value as EmailTask.EmailTaskListItem);
           if (success) {
             handleModalOpen(false);
+            setCurrentRow(undefined);
             if (actionRef.current) {
               actionRef.current.reload();
             }
@@ -281,6 +289,35 @@ const EmailTaskList: React.FC = () => {
             },
           ]}
         />
+      </ModalForm>
+      <ModalForm
+        title="编辑邮件任务"
+        width="400px"
+        open={updateModalOpen}
+        onOpenChange={handleUpdateModalOpen}
+        initialValues={currentRow} // 设置初始值
+        onFinish={async (value) => {
+          const success = await handleUpdate(value as EmailTask.EmailTaskListItem);
+          if (success) {
+            handleUpdateModalOpen(false);
+            setCurrentRow(undefined);
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+      >
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: '请输入',
+            },
+          ]}
+          name="name"
+          label="号池名称"
+        />
+        <ProFormTextArea name="description" label="号池描述" />
       </ModalForm>
     </PageContainer>
   );
