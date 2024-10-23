@@ -1,13 +1,20 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {addPoolSender, removePoolSender, queryPoolSender, updatePoolSender} from './service';
 import {Button, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {
+  ModalForm,
+  ProDescriptions,
+  ProDescriptionsItemProps,
+  ProFormText,
+  ProFormTextArea
+} from "@ant-design/pro-components";
 import {Link} from "@umijs/max";
 import {useParams} from "react-router";
+import {queryNumberPoolById} from "@/pages/NumberPool/List/service";
 
 
 const PoolSenderList: React.FC = () => {
@@ -23,7 +30,7 @@ const PoolSenderList: React.FC = () => {
   const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<NumberPool.NumberPoolListItem>();
+  const [currentRow, setCurrentRow] = useState<PoolSender.PoolSenderListItem>();
 
   const params  = useParams();
 
@@ -161,13 +168,42 @@ const PoolSenderList: React.FC = () => {
 
   return (
     <PageContainer
-      content="配置发件人信息。"
-      extraContent={
-        <Link to="/number-pool/list">
-          <Button type="primary">返回</Button>
-        </Link>
+      content={
+        <ProDescriptions<NumberPool.NumberPoolListItem>
+          column={3}
+          request={() => queryNumberPoolById({ID: params.poolId})}
+          columns={[
+            {
+              title: 'ID',
+              dataIndex: 'ID',
+            },
+            {
+              title: '名称',
+              dataIndex: 'name',
+            },
+            {
+              title: '描述',
+              dataIndex: 'description',
+            },
+            {
+              title: '邮箱数量',
+              dataIndex: 'sender_count',
+            },
+            {
+              title: '创建时间',
+              dataIndex: 'CreatedAt',
+              valueType: 'date',
+            },
+            {
+              title: '更新时间',
+              dataIndex: 'UpdatedAt',
+              valueType: 'date',
+            },
+          ]}
+        />
       }
     >
+
       <ProTable<PoolSender.PoolSenderListItem, API.PageParams>
         headerTitle="发件人列表"
         actionRef={actionRef}

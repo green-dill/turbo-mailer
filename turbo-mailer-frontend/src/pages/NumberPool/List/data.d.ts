@@ -1,6 +1,6 @@
 declare namespace NumberPool {
   type NumberPoolListItem = {
-    ID?: number;
+    ID?: stirng;
     name?: string;
     description?: string;
     sender_count?: number;

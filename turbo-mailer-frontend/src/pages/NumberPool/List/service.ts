@@ -1,4 +1,5 @@
 import { request } from 'umi';
+import {errorConfig} from "@/requestErrorConfig";
 
 export async function queryNumberPool(params: API.PageParams, options?: { [key: string]: any }) {
   return request<NumberPool.NumberPoolList>('/api/v1/pool', {
@@ -10,6 +11,18 @@ export async function queryNumberPool(params: API.PageParams, options?: { [key: 
       total: res.total,
       data: res.list,
       success: true,
+    }
+  });
+}
+
+export async function queryNumberPoolById(params: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
+  const { ID } = params;
+  return request<NumberPool.NumberPoolListItem>(`/api/v1/pool/${ID}`, {
+    method: 'GET',
+    ...(options || {}),
+  }).then(res => {
+    return {
+      data: res,
     }
   });
 }
