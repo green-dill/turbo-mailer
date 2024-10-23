@@ -1,18 +1,20 @@
 declare namespace NumberPool {
   type NumberPoolListItem = {
-    id?: number;
+    ID?: number;
     name?: string;
     description?: string;
-    quantity?: number;
-    status?: number;
-    createdAt?: Date;
-    updatedAt?: Date;
+    sender_count?: number;
+    sender?: [];
+    CreatedAt?: Date;
+    UpdatedAt?: Date;
   };
 
   type NumberPoolList = {
     data?: NumberPoolListItem[];
+    list?: NumberPoolListItem[];
     /** 列表的内容总数 */
     total?: number;
-    success?: boolean;
+    currentPage?: number;
+    totalPages?: number;
   };
 }

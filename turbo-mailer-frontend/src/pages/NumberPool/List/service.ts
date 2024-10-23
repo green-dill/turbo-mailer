@@ -1,15 +1,21 @@
 import { request } from 'umi';
 
 export async function queryNumberPool(params: API.PageParams, options?: { [key: string]: any }) {
-  return request<NumberPool.NumberPoolList>('/number-pool', {
+  return request<NumberPool.NumberPoolList>('/api/v1/pool', {
     method: 'GET',
-    params: params,
+    params,
     ...(options || {}),
+  }).then(res => {
+    return {
+      total: res.total,
+      data: res.list,
+      success: true,
+    }
   });
 }
 
 export async function updateNumberPool(body: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/number-pool', {
+  return request<Record<string, any>>('/api/v1/pool', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -20,7 +26,7 @@ export async function updateNumberPool(body: NumberPool.NumberPoolListItem, opti
 }
 
 export async function addNumberPool(body: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/number-pool', {
+  return request<Record<string, any>>('/api/v1/pool', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,8 +37,8 @@ export async function addNumberPool(body: NumberPool.NumberPoolListItem, options
 }
 
 export async function removeNumberPool(params: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
-  const { id } = params;
-  return request<Record<string, any>>(`/number-pool/${id}`, {
+  const { ID } = params;
+  return request<Record<string, any>>(`/api/v1/pool/${ID}`, {
     method: 'DELETE',
     ...(options || {}),
   });

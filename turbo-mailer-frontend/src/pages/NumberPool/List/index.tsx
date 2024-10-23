@@ -3,13 +3,26 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { addNumberPool, removeNumberPool, queryNumberPool, updateNumberPool, } from './service';
-import {Button, message, Popconfirm} from "antd";
+import {Button, Drawer, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {
+  ModalForm, ProFormText, ProFormTextArea,
+} from "@ant-design/pro-components";
 
 const NumberPoolList: React.FC = () => {
+  /**
+   * @en-US Pop-up window of new window
+   * @zh-CN 新建窗口的弹窗
+   *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
+  /**
+   * @en-US The pop-up window of the distribution update window
+   * @zh-CN 分布更新窗口的弹窗
+   * */
+  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
+
   const actionRef = useRef<ActionType>();
+  const [currentRow, setCurrentRow] = useState<NumberPool.NumberPoolListItem>();
 
   /**
    * 添加或修改号池
@@ -17,7 +30,7 @@ const NumberPoolList: React.FC = () => {
    */
   const handleSubmit = async (fields: NumberPool.NumberPoolListItem) => {
     try {
-      const response = fields.id ? await updateNumberPool(fields) : await addNumberPool(fields);
+      const response = fields.ID ? await updateNumberPool(fields) : await addNumberPool(fields);
       if (response && response.code === 200) {
         message.success('编辑成功');
       } else {
@@ -31,15 +44,43 @@ const NumberPoolList: React.FC = () => {
   };
 
   /**
+   * 添加号池
+   * @param fields 号池
+   */
+  const handleAdd = async (fields: NumberPool.NumberPoolListItem) => {
+    try {
+      await addNumberPool(fields);
+      message.success('添加成功');
+      return true;
+    } catch (error) {
+      message.error('添加失败请重试！');
+      return false;
+    }
+  };
+
+  /**
+   * 修改号池
+   * @param fields 号池
+   */
+  const handleUpdate = async (fields: NumberPool.NumberPoolListItem) => {
+    try {
+      await updateNumberPool(fields);
+      message.success('编辑成功');
+      return true;
+    } catch (error) {
+      message.error('编辑失败请重试！');
+      return false;
+    }
+  };
+
+  /**
    *  删除号池
    * @param fields 号池
    */
   const handleRemove = async (fields: NumberPool.NumberPoolListItem) => {
     try {
-      const response = await removeNumberPool(fields);
-      if (response && response.code === 200) {
-        message.success('删除成功');
-      }
+      await removeNumberPool(fields);
+      message.success('删除成功');
       return true;
     } catch (error) {
       message.error('删除失败请重试！');
@@ -48,6 +89,13 @@ const NumberPoolList: React.FC = () => {
   };
 
   const columns: ProColumns<NumberPool.NumberPoolListItem>[] = [
+    {
+      title: 'ID',
+      dataIndex: 'ID',
+      hideInSearch: true,
+      hideInForm: true,
+      hideInTable: true,
+    },
     {
       title: '名称',
       dataIndex: 'name',
@@ -59,39 +107,26 @@ const NumberPoolList: React.FC = () => {
     },
     {
       title: '邮箱数量',
-      dataIndex: 'quantity',
+      dataIndex: 'sender_count',
       hideInSearch: true,
+      hideInForm: true,
       sorter: true,
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      valueEnum: {
-        0: {
-          text: '正常',
-          status: 'Success',
-        },
-        1: {
-          text: '禁用',
-          status: 'Error',
-        },
-      },
-      filters: true,
-      onFilter: true,
-    },
-    {
       title: '创建时间',
-      dataIndex: 'createdAt',
+      dataIndex: 'CreatedAt',
       valueType: 'date',
       hideInSearch: true,
+      hideInForm: true,
       sorter: true,
       defaultSortOrder: 'descend',
     },
     {
       title: '更新时间',
-      dataIndex: 'updatedAt',
+      dataIndex: 'UpdatedAt',
       valueType: 'date',
       hideInSearch: true,
+      hideInForm: true,
       sorter: true,
     },
     {
@@ -105,7 +140,8 @@ const NumberPoolList: React.FC = () => {
           style={{padding: 0}}
           key='edit'
           onClick={() => {
-            handleModalOpen(true);
+            handleUpdateModalOpen(true);
+            setCurrentRow(record);
           }}
         >
           编辑
@@ -133,7 +169,7 @@ const NumberPoolList: React.FC = () => {
       <ProTable<NumberPool.NumberPoolListItem, API.PageParams>
         headerTitle="号池列表"
         actionRef={actionRef}
-        rowKey="id"
+        rowKey="ID"
         search={{
           labelWidth: 120,
         }}
@@ -146,14 +182,15 @@ const NumberPoolList: React.FC = () => {
         columns={columns}
       />
       <ModalForm
-        title='创建号池'
+        title="添加号池"
         width="400px"
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
-          const success = await handleSubmit(value as NumberPool.NumberPoolListItem);
+          const success = await handleAdd(value as NumberPool.NumberPoolListItem);
           if (success) {
             handleModalOpen(false);
+            setCurrentRow(undefined);
             if (actionRef.current) {
               actionRef.current.reload();
             }
@@ -161,22 +198,45 @@ const NumberPoolList: React.FC = () => {
         }}
       >
         <ProFormText
-          label='号池名称'
-          placeholder='请输入至少五个字符'
           rules={[
             {
               required: true,
-              message: '号池名称不能为空',
+              message: '名称',
             },
           ]}
-          width="md"
           name="name"
+          label="号池名称"
         />
-        <ProFormTextArea
-          label='号池描述'
-          width="md"
-          name="description"
+        <ProFormTextArea name="description" label="号池描述" />
+      </ModalForm>
+      <ModalForm
+        title="编辑号池"
+        width="400px"
+        open={updateModalOpen}
+        onOpenChange={handleUpdateModalOpen}
+        initialValues={currentRow} // 设置初始值
+        onFinish={async (value) => {
+          const success = await handleUpdate(value as NumberPool.NumberPoolListItem);
+          if (success) {
+            handleUpdateModalOpen(false);
+            setCurrentRow(undefined);
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+      >
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: '名称',
+            },
+          ]}
+          name="name"
+          label="号池名称"
         />
+        <ProFormTextArea name="description" label="号池描述" />
       </ModalForm>
     </PageContainer>
   );
