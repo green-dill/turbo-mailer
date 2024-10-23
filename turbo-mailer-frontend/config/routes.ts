@@ -59,6 +59,12 @@ export default [
         name: 'list',
         component: './NumberPool/List',
       },
+      {
+        path: '/number-pool/list/:poolId',
+        name: 'pool-sender',
+        component: './NumberPool/PoolSender',
+        hideInMenu: true,
+      },
     ],
   },
   {
@@ -94,10 +100,11 @@ export default [
     ],
   },
   {
-    name: 'email-report',
-    redirect: 'https://baidu.com/',
-    href: 'https://baidu.com/',
-    target: '_blank'
+    // path 支持为一个 url，必须要以 http 开头
+    path: 'https://pro.ant.design/docs/getting-started-cn',
+    target: '_blank', // 点击新窗口打开
+    name: 'analysis',
+    icon: 'AreaChartOutlined',
   },
   {
     path: '/',
