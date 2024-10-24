@@ -42,7 +42,7 @@ export async function addEmailTask(body: EmailTask.EmailTaskListItem, options?: 
   return request<Record<string, any>>('/api/v1/task', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'multipart/form-data',
     },
     data: body,
     ...(options || {}),

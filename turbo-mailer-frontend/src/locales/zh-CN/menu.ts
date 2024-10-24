@@ -25,7 +25,7 @@ export default {
   'menu.number-pool.list': '号池列表',
   'menu.number-pool.pool-sender': '发件人',
   'menu.email-task': '邮件任务',
-  'menu.email-task.list': '邮件任务列表',
+  'menu.email-task.list': '任务列表',
   'menu.email-service': '邮件服务',
   'menu.email-service.guide': 'DNS 配置指南',
   'menu.analysis': '统计报表',

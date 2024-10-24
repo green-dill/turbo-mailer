@@ -6,7 +6,7 @@ import { addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask } from '
 import {Button, Drawer, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
-  ModalForm, ProFormDateTimePicker, ProFormRadio, ProFormText, ProFormTextArea, ProFormUploadButton
+  ModalForm, ProFormDateTimePicker, ProFormDigit, ProFormRadio, ProFormText, ProFormTextArea, ProFormUploadButton
 } from "@ant-design/pro-components";
 
 const EmailTaskList: React.FC = () => {
@@ -225,25 +225,47 @@ const EmailTaskList: React.FC = () => {
           rules={[
             {
               required: true,
-              message: '号池邮件标题不能为空',
+              message: '请输入邮件标题',
             },
           ]}
           width="md"
-          name="name"
+          name="subject"
         />
         <ProFormUploadButton
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
+          rules={[
+            {
+              required: true,
+              message: '请上传邮件内容',
+            },
+          ]}
           name="content"
+          fieldProps={{
+            beforeUpload(file, fileList) {
+              return false;
+            },
+          }}
         />
         <ProFormUploadButton
           label='收件人列表'
           placeholder='请上传'
           tooltip='上传 CSV/EXCEL 文件'
+          rules={[
+            {
+              required: true,
+              message: '请上传收件人列表',
+            },
+          ]}
           name="recipients"
+          fieldProps={{
+            beforeUpload(file, fileList) {
+              return false;
+            },
+          }}
         />
-        <ProFormText
+        <ProFormDigit
           label='发送频率'
           placeholder='请输入'
           tooltip='每小时发送的邮件数量'
@@ -254,7 +276,7 @@ const EmailTaskList: React.FC = () => {
             },
           ]}
           width="md"
-          name="sendInterval"
+          name="max_dispatch_pre_hour"
         />
         <ProFormDateTimePicker
           label='发送时间'
@@ -267,10 +289,10 @@ const EmailTaskList: React.FC = () => {
             },
           ]}
           width="md"
-          name="taskStartedAt"
+          name="schedule_at"
         />
         <ProFormRadio.Group
-          name="status"
+          name="state"
           label="状态"
           rules={[
             {
@@ -308,16 +330,98 @@ const EmailTaskList: React.FC = () => {
         }}
       >
         <ProFormText
+          label='邮件标题'
+          placeholder='请输入'
+          tooltip='支持模板语法'
           rules={[
             {
               required: true,
-              message: '请输入',
+              message: '请输入邮件标题',
             },
           ]}
-          name="name"
-          label="号池名称"
+          width="md"
+          name="subject"
         />
-        <ProFormTextArea name="description" label="号池描述" />
+        <ProFormUploadButton
+          label='邮件内容'
+          placeholder='请上传'
+          tooltip='上传 HTML/TXT 文件，支持模板语法'
+          rules={[
+            {
+              required: true,
+              message: '请上传邮件内容',
+            },
+          ]}
+          name="content"
+          fieldProps={{
+            beforeUpload(file, fileList) {
+              return false;
+            },
+          }}
+        />
+        <ProFormUploadButton
+          label='收件人列表'
+          placeholder='请上传'
+          tooltip='上传 CSV/EXCEL 文件'
+          rules={[
+            {
+              required: true,
+              message: '请上传收件人列表',
+            },
+          ]}
+          name="recipients"
+          fieldProps={{
+            beforeUpload(file, fileList) {
+              return false;
+            },
+          }}
+        />
+        <ProFormDigit
+          label='发送频率'
+          placeholder='请输入'
+          tooltip='每小时发送的邮件数量'
+          rules={[
+            {
+              required: true,
+              message: '发送频率不能为空',
+            },
+          ]}
+          width="md"
+          name="max_dispatch_pre_hour"
+        />
+        <ProFormDateTimePicker
+          label='发送时间'
+          placeholder='请选择'
+          tooltip='邮件开始发送的时间'
+          rules={[
+            {
+              required: true,
+              message: '发送时间不能为空',
+            },
+          ]}
+          width="md"
+          name="schedule_at"
+        />
+        <ProFormRadio.Group
+          name="state"
+          label="状态"
+          rules={[
+            {
+              required: true,
+              message: '请选择状态',
+            },
+          ]}
+          options={[
+            {
+              value: '0',
+              label: '正常',
+            },
+            {
+              value: '1',
+              label: '禁用',
+            },
+          ]}
+        />
       </ModalForm>
     </PageContainer>
   );
