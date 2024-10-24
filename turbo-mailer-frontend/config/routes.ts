@@ -101,7 +101,7 @@ export default [
   },
   {
     // path 支持为一个 url，必须要以 http 开头
-    path: 'https://pro.ant.design/docs/getting-started-cn',
+    path: 'https://metabase.turbomx.org',
     target: '_blank', // 点击新窗口打开
     name: 'analysis',
     icon: 'AreaChartOutlined',
