@@ -1,0 +1,33 @@
+helmfiles:
+  - path: ../common/helmfile.yaml
+
+repositories:
+  - name: metabase
+    url: https://pmint93.github.io/helm-charts
+
+releases:
+  - name: metabase
+    namespace: metabase
+    createNamespace: true
+    installed: true
+    chart: metabase/metabase
+    values:
+      - values.yaml
+    needs:
+      - metabase-postgresql
+
+  - name: metabase-postgresql
+    namespace: metabase
+    createNamespace: true
+    installed: true
+    chart: oci://registry-1.docker.io/bitnamicharts/postgresql
+    version: 12.6.6
+    values:
+      - auth:
+          postgresPassword: "metabase123"
+          database: metabase
+        primary:
+          persistence:
+            enabled: true
+            size: 10Gi
+        architecture: standalone

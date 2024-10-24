@@ -1,0 +1,25 @@
+replicaCount: 1
+
+database:
+  type: postgres
+  host: metabase-postgresql
+  port: 5432
+  dbname: metabase
+  username: postgres
+  password: metabase123
+
+ingress:
+  enabled: true
+  hosts:
+    - metabase.turbomx.org
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  tls:
+    - secretName: metabase-tls
+      hosts:
+        - metabase.turbomx.org
+
+extraEnv:
+  - name: TZ
+    value: Asia/Shanghai
+
