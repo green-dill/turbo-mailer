@@ -5,8 +5,8 @@
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=flat&logo=go&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)
-![CI](https://github.com/green-dill/turbo-mailer/actions/workflows/deploy.yaml/badge.svg?branch=develop)
-![CI](https://github.com/green-dill/turbo-mailer/actions/workflows/postfix.yaml/badge.svg?branch=develop)
+![CI-Deploy](https://github.com/green-dill/turbo-mailer/actions/workflows/deploy.yaml/badge.svg?branch=develop)
+![CI-Postfix](https://github.com/green-dill/turbo-mailer/actions/workflows/postfix.yaml/badge.svg?branch=develop)
 
 <img src="docs/assets/banner.png" alt="Turbo Mailer" height="20%">
 
