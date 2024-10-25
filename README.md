@@ -108,7 +108,8 @@ For more detailed information, please refer to the [CONTRIBUTING.md](CONTRIBUTIN
 
 ## Important Notice
 
-**Turbo Mailer is not an open-source project.**
+> [!NOTE]
+> **Turbo Mailer is not an open-source project.**
 
 Please be aware of the following points:
 
