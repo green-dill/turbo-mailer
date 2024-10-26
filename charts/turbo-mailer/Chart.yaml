@@ -1,7 +1,7 @@
 apiVersion: v2
 name: turbo-mailer
 description: A Helm chart for Kubernetes
-
+icon: https://go.dev/blog/go-brand/Go-Logo/SVG/Go-Logo_Blue.svg
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
