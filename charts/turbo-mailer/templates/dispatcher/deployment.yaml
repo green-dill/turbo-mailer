@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "turbo-mailer.fullname" . }}-dispatcher
+  labels:
+    {{- include "turbo-mailer.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dispatcher
+spec:
+  replicas: {{ .Values.dispatcher.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "turbo-mailer.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: dispatcher
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "turbo-mailer.labels" . | nindent 8 }}
+        {{- with .Values.dispatcher.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/component: worker
+        git/sha: {{ .Values.sha }}
+        checksum/config: {{ .Values.api.config | sha256sum | trunc 32 }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      {{- with .Values.dispatcher.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.dispatcher.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          securityContext:
+            {{- toYaml .Values.dispatcher.securityContext | nindent 12 }}
+          image: "{{ .Values.dispatcher.image.repository }}:{{ .Values.dispatcher.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.dispatcher.image.pullPolicy }}
+          command:
+            - /app/turbo-mailer
+            - serve
+            - -m
+            - worker
+          ports:
+            - name: http
+              containerPort: {{ .Values.dispatcher.service.port }}
+              protocol: TCP
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 2
+          #   periodSeconds: 10
+          #   timeoutSeconds: 5
+          #   failureThreshold: 2
+          #   successThreshold: 1
+          resources:
+            {{- toYaml .Values.dispatcher.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "turbo-mailer.fullname" . }}-server-config
+      {{- with .Values.dispatcher.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dispatcher.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dispatcher.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

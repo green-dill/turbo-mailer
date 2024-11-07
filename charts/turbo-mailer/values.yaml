@@ -150,6 +150,43 @@ worker:
               values: [worker]
           topologyKey: kubernetes.io/hostname
 
+dispatcher:
+  replicaCount: 1
+
+  image:
+    repository: turbo-mailer-server
+    pullPolicy: Always
+    tag: ""
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  resources: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/component
+              operator: In
+              values: [dispatcher]
+          topologyKey: kubernetes.io/hostname
+
 redis:
   enabled: true
   architecture: standalone
