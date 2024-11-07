@@ -43,7 +43,7 @@ spec:
             - /app/turbo-mailer
             - serve
             - -m
-            - worker
+            - dispatch
           ports:
             - name: http
               containerPort: {{ .Values.dispatcher.service.port }}
