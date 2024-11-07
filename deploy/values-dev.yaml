@@ -36,3 +36,10 @@ worker:
     pullPolicy: Always
     tag: "develop"
 
+dispatcher:
+  replicaCount: 1
+
+  image:
+    repository: yinheli/turbo-mailer-server
+    pullPolicy: Always
+    tag: "develop"

@@ -36,3 +36,11 @@ worker:
     pullPolicy: Always
     tag: ""
 
+
+dispatcher:
+  replicaCount: 1
+
+  image:
+    repository: turbo-mailer-server
+    pullPolicy: Always
+    tag: ""
