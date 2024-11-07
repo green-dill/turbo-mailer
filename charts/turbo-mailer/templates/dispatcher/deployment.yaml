@@ -22,7 +22,7 @@ spec:
         {{- with .Values.dispatcher.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        app.kubernetes.io/component: worker
+        app.kubernetes.io/component: dispatcher
         git/sha: {{ .Values.sha }}
         checksum/config: {{ .Values.api.config | sha256sum | trunc 32 }}
     spec:
@@ -43,7 +43,7 @@ spec:
             - /app/turbo-mailer
             - serve
             - -m
-            - dispatch
+            - dispatcher
           ports:
             - name: http
               containerPort: {{ .Values.dispatcher.service.port }}
