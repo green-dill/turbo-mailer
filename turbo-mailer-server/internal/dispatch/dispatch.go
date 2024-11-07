@@ -2,14 +2,15 @@ package dispatch
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
-	"strconv"
-	"strings"
 	"time"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
+	"turbo-mailer-server/internal/render"
+	"turbo-mailer-server/internal/schema"
 	"turbo-mailer-server/internal/utils/ptr"
 
 	"github.com/bsm/redislock"
@@ -55,7 +56,7 @@ func (d *dispatcher) Run(ctx context.Context) {
 func (d *dispatcher) processTasks(ctx context.Context) error {
 	rows, err := query.DB.WithContext(ctx).
 		Where(query.Task.State.Eq(models.TaskStatePending)).
-		Order(query.Task.CreatedAt.Desc()).
+		Order(query.Task.CreatedAt.Asc()).
 		Limit(1000).
 		Rows()
 	if err != nil {
@@ -65,31 +66,12 @@ func (d *dispatcher) processTasks(ctx context.Context) error {
 
 	defer rows.Close()
 
-	conn, err := amqp.Dial(viper.GetString("rabbitmq.url"))
+	conn, channel, err := d.createChannel()
 	if err != nil {
+		log.Error().Err(err).Msg("failed to create channel")
 		return err
 	}
-	defer conn.Close()
-
-	channel, err := conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer channel.Close()
-
-	queue := d.queueName()
-	_, err = channel.QueueDeclare(
-		queue,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to declare queue")
-		return err
-	}
+	defer d.closeChannel(conn, channel)
 
 	for rows.Next() {
 		var task models.Task
@@ -108,8 +90,7 @@ func (d *dispatcher) processTasks(ctx context.Context) error {
 }
 
 func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channel *amqp.Channel) error {
-	// redis distributed lock
-	lockKey := query.Redis.Key("lock", "task", strconv.FormatUint(uint64(task.ID), 120))
+	lockKey := query.Redis.Key("lock", "task", fmt.Sprintf("%d", task.ID))
 	lock, err := redislock.New(query.Redis.Client).Obtain(ctx, lockKey, 10*time.Second, nil)
 	if err != nil && errors.Is(err, redislock.ErrNotObtained) {
 		log.Info().Msgf("failed to obtain lock for task %d", task.ID)
@@ -200,45 +181,94 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			return err
 		}
 
-		subject = strings.Replace(subject, "{name}", receiver, -1)
-		content = strings.Replace(content, "{name}", receiver, -1)
+		// email template parameters
+		params := map[string]any{
+			"name": receiver,
+		}
 
-		// todo template render
+		if task.Metadata != nil {
+			metadata := make(map[string]any)
+			if err := json.Unmarshal(*task.Metadata, &metadata); err != nil {
+				log.Error().Err(err).Msgf("failed to unmarshal metadata for task %d", task.ID)
+				d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStateFailed,
+					fmt.Sprintf("failed to unmarshal metadata: %v", err))
+				continue
+			}
+			params["metadata"] = metadata
+		}
+
+		subject, err = render.Render(subject, params)
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to render email subject for task %d", task.ID)
+			d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStateFailed,
+				fmt.Sprintf("failed to render email subject: %v", err))
+			continue
+		}
+
+		content, err = render.Render(content, params)
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to render email content for task %d", task.ID)
+			d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStateFailed,
+				fmt.Sprintf("failed to render email content: %v", err))
+			continue
+		}
 
 		from := fmt.Sprintf("%s <%s>", sender.FromName, sender.FromEmail)
 
-		queue := viper.GetString("rabbitmq.queue")
+		email := &schema.Email{
+			Subject:     subject,
+			From:        from,
+			Content:     content,
+			ContentType: task.ContentType,
+			Receivers:   []string{receiver},
+		}
 
-		// send to rabbitmq
-		err = channel.Publish(
-			"",
-			queue,
-			false,
-			false,
-			amqp.Publishing{
-				DeliveryMode: amqp.Persistent,
-				ContentType:  echo.MIMEApplicationJSON,
-				Body:         []byte(fmt.Sprintf("Subject: %s\nFrom: %s\n\n%s", subject, from, content)),
-			},
-		)
-		if err != nil {
-			log.Error().Err(err).Msgf("failed to publish task %d", task.ID)
+		if err := d.send(channel, email); err != nil {
+			log.Error().Err(err).Msgf("failed to send email for task %d", task.ID)
 			return err
 		}
 
 		// save task log
-		query.DB.WithContext(ctx).Create(&models.TaskLog{
-			PoolID:    poolID,
-			Sender:    sender.FromEmail,
-			Receiver:  receiver,
-			State:     models.TaskLogStatePending,
-			CreatedAt: time.Now(),
-		})
-
+		if err := d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStatePending, ""); err != nil {
+			log.Error().Err(err).Msgf("failed to save task log for task %d", task.ID)
+			return err
+		}
 		count++
 	}
 
 	return nil
+}
+
+func (d *dispatcher) saveTaskLog(ctx context.Context, taskID uint, poolID uint, sender string, receiver string, state string, message string) error {
+	return query.DB.WithContext(ctx).Create(&models.TaskLog{
+		TaskID:    taskID,
+		PoolID:    poolID,
+		Sender:    sender,
+		Receiver:  receiver,
+		State:     state,
+		Message:   message,
+		CreatedAt: time.Now(),
+	}).Error
+}
+
+func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email) error {
+	body, err := email.ToJSONBytes()
+	if err != nil {
+		return err
+	}
+
+	return channel.Publish(
+		"",
+		d.queueName(),
+		false,
+		false,
+		amqp.Publishing{
+			DeliveryMode: amqp.Persistent,
+			ContentType:  echo.MIMEApplicationJSON,
+			Body:         body,
+		},
+	)
+
 }
 
 func (d *dispatcher) selectPool(pools []*models.TaskPool) (poolID uint, err error) {
@@ -299,4 +329,44 @@ func (d *dispatcher) queueName() string {
 		queue = "task_queue"
 	}
 	return queue
+}
+
+func (d *dispatcher) createChannel() (*amqp.Connection, *amqp.Channel, error) {
+	conn, err := amqp.Dial(viper.GetString("rabbitmq.url"))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	channel, err := conn.Channel()
+	if err != nil {
+		d.closeChannel(conn, nil)
+		return nil, nil, err
+	}
+
+	queue := d.queueName()
+	_, err = channel.QueueDeclare(
+		queue,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to declare queue")
+		d.closeChannel(conn, channel)
+		return nil, nil, err
+	}
+
+	return conn, channel, nil
+}
+
+func (d *dispatcher) closeChannel(conn *amqp.Connection, channel *amqp.Channel) {
+	if conn != nil {
+		_ = conn.Close()
+	}
+	if channel != nil {
+		_ = channel.Close()
+	}
 }

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"gorm.io/gorm"
@@ -14,15 +15,16 @@ var (
 
 type Task struct {
 	gorm.Model
-	Subject            string      `gorm:"column:subject;type:varchar(255);not null" json:"subject"`
-	ContextType        string      `gorm:"column:context_type;type:varchar(255);not null" json:"context_type"` // MIME type
-	Content            string      `gorm:"column:content;type:text;not null" json:"content"`
-	Receivers          []string    `gorm:"column:receivers;type:text;not null" json:"receivers"`
-	State              string      `gorm:"column:state;type:varchar(255);not null" json:"state"`
-	Pools              []*TaskPool `gorm:"many2many:task_pool_ref;" json:"pools"`
-	MaxDispatchPreHour int         `gorm:"column:max_dispatch_pre_hour;type:int;not null" json:"max_dispatch_pre_hour"`
-	ScheduleAt         *time.Time  `gorm:"column:schedule_at;default:null" json:"schedule_at"`
-	LastDispatchAt     *time.Time  `gorm:"column:last_dispatch_at;not null" json:"last_dispatch_at"`
+	Subject            string           `gorm:"column:subject;type:varchar(255);not null" json:"subject"`
+	ContentType        string           `gorm:"column:content_type;type:varchar(255);not null" json:"content_type"` // MIME type
+	Content            string           `gorm:"column:content;type:text;not null" json:"content"`
+	Receivers          []string         `gorm:"column:receivers;type:text;not null" json:"receivers"`
+	Metadata           *json.RawMessage `gorm:"column:metadata;type:json;default:null" json:"metadata"`
+	State              string           `gorm:"column:state;type:varchar(255);not null" json:"state"`
+	Pools              []*TaskPool      `gorm:"many2many:task_pool_ref;" json:"pools"`
+	MaxDispatchPreHour int              `gorm:"column:max_dispatch_pre_hour;type:int;not null" json:"max_dispatch_pre_hour"`
+	ScheduleAt         *time.Time       `gorm:"column:schedule_at;default:null" json:"schedule_at"`
+	LastDispatchAt     *time.Time       `gorm:"column:last_dispatch_at;not null" json:"last_dispatch_at"`
 }
 
 type TaskPool struct {
@@ -47,6 +49,7 @@ type TaskLog struct {
 	Sender    string    `gorm:"column:sender;type:varchar(255);not null" json:"sender"`
 	Receiver  string    `gorm:"column:receiver;type:varchar(255);not null" json:"receiver"`
 	State     string    `gorm:"column:state;type:varchar(64);not null" json:"state"`
+	Message   string    `gorm:"column:message;type:text;not null" json:"message"`
 	CreatedAt time.Time `gorm:"column:created_at;not null" json:"created_at"`
 }
 
