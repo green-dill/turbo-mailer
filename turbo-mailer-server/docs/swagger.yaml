@@ -106,7 +106,7 @@ definitions:
     properties:
       content:
         type: string
-      context_type:
+      content_type:
         description: MIME type
         type: string
       createdAt:
@@ -119,6 +119,10 @@ definitions:
         type: string
       max_dispatch_pre_hour:
         type: integer
+      metadata:
+        items:
+          type: integer
+        type: array
       pools:
         items:
           $ref: '#/definitions/models.TaskPool'

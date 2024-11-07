@@ -168,7 +168,7 @@ func Store(c echo.Context) error {
 
 	// Parse form data
 	task.Subject = c.FormValue("subject")
-	task.ContextType = c.FormValue("contextType")
+	task.ContentType = c.FormValue("contextType")
 	task.State = c.FormValue("state")
 	maxDispatchPerHour, err := strconv.Atoi(c.FormValue("maxDispatchPerHour"))
 	if err != nil {
@@ -244,7 +244,7 @@ func Update(c echo.Context) error {
 		existingTask.Subject = subject
 	}
 	if contextType := c.FormValue("contextType"); contextType != "" {
-		existingTask.ContextType = contextType
+		existingTask.ContentType = contextType
 	}
 	if state := c.FormValue("state"); state != "" {
 		existingTask.State = state

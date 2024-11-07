@@ -32,6 +32,7 @@ func newTaskLogArchive(db *gorm.DB, opts ...gen.DOOption) taskLogArchive {
 	_taskLogArchive.Sender = field.NewString(tableName, "sender")
 	_taskLogArchive.Receiver = field.NewString(tableName, "receiver")
 	_taskLogArchive.State = field.NewString(tableName, "state")
+	_taskLogArchive.Message = field.NewString(tableName, "message")
 	_taskLogArchive.CreatedAt = field.NewTime(tableName, "created_at")
 	_taskLogArchive.ArchivedAt = field.NewTime(tableName, "archived_at")
 
@@ -50,6 +51,7 @@ type taskLogArchive struct {
 	Sender     field.String
 	Receiver   field.String
 	State      field.String
+	Message    field.String
 	CreatedAt  field.Time
 	ArchivedAt field.Time
 
@@ -74,6 +76,7 @@ func (t *taskLogArchive) updateTableName(table string) *taskLogArchive {
 	t.Sender = field.NewString(table, "sender")
 	t.Receiver = field.NewString(table, "receiver")
 	t.State = field.NewString(table, "state")
+	t.Message = field.NewString(table, "message")
 	t.CreatedAt = field.NewTime(table, "created_at")
 	t.ArchivedAt = field.NewTime(table, "archived_at")
 
@@ -104,13 +107,14 @@ func (t *taskLogArchive) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (t *taskLogArchive) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 8)
+	t.fieldMap = make(map[string]field.Expr, 9)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["task_id"] = t.TaskID
 	t.fieldMap["pool_id"] = t.PoolID
 	t.fieldMap["sender"] = t.Sender
 	t.fieldMap["receiver"] = t.Receiver
 	t.fieldMap["state"] = t.State
+	t.fieldMap["message"] = t.Message
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["archived_at"] = t.ArchivedAt
 }

@@ -31,9 +31,10 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	_task.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_task.DeletedAt = field.NewField(tableName, "deleted_at")
 	_task.Subject = field.NewString(tableName, "subject")
-	_task.ContextType = field.NewString(tableName, "context_type")
+	_task.ContentType = field.NewString(tableName, "content_type")
 	_task.Content = field.NewString(tableName, "content")
 	_task.Receivers = field.NewField(tableName, "receivers")
+	_task.Metadata = field.NewBytes(tableName, "metadata")
 	_task.State = field.NewString(tableName, "state")
 	_task.MaxDispatchPreHour = field.NewInt(tableName, "max_dispatch_pre_hour")
 	_task.ScheduleAt = field.NewTime(tableName, "schedule_at")
@@ -71,9 +72,10 @@ type task struct {
 	UpdatedAt          field.Time
 	DeletedAt          field.Field
 	Subject            field.String
-	ContextType        field.String
+	ContentType        field.String
 	Content            field.String
 	Receivers          field.Field
+	Metadata           field.Bytes
 	State              field.String
 	MaxDispatchPreHour field.Int
 	ScheduleAt         field.Time
@@ -100,9 +102,10 @@ func (t *task) updateTableName(table string) *task {
 	t.UpdatedAt = field.NewTime(table, "updated_at")
 	t.DeletedAt = field.NewField(table, "deleted_at")
 	t.Subject = field.NewString(table, "subject")
-	t.ContextType = field.NewString(table, "context_type")
+	t.ContentType = field.NewString(table, "content_type")
 	t.Content = field.NewString(table, "content")
 	t.Receivers = field.NewField(table, "receivers")
+	t.Metadata = field.NewBytes(table, "metadata")
 	t.State = field.NewString(table, "state")
 	t.MaxDispatchPreHour = field.NewInt(table, "max_dispatch_pre_hour")
 	t.ScheduleAt = field.NewTime(table, "schedule_at")
@@ -131,15 +134,16 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *task) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 13)
+	t.fieldMap = make(map[string]field.Expr, 14)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["deleted_at"] = t.DeletedAt
 	t.fieldMap["subject"] = t.Subject
-	t.fieldMap["context_type"] = t.ContextType
+	t.fieldMap["content_type"] = t.ContentType
 	t.fieldMap["content"] = t.Content
 	t.fieldMap["receivers"] = t.Receivers
+	t.fieldMap["metadata"] = t.Metadata
 	t.fieldMap["state"] = t.State
 	t.fieldMap["max_dispatch_pre_hour"] = t.MaxDispatchPreHour
 	t.fieldMap["schedule_at"] = t.ScheduleAt

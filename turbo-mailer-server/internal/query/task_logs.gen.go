@@ -32,6 +32,7 @@ func newTaskLog(db *gorm.DB, opts ...gen.DOOption) taskLog {
 	_taskLog.Sender = field.NewString(tableName, "sender")
 	_taskLog.Receiver = field.NewString(tableName, "receiver")
 	_taskLog.State = field.NewString(tableName, "state")
+	_taskLog.Message = field.NewString(tableName, "message")
 	_taskLog.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_taskLog.fillFieldMap()
@@ -49,6 +50,7 @@ type taskLog struct {
 	Sender    field.String
 	Receiver  field.String
 	State     field.String
+	Message   field.String
 	CreatedAt field.Time
 
 	fieldMap map[string]field.Expr
@@ -72,6 +74,7 @@ func (t *taskLog) updateTableName(table string) *taskLog {
 	t.Sender = field.NewString(table, "sender")
 	t.Receiver = field.NewString(table, "receiver")
 	t.State = field.NewString(table, "state")
+	t.Message = field.NewString(table, "message")
 	t.CreatedAt = field.NewTime(table, "created_at")
 
 	t.fillFieldMap()
@@ -97,13 +100,14 @@ func (t *taskLog) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *taskLog) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 7)
+	t.fieldMap = make(map[string]field.Expr, 8)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["task_id"] = t.TaskID
 	t.fieldMap["pool_id"] = t.PoolID
 	t.fieldMap["sender"] = t.Sender
 	t.fieldMap["receiver"] = t.Receiver
 	t.fieldMap["state"] = t.State
+	t.fieldMap["message"] = t.Message
 	t.fieldMap["created_at"] = t.CreatedAt
 }
 

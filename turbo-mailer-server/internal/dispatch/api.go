@@ -5,7 +5,7 @@ import (
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/schema"
 
-	"github.com/openzipkin/zipkin-go/reporter/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // DispatchImmediately dispatch task immediately

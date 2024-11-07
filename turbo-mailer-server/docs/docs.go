@@ -1416,7 +1416,7 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
-                "context_type": {
+                "content_type": {
                     "description": "MIME type",
                     "type": "string"
                 },
@@ -1434,6 +1434,12 @@ const docTemplate = `{
                 },
                 "max_dispatch_pre_hour": {
                     "type": "integer"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "pools": {
                     "type": "array",
