@@ -140,3 +140,4 @@ dist
 !.github
 !.helmignore
 !.dockerignore
+!.air.toml
