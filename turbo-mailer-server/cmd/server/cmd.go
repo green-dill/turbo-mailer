@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 	_ "turbo-mailer-server/docs"
@@ -65,10 +67,16 @@ func serve() {
 		SigningKey:  []byte(viper.GetString("jwt.secret")),
 		TokenLookup: "header:Authorization,cookie:jwt",
 		Skipper: func(c echo.Context) bool {
-			skipPaths := []string{"/api/v1/auth/login", "/swagger/*", "/metrics", "/version", "/health"}
+			skipPaths := []string{"/", "/health", "/ping", "/api/v1/auth/login", "/swagger/*", "/metrics", "/version", "/health"}
 			for _, path := range skipPaths {
-				if c.Path() == path {
+				requestPath := c.Path()
+				if requestPath == path {
 					return true
+				}
+				if strings.Contains(path, "*") {
+					if match, _ := filepath.Match(path, requestPath); match {
+						return true
+					}
 				}
 			}
 			return false
