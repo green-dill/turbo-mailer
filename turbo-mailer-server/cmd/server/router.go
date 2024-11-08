@@ -31,6 +31,8 @@ func route(e *echo.Echo) {
 
 	g.GET("/task", task.List)
 	g.GET("/task/:id", task.Get)
+	g.GET("/tasks/content-template", task.DownloadContentTemplate)
+	g.GET("/tasks/receivers-template", task.DownloadReceiversTemplate)
 	g.POST("/task", task.Store)
 	g.POST("/task/:id", task.Update)
 	g.DELETE("/task/:id", task.Delete)

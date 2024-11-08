@@ -215,6 +215,12 @@ const docTemplate = `{
                         "description": "Search by pool name",
                         "name": "search",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Has sender",
+                        "name": "has_sender",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -774,7 +780,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Context type (html or text)",
-                        "name": "contextType",
+                        "name": "context_type",
                         "in": "formData",
                         "required": true
                     },
@@ -793,18 +799,36 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Task state",
-                        "name": "state",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Max dispatch per hour",
-                        "name": "maxDispatchPerHour",
-                        "in": "formData",
-                        "required": true
+                        "name": "max_dispatch_per_hour",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Schedule at, format: YYYY-MM-DD HH:MM:SS",
+                        "name": "schedule_at",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Pools",
+                        "name": "pools",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Pools weights",
+                        "name": "pools_weights",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1349,10 +1373,10 @@ const docTemplate = `{
         "models.Pool": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "deleted_at": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "description": {
@@ -1373,18 +1397,23 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.PoolSender"
                     }
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }
         },
         "models.PoolSender": {
             "type": "object",
+            "required": [
+                "domain",
+                "from_email",
+                "from_name"
+            ],
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "deleted_at": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "domain": {
@@ -1405,8 +1434,19 @@ const docTemplate = `{
                 "reply_to": {
                     "type": "string"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.StringArray": {
+            "type": "object",
+            "properties": {
+                "v": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1420,10 +1460,10 @@ const docTemplate = `{
                     "description": "MIME type",
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "deleted_at": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1448,10 +1488,7 @@ const docTemplate = `{
                     }
                 },
                 "receivers": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "$ref": "#/definitions/models.StringArray"
                 },
                 "schedule_at": {
                     "type": "string"
@@ -1462,7 +1499,7 @@ const docTemplate = `{
                 "subject": {
                     "type": "string"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -1470,10 +1507,10 @@ const docTemplate = `{
         "models.TaskPool": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "deleted_at": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1488,7 +1525,7 @@ const docTemplate = `{
                 "task_id": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 },
                 "weight": {

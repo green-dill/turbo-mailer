@@ -2,17 +2,21 @@ package task
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
+	"turbo-mailer-server/internal/dispatch"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
 	"turbo-mailer-server/internal/schema"
 
 	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 )
 
 // List
@@ -75,6 +79,14 @@ func List(c echo.Context) error {
 	tasks, err := q.Find()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	// Limit the number of receivers to 100
+	// reduce the response payload size
+	for _, task := range tasks {
+		if len(task.Receivers.Val()) > 100 {
+			task.Receivers = models.NewJSON(task.Receivers.Val()[:100])
+		}
 	}
 
 	// Build next and prev URLs
@@ -141,6 +153,12 @@ func Get(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
 
+	// Limit the number of receivers to 100
+	// reduce the response payload size
+	if len(task.Receivers.Val()) > 100 {
+		task.Receivers = models.NewJSON(task.Receivers.Val()[:100])
+	}
+
 	return c.JSON(http.StatusOK, task)
 }
 
@@ -151,15 +169,17 @@ func Get(c echo.Context) error {
 //	@Tags			Tasks
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			subject				formData	string	true	"Task subject"
-//	@Param			contextType			formData	string	true	"Context type (html or text)"
-//	@Param			content				formData	file	true	"Content file (html or text)"
-//	@Param			receivers			formData	file	true	"Receivers CSV file"
-//	@Param			state				formData	string	true	"Task state"
-//	@Param			maxDispatchPerHour	formData	int		true	"Max dispatch per hour"
-//	@Success		201					{object}	models.Task
-//	@Failure		400					{object}	map[string]string
-//	@Failure		500					{object}	map[string]string
+//	@Param			subject					formData	string	true	"Task subject"
+//	@Param			context_type			formData	string	true	"Context type (html or text)"
+//	@Param			content					formData	file	true	"Content file (html or text)"
+//	@Param			receivers				formData	file	true	"Receivers CSV file"
+//	@Param			max_dispatch_per_hour	formData	int		false "Max dispatch per hour"
+//	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
+//	@Param			pools					formData	[]int	false	"Pools"
+//	@Param			pools_weights			formData	[]int	false	"Pools weights"
+//	@Success		201						{object}	models.Task
+//	@Failure		400						{object}	map[string]string
+//	@Failure		500						{object}	map[string]string
 //	@Security		JWT
 //	@Router			/api/v1/tasks [post]
 func Store(c echo.Context) error {
@@ -168,11 +188,11 @@ func Store(c echo.Context) error {
 
 	// Parse form data
 	task.Subject = c.FormValue("subject")
-	task.ContentType = c.FormValue("contextType")
-	task.State = c.FormValue("state")
-	maxDispatchPerHour, err := strconv.Atoi(c.FormValue("maxDispatchPerHour"))
+	task.ContentType = c.FormValue("content_type")
+	task.State = models.TaskStatePending
+	maxDispatchPerHour, err := strconv.Atoi(c.FormValue("max_dispatch_per_hour"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid maxDispatchPerHour"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid max_dispatch_per_hour"})
 	}
 	task.MaxDispatchPreHour = maxDispatchPerHour
 
@@ -196,11 +216,85 @@ func Store(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file"})
 	}
-	task.Receivers = receivers
+	task.Receivers = models.NewJSON(receivers)
+
+	if scheduleAt := c.FormValue("schedule_at"); scheduleAt != "" {
+		scheduleAtTime, err := time.Parse(time.DateTime, scheduleAt)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid schedule_at"})
+		}
+		task.ScheduleAt = &scheduleAtTime
+	}
+	formPools := c.FormValue("pools")
+	formPoolsWeights := c.FormValue("pools_weights")
+
+	var (
+		poolIds []uint
+		weights []int
+		pools   []*models.TaskPool
+	)
+
+	if formPools != "" {
+		poolIds = lo.Map(strings.Split(formPools, ","), func(poolId string, _ int) uint {
+			poolIdUint, err := strconv.ParseUint(poolId, 10, 32)
+			if err != nil {
+				return 0
+			}
+			return uint(poolIdUint)
+		})
+	}
+
+	if formPoolsWeights != "" {
+		weights = lo.Map(strings.Split(formPoolsWeights, ","), func(weight string, _ int) int {
+			weightInt, err := strconv.Atoi(weight)
+			if err != nil {
+				return 0
+			}
+			return weightInt
+		})
+	}
+
+	if len(poolIds) != len(weights) {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Pools and weights must have the same length"})
+	}
+
+	// pool ids must exists
+	ps, err := query.Pool.WithContext(ctx).
+		Select(query.Pool.ID, query.Pool.Name).
+		Where(query.Pool.ID.In(poolIds...)).
+		Where(query.Pool.SenderCount.Gt(0)).
+		Find()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get pools"})
+	}
+	if len(ps) != len(poolIds) {
+		missingPoolIds := lo.Filter(poolIds, func(poolId uint, _ int) bool {
+			return !lo.ContainsBy(ps, func(pool *models.Pool) bool {
+				return pool.ID == poolId
+			})
+		})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("some of the pools are not found: %v", missingPoolIds)})
+	}
+
+	// create task pools
+	for i, poolId := range poolIds {
+		pools = append(pools, &models.TaskPool{
+			PoolID: poolId,
+			Pool:   ps[i],
+			Weight: weights[i],
+		})
+	}
+	task.Pools = pools
 
 	err = query.Task.WithContext(ctx).Create(task)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	// Limit the number of receivers to 100
+	// reduce the response payload size
+	if len(receivers) > 100 {
+		task.Receivers = models.NewJSON(receivers[:100])
 	}
 
 	return c.JSON(http.StatusCreated, task)
@@ -272,7 +366,7 @@ func Update(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file"})
 		}
-		existingTask.Receivers = receivers
+		existingTask.Receivers = models.NewJSON(receivers)
 	}
 
 	// Perform the update
@@ -388,8 +482,10 @@ func StartImmediately(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update task schedule"})
 	}
 
-	// TODO: Trigger the sending process
-	// This might involve calling a function or sending a message to a queue to start the task
+	err = dispatch.DispatchImmediately(ctx, task)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to dispatch task"})
+	}
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message":    "Task scheduled to start immediately",
@@ -440,8 +536,7 @@ This is a sample email template.`
 	}
 
 	c.Response().Header().Set("Content-Disposition", "attachment; filename="+filename)
-	c.Response().Header().Set("Content-Type", "text/plain")
-	return c.String(http.StatusOK, content)
+	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(content))
 }
 
 // DownloadReceiversTemplate
@@ -461,8 +556,7 @@ jane@example.com
 user@example.com`
 
 	c.Response().Header().Set("Content-Disposition", "attachment; filename=receivers_template.csv")
-	c.Response().Header().Set("Content-Type", "text/csv")
-	return c.String(http.StatusOK, content)
+	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(content))
 }
 
 // Helper functions

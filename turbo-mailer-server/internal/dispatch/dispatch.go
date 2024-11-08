@@ -140,7 +140,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 	}
 
 	count := 0
-	for _, receiver := range task.Receivers {
+	for _, receiver := range task.Receivers.Val() {
 		var n int64
 		err := query.DB.WithContext(ctx).
 			Where(query.TaskLog.TaskID.Eq(task.ID)).
@@ -297,7 +297,7 @@ func (d *dispatcher) selectPool(pools []*models.TaskPool) (poolID uint, err erro
 	return 0, fmt.Errorf("no pool selected")
 }
 
-func (d *dispatcher) selectSender(ctx context.Context, poolID uint) (sender models.PoolSender, err error) {
+func (d *dispatcher) selectSender(ctx context.Context, poolID uint) (sender *models.PoolSender, err error) {
 	var pool *models.Pool
 
 	if p, ok := d.poolCache.Get(poolID); ok {

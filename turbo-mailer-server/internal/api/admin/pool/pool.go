@@ -3,6 +3,7 @@ package pool
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
 	"turbo-mailer-server/internal/schema"
@@ -21,6 +22,7 @@ import (
 //	@Param			page_size	query		int		false	"Page size"						default(10)
 //	@Param			sort		query		string	false	"Sort order: 'asc' or 'desc'"	default(desc)
 //	@Param			search		query		string	false	"Search by pool name"
+//	@Param			has_sender	query		boolean	false	"Has sender"
 //	@Success		200			{object}	schema.Page[models.Pool]
 //	@Failure		400			{object}	map[string]string
 //	@Failure		500			{object}	map[string]string
@@ -40,13 +42,19 @@ func List(c echo.Context) error {
 	}
 	sort := c.QueryParam("sort")
 	search := c.QueryParam("search")
+	hasSender := c.QueryParam("has_sender")
 
 	// Build query
-	q := query.Pool.WithContext(ctx)
+	q := query.Pool.WithContext(ctx).Preload(query.Pool.Senders)
 
 	// Apply search filter if provided
 	if search != "" {
 		q = q.Where(query.Pool.Name.Like("%" + search + "%"))
+	}
+
+	// Apply has sender filter if provided
+	if strings.EqualFold(hasSender, "true") {
+		q = q.Where(query.Pool.SenderCount.Gt(0))
 	}
 
 	// Count total records
@@ -125,7 +133,7 @@ func Get(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
-	pool, err := query.Pool.WithContext(ctx).Where(query.Pool.ID.Eq(uint(id))).First()
+	pool, err := query.Pool.WithContext(ctx).Preload(query.Pool.Senders).Where(query.Pool.ID.Eq(uint(id))).First()
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Pool not found"})
 	}

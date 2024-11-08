@@ -62,9 +62,9 @@ definitions:
     type: object
   models.Pool:
     properties:
-      createdAt:
+      created_at:
         type: string
-      deletedAt:
+      deleted_at:
         $ref: '#/definitions/gorm.DeletedAt'
       description:
         type: string
@@ -78,14 +78,14 @@ definitions:
         items:
           $ref: '#/definitions/models.PoolSender'
         type: array
-      updatedAt:
+      updated_at:
         type: string
     type: object
   models.PoolSender:
     properties:
-      createdAt:
+      created_at:
         type: string
-      deletedAt:
+      deleted_at:
         $ref: '#/definitions/gorm.DeletedAt'
       domain:
         type: string
@@ -99,8 +99,19 @@ definitions:
         type: integer
       reply_to:
         type: string
-      updatedAt:
+      updated_at:
         type: string
+    required:
+    - domain
+    - from_email
+    - from_name
+    type: object
+  models.StringArray:
+    properties:
+      v:
+        items:
+          type: string
+        type: array
     type: object
   models.Task:
     properties:
@@ -109,9 +120,9 @@ definitions:
       content_type:
         description: MIME type
         type: string
-      createdAt:
+      created_at:
         type: string
-      deletedAt:
+      deleted_at:
         $ref: '#/definitions/gorm.DeletedAt'
       id:
         type: integer
@@ -128,23 +139,21 @@ definitions:
           $ref: '#/definitions/models.TaskPool'
         type: array
       receivers:
-        items:
-          type: string
-        type: array
+        $ref: '#/definitions/models.StringArray'
       schedule_at:
         type: string
       state:
         type: string
       subject:
         type: string
-      updatedAt:
+      updated_at:
         type: string
     type: object
   models.TaskPool:
     properties:
-      createdAt:
+      created_at:
         type: string
-      deletedAt:
+      deleted_at:
         $ref: '#/definitions/gorm.DeletedAt'
       id:
         type: integer
@@ -154,7 +163,7 @@ definitions:
         type: integer
       task_id:
         type: integer
-      updatedAt:
+      updated_at:
         type: string
       weight:
         type: integer
@@ -362,6 +371,10 @@ paths:
         in: query
         name: search
         type: string
+      - description: Has sender
+        in: query
+        name: has_sender
+        type: boolean
       produces:
       - application/json
       responses:
@@ -724,7 +737,7 @@ paths:
         type: string
       - description: Context type (html or text)
         in: formData
-        name: contextType
+        name: context_type
         required: true
         type: string
       - description: Content file (html or text)
@@ -737,16 +750,28 @@ paths:
         name: receivers
         required: true
         type: file
-      - description: Task state
-        in: formData
-        name: state
-        required: true
-        type: string
       - description: Max dispatch per hour
         in: formData
-        name: maxDispatchPerHour
-        required: true
+        name: max_dispatch_per_hour
         type: integer
+      - description: 'Schedule at, format: YYYY-MM-DD HH:MM:SS'
+        in: formData
+        name: schedule_at
+        type: string
+      - collectionFormat: csv
+        description: Pools
+        in: formData
+        items:
+          type: integer
+        name: pools
+        type: array
+      - collectionFormat: csv
+        description: Pools weights
+        in: formData
+        items:
+          type: integer
+        name: pools_weights
+        type: array
       produces:
       - application/json
       responses:

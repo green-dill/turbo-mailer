@@ -3,8 +3,6 @@ package models
 import (
 	"encoding/json"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 var (
@@ -14,25 +12,25 @@ var (
 )
 
 type Task struct {
-	gorm.Model
+	BaseModel
 	Subject            string           `gorm:"column:subject;type:varchar(255);not null" json:"subject"`
 	ContentType        string           `gorm:"column:content_type;type:varchar(255);not null" json:"content_type"` // MIME type
 	Content            string           `gorm:"column:content;type:text;not null" json:"content"`
-	Receivers          []string         `gorm:"column:receivers;type:text;not null" json:"receivers"`
+	Receivers          StringArray      `gorm:"column:receivers;type:json;not null" json:"receivers"`
 	Metadata           *json.RawMessage `gorm:"column:metadata;type:json;default:null" json:"metadata"`
 	State              string           `gorm:"column:state;type:varchar(255);not null" json:"state"`
 	Pools              []*TaskPool      `gorm:"many2many:task_pool_ref;" json:"pools"`
 	MaxDispatchPreHour int              `gorm:"column:max_dispatch_pre_hour;type:int;not null" json:"max_dispatch_pre_hour"`
 	ScheduleAt         *time.Time       `gorm:"column:schedule_at;default:null" json:"schedule_at"`
-	LastDispatchAt     *time.Time       `gorm:"column:last_dispatch_at;not null" json:"last_dispatch_at"`
+	LastDispatchAt     *time.Time       `gorm:"column:last_dispatch_at;default:null" json:"last_dispatch_at"`
 }
 
 type TaskPool struct {
-	gorm.Model
-	TaskID uint `gorm:"column:task_id;type:bigint;not null;uniqueIndex:idx_task_pool" json:"task_id"`
-	PoolID uint `gorm:"column:pool_id;type:bigint;not null;uniqueIndex:idx_task_pool" json:"pool_id"`
-	Pool   Pool `gorm:"foreignKey:id" json:"pool"`
-	Weight int  `gorm:"column:weight;type:int;not null;default:1" json:"weight"`
+	BaseModel
+	TaskID uint  `gorm:"column:task_id;type:bigint;not null;uniqueIndex:idx_task_pool" json:"task_id"`
+	PoolID uint  `gorm:"column:pool_id;type:bigint;not null;uniqueIndex:idx_task_pool" json:"pool_id"`
+	Pool   *Pool `gorm:"foreignKey:id" json:"pool"`
+	Weight int   `gorm:"column:weight;type:int;not null;default:1" json:"weight"`
 }
 
 var (
