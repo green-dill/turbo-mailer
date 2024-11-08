@@ -59,4 +59,4 @@ cd turbo-mailer/install
 bun install
 
 # Run the installation script
-bun install.ts
+bun index.ts
