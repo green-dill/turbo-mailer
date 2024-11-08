@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -167,6 +168,11 @@ func SenderStore(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
+	err = updatePoolSenderCount(ctx, pool.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
 	return c.JSON(http.StatusCreated, poolSender)
 }
 
@@ -190,10 +196,28 @@ func SenderDelete(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Sender ID"})
 	}
 
+	sender, _ := query.PoolSender.WithContext(ctx).Where(query.PoolSender.ID.Eq(uint(senderID))).First()
+
 	_, err = query.PoolSender.WithContext(ctx).Where(query.PoolSender.ID.Eq(uint(senderID))).Unscoped().Delete()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
+	if sender != nil {
+		err = updatePoolSenderCount(ctx, sender.PoolID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+	}
+
 	return c.NoContent(http.StatusNoContent)
+}
+
+func updatePoolSenderCount(ctx context.Context, poolID uint) error {
+	count, err := query.PoolSender.WithContext(ctx).Where(query.PoolSender.PoolID.Eq(poolID)).Count()
+	if err != nil {
+		return err
+	}
+	query.Pool.WithContext(ctx).Where(query.Pool.ID.Eq(poolID)).Update(query.Pool.SenderCount, count)
+	return nil
 }
