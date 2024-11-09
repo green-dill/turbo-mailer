@@ -235,12 +235,6 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          rules={[
-            {
-              required: true,
-              message: '请上传邮件内容',
-            },
-          ]}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
@@ -252,13 +246,8 @@ const EmailTaskList: React.FC = () => {
           label='收件人列表'
           placeholder='请上传'
           tooltip='上传 CSV/EXCEL 文件'
-          rules={[
-            {
-              required: true,
-              message: '请上传收件人列表',
-            },
-          ]}
           name="recipients"
+          accept={'.xlsx,.xls,.xlsm,.csv'}
           fieldProps={{
             beforeUpload(file, fileList) {
               return false;
@@ -276,7 +265,7 @@ const EmailTaskList: React.FC = () => {
             },
           ]}
           width="md"
-          name="max_dispatch_pre_hour"
+          name="maxDispatchPerHour"
         />
         <ProFormDateTimePicker
           label='发送时间'
@@ -290,26 +279,6 @@ const EmailTaskList: React.FC = () => {
           ]}
           width="md"
           name="schedule_at"
-        />
-        <ProFormRadio.Group
-          name="state"
-          label="状态"
-          rules={[
-            {
-              required: true,
-              message: '请选择状态',
-            },
-          ]}
-          options={[
-            {
-              value: '0',
-              label: '正常',
-            },
-            {
-              value: '1',
-              label: '禁用',
-            },
-          ]}
         />
       </ModalForm>
       <ModalForm

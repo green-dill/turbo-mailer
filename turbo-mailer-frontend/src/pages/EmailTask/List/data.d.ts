@@ -7,7 +7,7 @@ declare namespace EmailTask {
     receivers?: [];
     state?: string;
     pools?: [];
-    max_dispatch_pre_hour?: number;
+    maxDispatchPerHour?: number;
     schedule_at?: Date;
     last_dispatch_at?: Date;
     CreatedAt?: Date;
