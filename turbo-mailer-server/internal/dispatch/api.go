@@ -38,7 +38,7 @@ func TestSend(ctx context.Context, taskID uint, to string) error {
 
 	log.Info().Msgf("test send email from %s to %s", sender.FromEmail, to)
 
-	err = d.send(channel, email)
+	err = d.send(channel, email, 9)
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"reflect"
 	"time"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
@@ -166,7 +167,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			return err
 		}
 
-		if err := d.send(channel, email); err != nil {
+		if err := d.send(channel, email, 0); err != nil {
 			log.Error().Err(err).Msgf("failed to send email for task %d", task.ID)
 			return err
 		}
@@ -257,7 +258,7 @@ func (d *dispatcher) saveTaskLog(ctx context.Context, taskID uint, poolID uint, 
 	}).Error
 }
 
-func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email) error {
+func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email, priority uint8) error {
 	body, err := email.ToJSONBytes()
 	if err != nil {
 		return err
@@ -272,6 +273,8 @@ func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email) error {
 			DeliveryMode: amqp.Persistent,
 			ContentType:  echo.MIMEApplicationJSON,
 			Body:         body,
+			Priority:     priority,
+			Type:         reflect.TypeOf(email).String(),
 		},
 	)
 
@@ -360,7 +363,9 @@ func (d *dispatcher) createChannel() (*amqp.Connection, *amqp.Channel, error) {
 		false,
 		false,
 		false,
-		nil,
+		amqp.Table{
+			amqp.QueueMessageTTLArg: 1000 * 60 * 60 * 24, // 24 hours
+		},
 	)
 
 	if err != nil {

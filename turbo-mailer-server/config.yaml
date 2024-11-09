@@ -18,7 +18,7 @@ redis:
     prefix: "dev"
 
 rabbitmq:
-  url: "amqp://user:password@127.0.0.1:5672"
+  url: "amqp://user:password@127.0.0.1:5672/turbo-mailer-local"
 
 log:
   level: debug
