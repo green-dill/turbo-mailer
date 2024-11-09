@@ -16,8 +16,8 @@ export async function queryEmailTask(params: API.PageParams, options?: { [key: s
 }
 
 export async function queryEmailTaskById(params: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
-  const { ID } = params;
-  return request<EmailTask.EmailTaskListItem>(`/api/v1/task/${ID}`, {
+  const { id } = params;
+  return request<EmailTask.EmailTaskListItem>(`/api/v1/task/${id}`, {
     method: 'GET',
     ...(options || {}),
   }).then(res => {
@@ -50,8 +50,8 @@ export async function addEmailTask(body: EmailTask.EmailTaskListItem, options?: 
 }
 
 export async function removeEmailTask(params: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
-  const { ID } = params;
-  return request<Record<string, any>>(`/api/v1/task/${ID}`, {
+  const { id } = params;
+  return request<Record<string, any>>(`/api/v1/task/${id}`, {
     method: 'DELETE',
     ...(options || {}),
   });

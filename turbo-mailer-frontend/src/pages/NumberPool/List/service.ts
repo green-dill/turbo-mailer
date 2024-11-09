@@ -16,8 +16,8 @@ export async function queryNumberPool(params: API.PageParams, options?: { [key: 
 }
 
 export async function queryNumberPoolById(params: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
-  const { ID } = params;
-  return request<NumberPool.NumberPoolListItem>(`/api/v1/pool/${ID}`, {
+  const { id } = params;
+  return request<NumberPool.NumberPoolListItem>(`/api/v1/pool/${id}`, {
     method: 'GET',
     ...(options || {}),
   }).then(res => {
@@ -50,8 +50,8 @@ export async function addNumberPool(body: NumberPool.NumberPoolListItem, options
 }
 
 export async function removeNumberPool(params: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
-  const { ID } = params;
-  return request<Record<string, any>>(`/api/v1/pool/${ID}`, {
+  const { id } = params;
+  return request<Record<string, any>>(`/api/v1/pool/${id}`, {
     method: 'DELETE',
     ...(options || {}),
   });

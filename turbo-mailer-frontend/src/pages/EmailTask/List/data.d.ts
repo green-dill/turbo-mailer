@@ -1,6 +1,6 @@
 declare namespace EmailTask {
   type EmailTaskListItem = {
-    ID?: stirng;
+    id?: stirng;
     subject?: string;
     context_type?: string;
     content?: string;
@@ -10,8 +10,8 @@ declare namespace EmailTask {
     maxDispatchPerHour?: number;
     schedule_at?: Date;
     last_dispatch_at?: Date;
-    CreatedAt?: Date;
-    UpdatedAt?: Date;
+    created_at?: Date;
+    updated_at?: Date;
   };
 
   type EmailTaskList = {

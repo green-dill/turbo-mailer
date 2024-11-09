@@ -1,13 +1,13 @@
 declare namespace PoolSender {
   type PoolSenderListItem = {
-    ID?: number;
+    id?: number;
     pool_id?: string;
     from_name?: string;
     from_email?: string;
     reply_to?: string;
     domain?: string;
-    CreatedAt?: Date;
-    UpdatedAt?: Date;
+    created_at?: Date;
+    updated_at?: Date;
   };
 
   type PoolSenderList = {

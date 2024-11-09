@@ -1,12 +1,12 @@
 declare namespace NumberPool {
   type NumberPoolListItem = {
-    ID?: stirng;
+    id?: stirng;
     name?: string;
     description?: string;
     sender_count?: number;
     sender?: [];
-    CreatedAt?: Date;
-    UpdatedAt?: Date;
+    created_at?: Date;
+    updated_at?: Date;
   };
 
   type NumberPoolList = {

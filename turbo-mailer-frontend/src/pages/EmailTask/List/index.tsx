@@ -72,7 +72,7 @@ const EmailTaskList: React.FC = () => {
   const columns: ProColumns<EmailTask.EmailTaskListItem>[] = [
     {
       title: 'ID',
-      dataIndex: 'ID',
+      dataIndex: 'id',
       hideInSearch: true,
       hideInForm: true,
       hideInTable: true,
@@ -135,7 +135,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '创建时间',
-      dataIndex: 'CreatedAt',
+      dataIndex: 'created_at',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -144,7 +144,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '更新时间',
-      dataIndex: 'UpdatedAt',
+      dataIndex: 'updated_at',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -190,7 +190,7 @@ const EmailTaskList: React.FC = () => {
       <ProTable<EmailTask.EmailTaskListItem, API.PageParams>
         headerTitle="任务列表"
         actionRef={actionRef}
-        rowKey="ID"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}

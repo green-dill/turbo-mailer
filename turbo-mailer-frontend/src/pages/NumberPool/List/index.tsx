@@ -74,7 +74,7 @@ const NumberPoolList: React.FC = () => {
   const columns: ProColumns<NumberPool.NumberPoolListItem>[] = [
     {
       title: 'ID',
-      dataIndex: 'ID',
+      dataIndex: 'id',
       hideInSearch: true,
       hideInForm: true,
       hideInTable: true,
@@ -97,7 +97,7 @@ const NumberPoolList: React.FC = () => {
     },
     {
       title: '创建时间',
-      dataIndex: 'CreatedAt',
+      dataIndex: 'created_at',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -106,7 +106,7 @@ const NumberPoolList: React.FC = () => {
     },
     {
       title: '更新时间',
-      dataIndex: 'UpdatedAt',
+      dataIndex: 'updated_at',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -117,7 +117,7 @@ const NumberPoolList: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record: NumberPool.NumberPoolListItem) => [
-        <Link key="setting" to={`/number-pool/list/${record.ID}`}>
+        <Link key="setting" to={`/number-pool/list/${record.id}`}>
           配置
         </Link>,
         <Button
@@ -155,7 +155,7 @@ const NumberPoolList: React.FC = () => {
       <ProTable<NumberPool.NumberPoolListItem, API.PageParams>
         headerTitle="号池列表"
         actionRef={actionRef}
-        rowKey="ID"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}

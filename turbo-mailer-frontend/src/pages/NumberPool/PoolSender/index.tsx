@@ -8,9 +8,7 @@ import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
   ProDescriptions,
-  ProDescriptionsItemProps,
   ProFormText,
-  ProFormTextArea
 } from "@ant-design/pro-components";
 import {Link} from "@umijs/max";
 import {useParams} from "react-router";
@@ -82,7 +80,7 @@ const PoolSenderList: React.FC = () => {
   const columns: ProColumns<PoolSender.PoolSenderListItem>[] = [
     {
       title: 'ID',
-      dataIndex: 'ID',
+      dataIndex: 'id',
       hideInSearch: true,
       hideInForm: true,
       hideInTable: true,
@@ -171,11 +169,11 @@ const PoolSenderList: React.FC = () => {
       content={
         <ProDescriptions<NumberPool.NumberPoolListItem>
           column={3}
-          request={() => queryNumberPoolById({ID: params.poolId})}
+          request={() => queryNumberPoolById({id: params.poolId})}
           columns={[
             {
               title: 'ID',
-              dataIndex: 'ID',
+              dataIndex: 'id',
             },
             {
               title: '名称',
@@ -207,7 +205,7 @@ const PoolSenderList: React.FC = () => {
       <ProTable<PoolSender.PoolSenderListItem, API.PageParams>
         headerTitle="发件人列表"
         actionRef={actionRef}
-        rowKey="ID"
+        rowKey="id"
         search={false}
         toolBarRender={() => [
           <Button type="primary" onClick={() => handleModalOpen(true)}>

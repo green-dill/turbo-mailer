@@ -38,8 +38,8 @@ export async function addPoolSender(poolId?: string, body?: PoolSender.PoolSende
 }
 
 export async function removePoolSender(params: PoolSender.PoolSenderListItem, options?: { [key: string]: any }) {
-  const { ID } = params;
-  return request<Record<string, any>>(`/api/v1/pool-senders/${ID}`, {
+  const { id } = params;
+  return request<Record<string, any>>(`/api/v1/pool-senders/${id}`, {
     method: 'DELETE',
     ...(options || {}),
   });
