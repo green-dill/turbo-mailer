@@ -23,8 +23,12 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 25
+  smtp:
+    type: ClusterIP
+    port: 25
+  smtp_tls:
+    type: ClusterIP
+    port: 587
 
 
 resources: {}
@@ -44,7 +48,7 @@ domain: mail.example.com
 postfix_main_cf: |
   myhostname = {{ .Values.domain }}
   myorigin = $myhostname
-  mydestination = localhost
+  mydestination = $myhostname, localhost
   mynetworks = 127.0.0.0/8 [::1]/128 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
   relayhost =
 

@@ -11,6 +11,10 @@ spec:
       targetPort: smtp
       protocol: TCP
       name: smtp
+    - port: {{ .Values.service.smtp_tls.port }}
+      targetPort: smtp_tls
+      protocol: TCP
+      name: smtp_tls
   selector:
     {{- include "postfix.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: postfix

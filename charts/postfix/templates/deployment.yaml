@@ -142,7 +142,10 @@ spec:
               value: {{ .Values.domain }}
           ports:
             - name: smtp
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.service.smtp.port }}
+              protocol: TCP
+            - name: smtp_tls
+              containerPort: {{ .Values.service.smtp_tls.port }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
