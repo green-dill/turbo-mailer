@@ -463,8 +463,8 @@ func Test(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid task ID"})
 	}
 
-	testEmail := c.QueryParam("email")
-	if testEmail == "" {
+	email := c.QueryParam("email")
+	if email == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Test email is required"})
 	}
 
@@ -474,13 +474,15 @@ func Test(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
 
-	// TODO: Implement the actual test logic here
-	// This might involve sending a test email using the task's configuration
+	err = dispatch.TestSend(ctx, task.ID, email)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send test email"})
+	}
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Test initiated",
 		"task_id": strconv.FormatUint(uint64(task.ID), 10),
-		"email":   testEmail,
+		"email":   email,
 	})
 }
 

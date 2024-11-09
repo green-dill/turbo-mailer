@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 	"turbo-mailer-server/internal/models"
@@ -54,17 +55,12 @@ func (d *dispatcher) Run(ctx context.Context) {
 }
 
 func (d *dispatcher) processTasks(ctx context.Context) error {
-	rows, err := query.DB.WithContext(ctx).
+	tasks, err := query.Task.WithContext(ctx).
+		Preload(query.Task.Pools).
 		Where(query.Task.State.Eq(models.TaskStatePending)).
+		Where(query.Task.ScheduleAt.Gte(time.Now().Add(-time.Hour * 24))).
 		Order(query.Task.CreatedAt.Asc()).
-		Limit(1000).
-		Rows()
-	if err != nil {
-		log.Error().Err(err).Msg("failed to get tasks")
-		return err
-	}
-
-	defer rows.Close()
+		Limit(100).Find()
 
 	conn, channel, err := d.createChannel()
 	if err != nil {
@@ -73,14 +69,8 @@ func (d *dispatcher) processTasks(ctx context.Context) error {
 	}
 	defer d.closeChannel(conn, channel)
 
-	for rows.Next() {
-		var task models.Task
-		if err := rows.Scan(&task); err != nil {
-			log.Error().Err(err).Msg("failed to scan task")
-			return err
-		}
-
-		if err := d.dispatchTask(ctx, &task, channel); err != nil {
+	for _, task := range tasks {
+		if err := d.dispatchTask(ctx, task, channel); err != nil {
 			log.Error().Err(err).Msgf("failed to dispatch task %d", task.ID)
 			return err
 		}
@@ -112,7 +102,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 		}
 	}()
 
-	remaining := task.MaxDispatchPreHour
+	var remaining int
 
 	if lastDispatchAt != nil && task.MaxDispatchPreHour > 0 {
 		var count int64
@@ -137,6 +127,12 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			Uint("task_id", task.ID).
 			Int("remaining", remaining).
 			Msg("task check remaining for limit dispatch policy")
+	} else {
+		if task.MaxDispatchPreHour > 0 {
+			remaining = task.MaxDispatchPreHour
+		} else {
+			remaining = math.MaxInt
+		}
 	}
 
 	count := 0
@@ -166,61 +162,10 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			return nil
 		}
 
-		subject := task.Subject
-		content := task.Content
-
-		poolID, err := d.selectPool(task.Pools)
+		email, sender, err := d.buildEmail(ctx, task, receiver)
 		if err != nil {
-			log.Error().Err(err).Msgf("failed to select pool for task %d", task.ID)
+			log.Error().Err(err).Msgf("failed to build email for task %d", task.ID)
 			return err
-		}
-
-		sender, err := d.selectSender(ctx, poolID)
-		if err != nil {
-			log.Error().Err(err).Msgf("failed to select sender for task %d", task.ID)
-			return err
-		}
-
-		// email template parameters
-		params := map[string]any{
-			"name": receiver,
-		}
-
-		if task.Metadata != nil {
-			metadata := make(map[string]any)
-			if err := json.Unmarshal(*task.Metadata, &metadata); err != nil {
-				log.Error().Err(err).Msgf("failed to unmarshal metadata for task %d", task.ID)
-				d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStateFailed,
-					fmt.Sprintf("failed to unmarshal metadata: %v", err))
-				continue
-			}
-			params["metadata"] = metadata
-		}
-
-		subject, err = render.Render(subject, params)
-		if err != nil {
-			log.Error().Err(err).Msgf("failed to render email subject for task %d", task.ID)
-			d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStateFailed,
-				fmt.Sprintf("failed to render email subject: %v", err))
-			continue
-		}
-
-		content, err = render.Render(content, params)
-		if err != nil {
-			log.Error().Err(err).Msgf("failed to render email content for task %d", task.ID)
-			d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStateFailed,
-				fmt.Sprintf("failed to render email content: %v", err))
-			continue
-		}
-
-		from := fmt.Sprintf("%s <%s>", sender.FromName, sender.FromEmail)
-
-		email := &schema.Email{
-			Subject:     subject,
-			From:        from,
-			Content:     content,
-			ContentType: task.ContentType,
-			Receivers:   []string{receiver},
 		}
 
 		if err := d.send(channel, email); err != nil {
@@ -229,7 +174,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 		}
 
 		// save task log
-		if err := d.saveTaskLog(ctx, task.ID, poolID, sender.FromEmail, receiver, models.TaskLogStatePending, ""); err != nil {
+		if err := d.saveTaskLog(ctx, task.ID, sender.PoolID, sender.FromEmail, receiver, models.TaskLogStatePending, ""); err != nil {
 			log.Error().Err(err).Msgf("failed to save task log for task %d", task.ID)
 			return err
 		}
@@ -237,6 +182,69 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 	}
 
 	return nil
+}
+
+func (d *dispatcher) buildEmail(ctx context.Context, task *models.Task, receivers ...string) (*schema.Email, *models.PoolSender, error) {
+	sender, err := d.selectSenderByTask(ctx, task)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to select sender for task %d", task.ID)
+		return nil, nil, err
+	}
+
+	from := fmt.Sprintf("%s <%s>", sender.FromName, sender.FromEmail)
+
+	// email template parameters
+	params := map[string]any{
+		"receivers": receivers,
+		"sender":    sender,
+	}
+
+	if task.Metadata != nil {
+		metadata := make(map[string]any)
+		if err := json.Unmarshal(*task.Metadata, &metadata); err != nil {
+			log.Error().Err(err).Msgf("failed to unmarshal metadata for task %d", task.ID)
+			return nil, nil, err
+		}
+		params["metadata"] = metadata
+	}
+
+	subject, err := render.Render(task.Subject, params)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to render email subject for task %d", task.ID)
+		return nil, nil, err
+	}
+
+	content, err := render.Render(task.Content, params)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to render email content for task %d", task.ID)
+		return nil, nil, err
+	}
+
+	email := &schema.Email{
+		Subject:     subject,
+		From:        from,
+		Content:     content,
+		ContentType: task.ContentType,
+		Receivers:   receivers,
+	}
+
+	return email, sender, nil
+}
+
+func (d *dispatcher) selectSenderByTask(ctx context.Context, task *models.Task) (*models.PoolSender, error) {
+	poolID, err := d.selectPool(task.Pools)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to select pool for task %d", task.ID)
+		return nil, err
+	}
+
+	sender, err := d.selectSender(ctx, poolID)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to select sender for task %d", task.ID)
+		return nil, err
+	}
+
+	return sender, nil
 }
 
 func (d *dispatcher) saveTaskLog(ctx context.Context, taskID uint, poolID uint, sender string, receiver string, state string, message string) error {
