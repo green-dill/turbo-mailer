@@ -14,7 +14,7 @@ import (
 	"turbo-mailer-server/internal/utils/ptr"
 
 	"github.com/bsm/redislock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	cmap "github.com/orcaman/concurrent-map/v2"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
