@@ -879,7 +879,7 @@ paths:
         type: string
       - description: Context type (html or text)
         in: formData
-        name: contextType
+        name: context_type
         type: string
       - description: Content file (html or text)
         in: formData
@@ -895,7 +895,7 @@ paths:
         type: string
       - description: Max dispatch per hour
         in: formData
-        name: maxDispatchPerHour
+        name: max_dispatch_per_hour
         type: integer
       produces:
       - application/json

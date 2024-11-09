@@ -14,6 +14,7 @@ import (
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
 	"turbo-mailer-server/internal/schema"
+	"turbo-mailer-server/internal/utils/ptr"
 
 	"github.com/labstack/echo/v4"
 	"github.com/samber/lo"
@@ -173,7 +174,7 @@ func Get(c echo.Context) error {
 //	@Param			context_type			formData	string	true	"Context type (html or text)"
 //	@Param			content					formData	file	true	"Content file (html or text)"
 //	@Param			receivers				formData	file	true	"Receivers CSV file"
-//	@Param			max_dispatch_per_hour	formData	int		false "Max dispatch per hour"
+//	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
 //	@Param			pools					formData	[]int	false	"Pools"
 //	@Param			pools_weights			formData	[]int	false	"Pools weights"
@@ -224,6 +225,8 @@ func Store(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid schedule_at"})
 		}
 		task.ScheduleAt = &scheduleAtTime
+	} else {
+		task.ScheduleAt = ptr.Ptr(time.Now())
 	}
 	formPools := c.FormValue("pools")
 	formPoolsWeights := c.FormValue("pools_weights")
@@ -307,17 +310,17 @@ func Store(c echo.Context) error {
 //	@Tags			Tasks
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id					path		int		true	"Task ID"
-//	@Param			subject				formData	string	false	"Task subject"
-//	@Param			contextType			formData	string	false	"Context type (html or text)"
-//	@Param			content				formData	file	false	"Content file (html or text)"
-//	@Param			receivers			formData	file	false	"Receivers CSV file"
-//	@Param			state				formData	string	false	"Task state"
-//	@Param			maxDispatchPerHour	formData	int		false	"Max dispatch per hour"
-//	@Success		200					{object}	models.Task
-//	@Failure		400					{object}	map[string]string
-//	@Failure		404					{object}	map[string]string
-//	@Failure		500					{object}	map[string]string
+//	@Param			id						path		int		true	"Task ID"
+//	@Param			subject					formData	string	false	"Task subject"
+//	@Param			context_type			formData	string	false	"Context type (html or text)"
+//	@Param			content					formData	file	false	"Content file (html or text)"
+//	@Param			receivers				formData	file	false	"Receivers CSV file"
+//	@Param			state					formData	string	false	"Task state"
+//	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
+//	@Success		200						{object}	models.Task
+//	@Failure		400						{object}	map[string]string
+//	@Failure		404						{object}	map[string]string
+//	@Failure		500						{object}	map[string]string
 //	@Security		JWT
 //	@Router			/api/v1/tasks/{id} [put]
 func Update(c echo.Context) error {
@@ -337,13 +340,13 @@ func Update(c echo.Context) error {
 	if subject := c.FormValue("subject"); subject != "" {
 		existingTask.Subject = subject
 	}
-	if contextType := c.FormValue("contextType"); contextType != "" {
+	if contextType := c.FormValue("context_type"); contextType != "" {
 		existingTask.ContentType = contextType
 	}
 	if state := c.FormValue("state"); state != "" {
 		existingTask.State = state
 	}
-	if maxDispatchPerHourStr := c.FormValue("maxDispatchPerHour"); maxDispatchPerHourStr != "" {
+	if maxDispatchPerHourStr := c.FormValue("max_dispatch_per_hour"); maxDispatchPerHourStr != "" {
 		maxDispatchPerHour, err := strconv.Atoi(maxDispatchPerHourStr)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid maxDispatchPerHour"})
@@ -367,6 +370,14 @@ func Update(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file"})
 		}
 		existingTask.Receivers = models.NewJSON(receivers)
+	}
+
+	if scheduleAt := c.FormValue("schedule_at"); scheduleAt != "" {
+		scheduleAtTime, err := time.Parse(time.DateTime, scheduleAt)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid schedule_at"})
+		}
+		existingTask.ScheduleAt = &scheduleAtTime
 	}
 
 	// Perform the update

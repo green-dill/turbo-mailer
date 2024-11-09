@@ -1021,7 +1021,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Context type (html or text)",
-                        "name": "contextType",
+                        "name": "context_type",
                         "in": "formData"
                     },
                     {
@@ -1045,7 +1045,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Max dispatch per hour",
-                        "name": "maxDispatchPerHour",
+                        "name": "max_dispatch_per_hour",
                         "in": "formData"
                     }
                 ],
