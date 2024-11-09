@@ -144,7 +144,7 @@ spec:
             - name: smtp
               containerPort: {{ .Values.service.smtp.port }}
               protocol: TCP
-            - name: smtp_tls
+            - name: smtp-tls
               containerPort: {{ .Values.service.smtp_tls.port }}
               protocol: TCP
           resources:

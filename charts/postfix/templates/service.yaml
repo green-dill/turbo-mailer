@@ -12,7 +12,7 @@ spec:
       protocol: TCP
       name: smtp
     - port: {{ .Values.service.smtp_tls.port }}
-      targetPort: smtp_tls
+      targetPort: smtp-tls
       protocol: TCP
       name: smtp-tls
   selector:
