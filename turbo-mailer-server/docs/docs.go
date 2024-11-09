@@ -829,6 +829,12 @@ const docTemplate = `{
                         "description": "Pools weights",
                         "name": "pools_weights",
                         "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Metadata, JSON string of map[string]string",
+                        "name": "metadata",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1046,6 +1052,18 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Max dispatch per hour",
                         "name": "max_dispatch_per_hour",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Schedule at, format: YYYY-MM-DD HH:MM:SS",
+                        "name": "schedule_at",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Metadata, JSON string of map[string]string",
+                        "name": "metadata",
                         "in": "formData"
                     }
                 ],

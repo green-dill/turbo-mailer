@@ -179,7 +179,7 @@ func Get(c echo.Context) error {
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
 //	@Param			pools					formData	[]int	false	"Pools"
 //	@Param			pools_weights			formData	[]int	false	"Pools weights"
-//	@Param			metadata				formData	map[string]string	false	"Metadata"
+//	@Param			metadata				formData	string	false	"Metadata, JSON string of map[string]string"
 //	@Success		201						{object}	models.Task
 //	@Failure		400						{object}	map[string]string
 //	@Failure		500						{object}	map[string]string
@@ -330,7 +330,7 @@ func Store(c echo.Context) error {
 //	@Param			state					formData	string	false	"Task state"
 //	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
-//	@Param			metadata				formData	map[string]string	false	"Metadata"
+//	@Param			metadata				formData	string	false	"Metadata, JSON string of map[string]string"
 //	@Success		200						{object}	models.Task
 //	@Failure		400						{object}	map[string]string
 //	@Failure		404						{object}	map[string]string

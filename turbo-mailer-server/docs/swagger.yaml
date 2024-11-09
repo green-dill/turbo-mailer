@@ -772,6 +772,10 @@ paths:
           type: integer
         name: pools_weights
         type: array
+      - description: Metadata, JSON string of map[string]string
+        in: formData
+        name: metadata
+        type: string
       produces:
       - application/json
       responses:
@@ -897,6 +901,14 @@ paths:
         in: formData
         name: max_dispatch_per_hour
         type: integer
+      - description: 'Schedule at, format: YYYY-MM-DD HH:MM:SS'
+        in: formData
+        name: schedule_at
+        type: string
+      - description: Metadata, JSON string of map[string]string
+        in: formData
+        name: metadata
+        type: string
       produces:
       - application/json
       responses:
