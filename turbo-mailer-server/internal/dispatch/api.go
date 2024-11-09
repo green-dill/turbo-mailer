@@ -22,7 +22,7 @@ func DispatchImmediately(ctx context.Context, task *models.Task) error {
 
 // TestSend is used for testing
 func TestSend(ctx context.Context, taskID uint, to string) error {
-	task, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(taskID)).First()
+	task, err := query.Task.WithContext(ctx).Preload(query.Task.Pools).Where(query.Task.ID.Eq(taskID)).First()
 	if err != nil {
 		return err
 	}

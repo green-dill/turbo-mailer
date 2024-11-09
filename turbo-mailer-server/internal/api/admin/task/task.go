@@ -18,6 +18,7 @@ import (
 	"turbo-mailer-server/internal/utils/ptr"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 )
 
@@ -53,7 +54,7 @@ func List(c echo.Context) error {
 	search := c.QueryParam("search")
 
 	// Build query
-	q := query.Task.WithContext(ctx)
+	q := query.Task.WithContext(ctx).Preload(query.Task.Pools)
 
 	// Apply search filter if provided
 	if search != "" {
@@ -150,7 +151,7 @@ func Get(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
-	task, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).First()
+	task, err := query.Task.WithContext(ctx).Preload(query.Task.Pools).Where(query.Task.ID.Eq(uint(id))).First()
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
@@ -476,7 +477,8 @@ func Test(c echo.Context) error {
 
 	err = dispatch.TestSend(ctx, task.ID, email)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send test email"})
+		log.Error().Err(err).Msg("failed to send test email")
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to send test email: %s", err)})
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{

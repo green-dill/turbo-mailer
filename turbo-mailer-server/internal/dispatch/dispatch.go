@@ -15,24 +15,22 @@ import (
 	"turbo-mailer-server/internal/utils/ptr"
 
 	"github.com/bsm/redislock"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/labstack/echo/v4"
-	cmap "github.com/orcaman/concurrent-map/v2"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
 type dispatcher struct {
-	poolCache *cmap.ConcurrentMap[uint, *models.Pool]
+	poolCache *expirable.LRU[uint, *models.Pool]
 }
 
 func newDispatcher() (*dispatcher, error) {
-	poolCache := cmap.NewWithCustomShardingFunction[uint, *models.Pool](func(key uint) uint32 {
-		return uint32(key)
-	})
+	poolCache := expirable.NewLRU[uint, *models.Pool](10, nil, time.Minute)
 
 	return &dispatcher{
-		poolCache: &poolCache,
+		poolCache: poolCache,
 	}, nil
 }
 
@@ -280,6 +278,10 @@ func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email) error {
 }
 
 func (d *dispatcher) selectPool(pools []*models.TaskPool) (poolID uint, err error) {
+	if len(pools) == 0 {
+		return 0, fmt.Errorf("no pool found")
+	}
+
 	totalWeight := 0
 	for _, pool := range pools {
 		if pool.Weight <= 0 {
@@ -311,12 +313,12 @@ func (d *dispatcher) selectSender(ctx context.Context, poolID uint) (sender *mod
 	if p, ok := d.poolCache.Get(poolID); ok {
 		pool = p
 	} else {
-		pool, err = query.Q.WithContext(ctx).Pool.Where(query.Pool.ID.Eq(poolID)).First()
+		pool, err = query.Q.WithContext(ctx).Pool.Preload(query.Pool.Senders).Where(query.Pool.ID.Eq(poolID)).First()
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to get pool %d", poolID)
 			return
 		}
-		d.poolCache.Set(poolID, pool)
+		d.poolCache.Add(poolID, pool)
 	}
 
 	senders := pool.Senders

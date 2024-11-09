@@ -6,11 +6,11 @@ require (
 	github.com/bsm/redislock v0.9.4
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/labstack/echo-contrib v0.17.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/rs/zerolog v1.33.0

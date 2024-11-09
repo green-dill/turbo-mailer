@@ -10,7 +10,7 @@ const portForwards = [
   { name: 'Redis', command: `kubectl port-forward -n ${namespace} service/turbo-mailer-redis-master --address 0.0.0.0 16379:6379` },
   { name: 'RabbitMQ', command: `kubectl port-forward -n ${namespace} service/turbo-mailer-rabbitmq --address 0.0.0.0 5672:5672 --address 0.0.0.0 15672:15672` },
   { name: 'Turbo Mailer API', command: `kubectl port-forward -n ${namespace} service/turbo-mailer-api --address 0.0.0.0 5000:5000` },
-  { name: 'Postfix SMTP', command: `kubectl port-forward -n ${namespace} service/postfix-smtp --address 0.0.0.0 2525:25` },
+  { name: 'Postfix SMTP', command: `kubectl port-forward -n ${namespace} service/postfix-78978eb9 --address 0.0.0.0 2525:25` },
 ];
 
 const childProcesses: ChildProcess[] = [];
