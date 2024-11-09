@@ -268,7 +268,7 @@ func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email, priority u
 
 	return channel.Publish(
 		"",
-		d.queueName(),
+		rabbitmq.TaskQueueName(),
 		false,
 		false,
 		amqp.Publishing{

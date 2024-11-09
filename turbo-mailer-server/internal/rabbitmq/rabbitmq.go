@@ -13,16 +13,21 @@ func Channel(conn *amqp.Connection) (*amqp.Channel, error) {
 	return conn.Channel()
 }
 
+func TaskQueueName() string {
+	queue := viper.GetString("rabbitmq.queue")
+	if queue == "" {
+		queue = "task_queue"
+	}
+	return queue
+}
+
 func TaskChannel(conn *amqp.Connection) (*amqp.Channel, string, error) {
 	channel, err := conn.Channel()
 	if err != nil {
 		return nil, "", err
 	}
 
-	queue := viper.GetString("rabbitmq.queue")
-	if queue == "" {
-		queue = "task_queue"
-	}
+	queue := TaskQueueName()
 
 	_, err = channel.QueueDeclare(
 		queue,
