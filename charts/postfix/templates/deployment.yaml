@@ -36,6 +36,24 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
+        {{- if .Values.setupDNS.enabled }}
+        - name: {{ .Chart.Name }}-setup-dns
+          image: "{{ .Values.setupDNS.image.repository }}:{{ .Values.setupDNS.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ if eq (.Values.setupDNS.image.tag | default .Chart.AppVersion) "latest" }}Always{{ else }}{{ .Values.setupDNS.image.pullPolicy }}{{ end }}
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          env:
+            - name: DOMAIN
+              value: {{ .Values.domain }}
+          command: ["/app/turbo-mailer", "postfix"]
+          volumeMounts:
+            - name: dkimkeys
+              mountPath: /app/storage
+            - name: setup-dns
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+        {{- end }}
         {{- if .Values.checkDNS.enabled }}
         - name: {{ .Chart.Name }}-check-dns
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -182,14 +200,8 @@ spec:
             - name: shared-config
               mountPath: /etc/opendkim.conf
               subPath: opendkim.conf
-            {{- if .Values.dkimPrivateKey }}
-            - name: shared-config
-              mountPath: /etc/dkimkeys
-              subPath: dkimkeys
-            {{- else }}
             - name: dkimkeys
               mountPath: /etc/dkimkeys
-            {{- end }}
       volumes:
         - name: config
           configMap:
@@ -211,6 +223,11 @@ spec:
                 path: opendkim.conf
         - name: shared-config
           emptyDir: {}
+        {{- if .Values.setupDNS.enabled }}
+        - name: setup-dns
+          secret:
+            secretName: {{ include "postfix.fullname" . }}-setup-dns
+        {{- end }}
       hostAliases:
         - ip: 127.0.0.1
           hostnames:

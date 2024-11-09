@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"turbo-mailer-server/cmd/migrate"
+	"turbo-mailer-server/cmd/postfix"
 	"turbo-mailer-server/cmd/server"
 	"turbo-mailer-server/cmd/user"
 	"turbo-mailer-server/internal/config"
@@ -29,6 +30,7 @@ func init() {
 	rootCmd.AddCommand(server.Cmd)
 	rootCmd.AddCommand(migrate.Cmd)
 	rootCmd.AddCommand(user.Cmd)
+	rootCmd.AddCommand(postfix.Cmd)
 }
 
 func Execute() {

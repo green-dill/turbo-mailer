@@ -20,5 +20,9 @@ redis:
 rabbitmq:
   url: "amqp://user:password@127.0.0.1:5672/turbo-mailer-local"
 
+cloudflare:
+  api_key: "camqoJ2IKqENUqy6XJDKMHEsdpLPhZqO183E2pIN"
+  zone_id: "8b9ddec10aa5021580de8930c429ce9d"
+
 log:
   level: debug

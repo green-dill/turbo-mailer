@@ -107,7 +107,9 @@ jobs:
           build-args: |
             COMMITID=${{ env.GIT_SHA }}
             ENVIRONMENT=${{ env.ENVIRONMENT }}
-          tags: ${{ secrets.DOCKER_USERNAME}}/${{ matrix.repo }}:${{ env.TARGET_REF }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ env.TARGET_REF }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:latest
 
   update_manifest:
     name: Update manifest
@@ -169,10 +171,13 @@ jobs:
           # Update deploy/values-*.yaml
           if env in ["dev", "develop"]:
               deploy_file = "deploy/values-dev.yaml"
+              postfix_deploy_file = "deploy/values-postfix-dev.yaml"
           elif env in ["test", "staging"]:
               deploy_file = "deploy/values-test.yaml"
+              postfix_deploy_file = "deploy/values-postfix-test.yaml"
           elif env in ["prod", "production", "master"]:
               deploy_file = "deploy/values-prod.yaml"
+              postfix_deploy_file = "deploy/values-postfix-prod.yaml"
           else:
               raise ValueError(f"Unsupported environment: {env}")
 
@@ -190,6 +195,15 @@ jobs:
                   }
               },
               "worker": {
+                  "image": {
+                      "repository": f"{server_repo}",
+                      "tag": target_ref
+                  }
+              }
+          })
+
+          update(postfix_deploy_file, {
+              "setupDNS": {
                   "image": {
                       "repository": f"{server_repo}",
                       "tag": target_ref

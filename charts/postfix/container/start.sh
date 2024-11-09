@@ -7,11 +7,12 @@ fi
 
 if [[ -w /etc/dkimkeys ]]; then
     chmod -R 600 /etc/dkimkeys
+    chmod 700 /etc/dkimkeys
 
-    if [[ ! -f /etc/dkimkeys/mail.private ]]; then
+    if [[ ! -f /etc/dkimkeys/mail.pem ]]; then
         echo "Generating DKIM key..."
         opendkim-genkey -s mail -d "$DOMAIN" -D /etc/dkimkeys
-        chown opendkim:opendkim /etc/dkimkeys/mail.private
+        chown opendkim:opendkim /etc/dkimkeys/mail.pem
     fi
 fi
 

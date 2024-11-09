@@ -2,12 +2,10 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type ServerIP struct {
-	gorm.Model
+	BaseModel
 	IP           string    `gorm:"column:ip;type:varchar(128);not null;unique" json:"ip"`
 	LastActiveAt time.Time `gorm:"column:last_active_at;not null" json:"last_active_at"`
 }

@@ -90,7 +90,7 @@ opendkim: |
   UMask 002
 
   Domain {{ .Values.domain }}
-  KeyFile /etc/dkimkeys/mail.private
+  KeyFile /etc/dkimkeys/mail.pem
   Selector mail
   Socket inet:8891@localhost
 
@@ -120,3 +120,12 @@ affinity:
             values:
             - "{{ .Values.domain }}"
         topologyKey: "kubernetes.io/hostname"
+
+setupDNS:
+  enabled: false
+  image:
+    repository: yinheli/turbo-mailer-server
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  config: |
+    # TODO

@@ -22,6 +22,9 @@ releases:
     chart: ./charts/turbo-mailer
     values:
       - deploy/values-{{ .Environment.Name }}.yaml
+      - api:
+          config: |
+            {{- $.Values.config | nindent 12 }}
       - worker:
           domains:
             {{- range .Values.emailDomains }}
@@ -33,10 +36,15 @@ releases:
     namespace: turbo-mailer-{{ $.Environment.Name }}
     chart: ./charts/postfix
     values:
+      - deploy/values-postfix-{{ $.Environment.Name }}.yaml
       - image:
           tag: latest
         checkDNS:
           enabled: false
+        setupDNS:
+          enabled: true
+          config: |
+            {{- $.Values.config | nindent 12 }}
         {{- if and (hasKey . "dkimPrivateKey") .dkimPrivateKey }}
         dkimPrivateKey: |
           {{- printf "\n%s" .dkimPrivateKey | indent 10 }}
