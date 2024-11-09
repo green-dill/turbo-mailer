@@ -15,8 +15,14 @@ func (j *JSON[T]) Scan(value interface{}) error {
 		return nil
 	}
 
-	bytes, ok := value.(string)
-	if !ok {
+	var (
+		bytes []byte
+	)
+	if v, ok := value.([]byte); ok {
+		bytes = v
+	} else if v, ok := value.(string); ok {
+		bytes = []byte(v)
+	} else {
 		return errors.New("failed to unmarshal JSON value")
 	}
 
