@@ -11,6 +11,7 @@ import (
 	"time"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
+	"turbo-mailer-server/internal/rabbitmq"
 	"turbo-mailer-server/internal/render"
 	"turbo-mailer-server/internal/schema"
 	"turbo-mailer-server/internal/utils/ptr"
@@ -222,6 +223,7 @@ func (d *dispatcher) buildEmail(ctx context.Context, task *models.Task, receiver
 	email := &schema.Email{
 		Subject:     subject,
 		From:        from,
+		Domain:      sender.Domain,
 		Content:     content,
 		ContentType: task.ContentType,
 		Receivers:   receivers,
@@ -336,44 +338,16 @@ func (d *dispatcher) selectSender(ctx context.Context, poolID uint) (sender *mod
 	return
 }
 
-func (d *dispatcher) queueName() string {
-	queue := viper.GetString("rabbitmq.queue")
-	if queue == "" {
-		queue = "task_queue"
-	}
-	return queue
-}
-
 func (d *dispatcher) createChannel() (*amqp.Connection, *amqp.Channel, error) {
-	conn, err := amqp.Dial(viper.GetString("rabbitmq.url"))
+	conn, err := rabbitmq.Dial()
 	if err != nil {
 		return nil, nil, err
 	}
-
-	channel, err := conn.Channel()
+	channel, _, err := rabbitmq.TaskChannel(conn)
 	if err != nil {
 		d.closeChannel(conn, nil)
 		return nil, nil, err
 	}
-
-	queue := d.queueName()
-	_, err = channel.QueueDeclare(
-		queue,
-		true,
-		false,
-		false,
-		false,
-		amqp.Table{
-			amqp.QueueMessageTTLArg: 1000 * 60 * 60 * 24, // 24 hours
-		},
-	)
-
-	if err != nil {
-		log.Error().Err(err).Msg("failed to declare queue")
-		d.closeChannel(conn, channel)
-		return nil, nil, err
-	}
-
 	return conn, channel, nil
 }
 
