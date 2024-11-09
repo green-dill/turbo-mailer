@@ -168,14 +168,17 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			return err
 		}
 
-		if err := d.send(channel, email, 0); err != nil {
-			log.Error().Err(err).Msgf("failed to send email for task %d", task.ID)
+		taskLogID, err := d.saveTaskLog(ctx, task.ID, sender.PoolID, sender.FromEmail, receiver, models.TaskLogStatePending, "")
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to save task log for task %d", task.ID)
 			return err
 		}
 
-		// save task log
-		if err := d.saveTaskLog(ctx, task.ID, sender.PoolID, sender.FromEmail, receiver, models.TaskLogStatePending, ""); err != nil {
-			log.Error().Err(err).Msgf("failed to save task log for task %d", task.ID)
+		email.LogID = taskLogID
+
+		if err := d.send(channel, email, 0); err != nil {
+			log.Error().Err(err).Msgf("failed to send email for task %d", task.ID)
+			query.TaskLog.WithContext(ctx).Where(query.TaskLog.ID.Eq(taskLogID)).Update(query.TaskLog.State, models.TaskLogStateFailed)
 			return err
 		}
 		count++
@@ -248,8 +251,8 @@ func (d *dispatcher) selectSenderByTask(ctx context.Context, task *models.Task) 
 	return sender, nil
 }
 
-func (d *dispatcher) saveTaskLog(ctx context.Context, taskID uint, poolID uint, sender string, receiver string, state string, message string) error {
-	return query.DB.WithContext(ctx).Create(&models.TaskLog{
+func (d *dispatcher) saveTaskLog(ctx context.Context, taskID uint, poolID uint, sender string, receiver string, state string, message string) (uint, error) {
+	taskLog := &models.TaskLog{
 		TaskID:    taskID,
 		PoolID:    poolID,
 		Sender:    sender,
@@ -257,7 +260,9 @@ func (d *dispatcher) saveTaskLog(ctx context.Context, taskID uint, poolID uint, 
 		State:     state,
 		Message:   message,
 		CreatedAt: time.Now(),
-	}).Error
+	}
+	err := query.DB.WithContext(ctx).Create(taskLog).Error
+	return taskLog.ID, err
 }
 
 func (d *dispatcher) send(channel *amqp.Channel, email *schema.Email, priority uint8) error {

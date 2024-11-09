@@ -7,6 +7,7 @@ import (
 )
 
 type Email struct {
+	LogID       uint     `json:"log_id"`
 	Subject     string   `json:"subject"`
 	From        string   `json:"from"`
 	Domain      string   `json:"domain"`

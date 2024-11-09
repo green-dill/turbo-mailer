@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
 	"turbo-mailer-server/internal/rabbitmq"
 	"turbo-mailer-server/internal/schema"
@@ -67,6 +68,10 @@ func consumeAndSend() {
 		false,
 		nil,
 	)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to consume")
+		return
+	}
 
 	for delivery := range deliveries {
 		var email schema.Email
@@ -81,6 +86,7 @@ func consumeAndSend() {
 		r := query.Redis.Incr(context.Background(), key)
 		if r.Val() > 10 {
 			log.Error().Msg("send too many times")
+			updateTaskLog(context.Background(), email.LogID, models.TaskLogStateFailed)
 			delivery.Reject(false)
 			continue
 		}
@@ -88,11 +94,13 @@ func consumeAndSend() {
 		success, err := send(&email)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to send email")
+			updateTaskLog(context.Background(), email.LogID, models.TaskLogStateFailed)
 			delivery.Nack(false, true)
 			continue
 		}
 
 		if success {
+			updateTaskLog(context.Background(), email.LogID, models.TaskLogStateSent)
 			delivery.Ack(false)
 		} else {
 			delivery.Nack(false, true)
@@ -114,7 +122,7 @@ func send(email *schema.Email) (bool, error) {
 	message.SetAddressHeader("From", fromEmail, fromName)
 
 	for _, receiver := range email.Receivers {
-		message.SetAddressHeader("To", receiver, receiver)
+		message.SetAddressHeader("To", receiver, "")
 	}
 	message.SetHeader("Subject", email.Subject)
 	message.SetBody(email.ContentType, email.Content)
@@ -135,4 +143,11 @@ func send(email *schema.Email) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func updateTaskLog(ctx context.Context, logID uint, state string) {
+	if logID == 0 {
+		return
+	}
+	query.TaskLog.WithContext(ctx).Where(query.TaskLog.ID.Eq(logID)).Update(query.TaskLog.State, state)
 }

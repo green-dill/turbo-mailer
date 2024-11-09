@@ -18,14 +18,15 @@ func TestSend_via_postfix(t *testing.T) {
 	smtpHost := fmt.Sprintf("postfix.%s", hashStr[:8])
 	smtpPort := 587
 
-	from := fmt.Sprintf("test@%s", domain)
-	receiver := fmt.Sprintf("test@%s", domain)
+	from := fmt.Sprintf("noreply@%s", domain)
+	receiver := "yinheli+test@gmail.com"
 
 	message := gomail.NewMessage()
-	message.SetAddressHeader("From", from, from)
-	message.SetAddressHeader("To", receiver, receiver)
-	message.SetHeader("Subject", "test")
-	message.SetBody("text/plain", "test")
+	message.SetAddressHeader("From", from, "noreply")
+	message.SetAddressHeader("To", receiver, "")
+	message.SetHeader("Subject", "李白 将进酒")
+	message.SetBody("text/plain", `君不见黄河之水天上来，奔流到海不复回。
+君不见高堂明镜悲白发，朝如青丝暮成雪。`)
 
 	smtpHost = "127.0.0.1"
 	smtpPort = 2525
