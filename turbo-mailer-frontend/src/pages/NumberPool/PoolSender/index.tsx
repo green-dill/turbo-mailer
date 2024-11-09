@@ -10,7 +10,6 @@ import {
   ProDescriptions,
   ProFormText,
 } from "@ant-design/pro-components";
-import {Link} from "@umijs/max";
 import {useParams} from "react-router";
 import {queryNumberPoolById} from "@/pages/NumberPool/List/service";
 
@@ -114,7 +113,7 @@ const PoolSenderList: React.FC = () => {
     },
     {
       title: '创建时间',
-      dataIndex: 'CreatedAt',
+      dataIndex: 'created_at',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -123,7 +122,7 @@ const PoolSenderList: React.FC = () => {
     },
     {
       title: '更新时间',
-      dataIndex: 'UpdatedAt',
+      dataIndex: 'updated_at',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -189,12 +188,12 @@ const PoolSenderList: React.FC = () => {
             },
             {
               title: '创建时间',
-              dataIndex: 'CreatedAt',
+              dataIndex: 'created_at',
               valueType: 'date',
             },
             {
               title: '更新时间',
-              dataIndex: 'UpdatedAt',
+              dataIndex: 'updated_at',
               valueType: 'date',
             },
           ]}

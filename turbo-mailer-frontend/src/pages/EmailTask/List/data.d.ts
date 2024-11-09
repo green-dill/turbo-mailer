@@ -2,12 +2,12 @@ declare namespace EmailTask {
   type EmailTaskListItem = {
     id?: stirng;
     subject?: string;
-    context_type?: string;
+    content_type?: string;
     content?: string;
     receivers?: [];
     state?: string;
     pools?: [];
-    maxDispatchPerHour?: number;
+    max_dispatch_pre_hour?: number;
     schedule_at?: Date;
     last_dispatch_at?: Date;
     created_at?: Date;

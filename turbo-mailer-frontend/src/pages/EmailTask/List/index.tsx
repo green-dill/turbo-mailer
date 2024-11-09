@@ -83,7 +83,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '类型',
-      dataIndex: 'context_type',
+      dataIndex: 'content_type',
       hideInSearch: true,
     },
     {
@@ -122,6 +122,7 @@ const EmailTaskList: React.FC = () => {
     {
       title: '调度时间',
       dataIndex: 'schedule_at',
+      valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
@@ -129,6 +130,7 @@ const EmailTaskList: React.FC = () => {
     {
       title: '上传调度时间',
       dataIndex: 'last_dispatch_at',
+      valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
