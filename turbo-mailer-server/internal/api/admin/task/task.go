@@ -2,6 +2,7 @@ package task
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -178,6 +179,7 @@ func Get(c echo.Context) error {
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
 //	@Param			pools					formData	[]int	false	"Pools"
 //	@Param			pools_weights			formData	[]int	false	"Pools weights"
+//	@Param			metadata				formData	map[string]string	false	"Metadata"
 //	@Success		201						{object}	models.Task
 //	@Failure		400						{object}	map[string]string
 //	@Failure		500						{object}	map[string]string
@@ -230,6 +232,16 @@ func Store(c echo.Context) error {
 	}
 	formPools := c.FormValue("pools")
 	formPoolsWeights := c.FormValue("pools_weights")
+
+	if metadata := c.FormValue("metadata"); metadata != "" {
+		metadataMap := make(map[string]string)
+		raw := []byte(metadata)
+		if err := json.Unmarshal(raw, &metadataMap); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid metadata"})
+		} else {
+			task.Metadata = ptr.Ptr(json.RawMessage(raw))
+		}
+	}
 
 	var (
 		poolIds []uint
@@ -317,6 +329,8 @@ func Store(c echo.Context) error {
 //	@Param			receivers				formData	file	false	"Receivers CSV file"
 //	@Param			state					formData	string	false	"Task state"
 //	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
+//	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
+//	@Param			metadata				formData	map[string]string	false	"Metadata"
 //	@Success		200						{object}	models.Task
 //	@Failure		400						{object}	map[string]string
 //	@Failure		404						{object}	map[string]string
@@ -352,6 +366,16 @@ func Update(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid maxDispatchPerHour"})
 		}
 		existingTask.MaxDispatchPreHour = maxDispatchPerHour
+	}
+
+	if metadata := c.FormValue("metadata"); metadata != "" {
+		metadataMap := make(map[string]string)
+		raw := []byte(metadata)
+		if err := json.Unmarshal(raw, &metadataMap); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid metadata"})
+		} else {
+			existingTask.Metadata = ptr.Ptr(json.RawMessage(raw))
+		}
 	}
 
 	// Handle content file if provided
