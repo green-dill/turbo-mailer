@@ -60,11 +60,18 @@ func (s *CloudflareDnsServer) UpdateDNSRecord(domain, recordType, content string
 
 	if !ok {
 		// create new record
-		_, err = s.api.CreateDNSRecord(context.Background(), s.zone, cloudflare.CreateDNSRecordParams{
+		createParams := cloudflare.CreateDNSRecordParams{
 			Type:    recordType,
 			Name:    domain,
 			Content: content,
-		})
+		}
+		if recordType == "TXT" {
+			createParams.TTL = 1
+		}
+		if recordType == "MX" {
+			createParams.Priority = lo.ToPtr(uint16(10))
+		}
+		_, err = s.api.CreateDNSRecord(context.Background(), s.zone, createParams)
 	} else {
 		if record.Content == content {
 			return nil

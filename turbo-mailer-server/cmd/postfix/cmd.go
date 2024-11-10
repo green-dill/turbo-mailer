@@ -81,6 +81,10 @@ func checkAndSetDNSRecord() error {
 		return fmt.Errorf("get external ip failed: %w", err)
 	}
 
+	if err := checkAndSetMXRecord(domain, externalIP); err != nil {
+		return fmt.Errorf("check and set mx record failed: %w", err)
+	}
+
 	if err := checkAndSetSPFRecord(domain, externalIP); err != nil {
 		return fmt.Errorf("check and set spf record failed: %w", err)
 	}
@@ -246,7 +250,9 @@ func checkAndSetDKIMRecord(domain string) error {
 func updateDNSRecord(domain, recordType, content string) error {
 	log.Info().Str("domain", domain).Str("record_type", recordType).Str("content", content).Msg("Updating DNS record")
 
-	content = fmt.Sprintf(`"%s"`, content)
+	if recordType == "TXT" {
+		content = fmt.Sprintf(`"%s"`, content)
+	}
 
 	if err := dnsServer.UpdateDNSRecord(domain, recordType, content); err != nil {
 		return fmt.Errorf("update dns record failed: %w", err)
@@ -288,4 +294,45 @@ func checkAndSetDMARCRecord(domain string) error {
 		Msg("Updating DMARC record")
 
 	return updateDNSRecord(dmarcDomain, "TXT", dmarcRecord)
+}
+
+func checkAndSetMXRecord(domain string, externalIP string) error {
+	mxRecords, err := dnsServer.GetDNSRecords(domain, "MX")
+	if err != nil {
+		return fmt.Errorf("get mx records failed: %w", err)
+	}
+
+	if len(mxRecords) > 0 {
+		log.Info().Str("domain", domain).Msg("MX record is already set")
+		return nil
+	}
+
+	mxHost := fmt.Sprintf("mx.%s", domain)
+
+	aRecords, err := dnsServer.GetDNSRecords(mxHost, "A")
+	if err != nil {
+		return fmt.Errorf("get a records for mx host failed: %w", err)
+	}
+
+	if len(aRecords) == 0 {
+		log.Info().
+			Str("domain", mxHost).
+			Str("ip", externalIP).
+			Msg("Updating A record for MX host")
+
+		if err := updateDNSRecord(mxHost, "A", externalIP); err != nil {
+			return fmt.Errorf("update a record for mx host failed: %w", err)
+		}
+	}
+
+	log.Info().
+		Str("domain", domain).
+		Str("record", mxHost).
+		Msg("Updating MX record")
+
+	if err := updateDNSRecord(domain, "MX", mxHost); err != nil {
+		return fmt.Errorf("update mx record failed: %w", err)
+	}
+
+	return nil
 }
