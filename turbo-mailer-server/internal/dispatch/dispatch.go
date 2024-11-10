@@ -107,10 +107,13 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 
 	defer func() {
 		task.LastDispatchAt = ptr.Ptr(time.Now())
-		if err := query.DB.WithContext(ctx).Save(task).Error; err != nil {
-			log.Error().Err(err).Msgf("failed to save task %d", task.ID)
+		_, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(task.ID)).Update(query.Task.LastDispatchAt, task.LastDispatchAt)
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to update task %d", task.ID)
 		}
 	}()
+
+	log.Debug().Uint("task_id", task.ID).Msg("dispatch task")
 
 	var remaining int
 
@@ -126,7 +129,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 		}
 
 		if count >= int64(task.MaxDispatchPreHour) {
-			log.Info().Msgf("task %d reached max dispatch pre hour", task.ID)
+			log.Info().Uint("task_id", task.ID).Msg("task reached max dispatch pre hour")
 			return nil
 		}
 
@@ -183,6 +186,8 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 		}
 
 		email.LogID = taskLogID
+
+		log.Debug().Uint("task_id", task.ID).Msg("send email")
 
 		if err := d.send(channel, email, 0); err != nil {
 			log.Error().Err(err).Msgf("failed to send email for task %d", task.ID)
