@@ -6,8 +6,16 @@ import { addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask } from '
 import {Button, Drawer, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
-  ModalForm, ProFormDateTimePicker, ProFormDigit, ProFormRadio, ProFormText, ProFormTextArea, ProFormUploadButton
+  ModalForm,
+  ProFormDateTimePicker,
+  ProFormDigit,
+  ProFormRadio,
+  ProFormSelect,
+  ProFormText,
+  ProFormTextArea,
+  ProFormUploadButton
 } from "@ant-design/pro-components";
+import {queryNumberPool, querySimpleNumberPool} from "@/pages/NumberPool/List/service";
 
 const EmailTaskList: React.FC = () => {
   /**
@@ -86,13 +94,6 @@ const EmailTaskList: React.FC = () => {
       title: '类型',
       dataIndex: 'content_type',
       hideInSearch: true,
-    },
-    {
-      title: '接收者',
-      dataIndex: 'receivers',
-      hideInSearch: true,
-      hideInForm: true,
-      sorter: true,
     },
     {
       title: '状态',
@@ -284,6 +285,14 @@ const EmailTaskList: React.FC = () => {
           width="md"
           name="schedule_at"
         />
+        <ProFormSelect
+          label='号池'
+          placeholder='请选择'
+          mode="multiple"
+          allowClear
+          width="md"
+          request={querySimpleNumberPool}
+        />
       </ModalForm>
       <ModalForm
         title="编辑邮件任务"
@@ -362,6 +371,14 @@ const EmailTaskList: React.FC = () => {
           ]}
           width="md"
           name="schedule_at"
+        />
+        <ProFormSelect
+          label='号池'
+          placeholder='请选择'
+          mode="multiple"
+          allowClear
+          width="md"
+          request={querySimpleNumberPool}
         />
         <ProFormRadio.Group
           name="state"

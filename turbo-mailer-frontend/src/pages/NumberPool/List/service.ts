@@ -15,6 +15,18 @@ export async function queryNumberPool(params: API.PageParams, options?: { [key: 
   });
 }
 
+export async function querySimpleNumberPool(options?: { [key: string]: any }) {
+  return request<Record<string, any>>('/api/v1/pool', {
+    method: 'GET',
+    ...(options || {}),
+  }).then((response) =>
+    response.list.map((item: { name: string; id: number }) => ({
+      label: item.name,
+      value: item.id,
+    })),
+  );
+}
+
 export async function queryNumberPoolById(params: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
   const { id } = params;
   return request<NumberPool.NumberPoolListItem>(`/api/v1/pool/${id}`, {
