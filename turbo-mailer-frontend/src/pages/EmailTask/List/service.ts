@@ -62,6 +62,14 @@ export async function addEmailTask(body: EmailTask.EmailTaskListItem, options?: 
   });
 }
 
+export async function startImmediately(params: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
+  const { id } = params;
+  return request<Record<string, any>>(`/api/v1/task/${id}/start-immediately`, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 export async function removeEmailTask(params: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
   const { id } = params;
   return request<Record<string, any>>(`/api/v1/task/${id}`, {

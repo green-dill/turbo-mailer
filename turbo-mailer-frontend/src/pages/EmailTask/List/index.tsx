@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import {addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask, updateTest} from './service';
+import {addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask, updateTest, startImmediately} from './service';
 import {Button, Drawer, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
@@ -76,6 +76,21 @@ const EmailTaskList: React.FC = () => {
       return true;
     } catch (error) {
       message.error('测试邮件发送失败请重试！');
+      return false;
+    }
+  };
+
+  /**
+   * 立即执行任务
+   * @param fields 邮件任务
+   */
+  const handleStartImmediately = async (fields: EmailTask.EmailTaskListItem) => {
+    try {
+      await startImmediately(fields);
+      message.success('执行成功');
+      return true;
+    } catch (error) {
+      message.error('执行失败请重试！');
       return false;
     }
   };
@@ -201,6 +216,20 @@ const EmailTaskList: React.FC = () => {
         >
           测试
         </Button>,
+        <Popconfirm
+          key='start'
+          title="确定执行吗？"
+          onConfirm={async () => {
+            const success = await handleRemove(record);
+            if (success) {
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
+            }
+          }}
+        >
+          <Button style={{padding: 0}} type="link" size="small">执行</Button>
+        </Popconfirm>,
         <Popconfirm
           key='delete'
           title="确定删除吗？"
