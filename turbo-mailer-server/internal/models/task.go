@@ -29,7 +29,7 @@ type TaskPool struct {
 	BaseModel
 	TaskID uint  `gorm:"column:task_id;type:bigint;not null;uniqueIndex:idx_task_pool" json:"task_id"`
 	PoolID uint  `gorm:"column:pool_id;type:bigint;not null;uniqueIndex:idx_task_pool" json:"pool_id"`
-	Pool   *Pool `gorm:"foreignKey:id" json:"pool"`
+	Pool   *Pool `gorm:"foreignKey:PoolID;references:ID" json:"pool"`
 	Weight int   `gorm:"column:weight;type:int;not null;default:1" json:"weight"`
 }
 

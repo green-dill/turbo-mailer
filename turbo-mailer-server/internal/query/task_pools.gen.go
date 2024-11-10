@@ -33,7 +33,7 @@ func newTaskPool(db *gorm.DB, opts ...gen.DOOption) taskPool {
 	_taskPool.TaskID = field.NewUint(tableName, "task_id")
 	_taskPool.PoolID = field.NewUint(tableName, "pool_id")
 	_taskPool.Weight = field.NewInt(tableName, "weight")
-	_taskPool.Pool = taskPoolHasOnePool{
+	_taskPool.Pool = taskPoolBelongsToPool{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Pool", "models.Pool"),
@@ -60,7 +60,7 @@ type taskPool struct {
 	TaskID    field.Uint
 	PoolID    field.Uint
 	Weight    field.Int
-	Pool      taskPoolHasOnePool
+	Pool      taskPoolBelongsToPool
 
 	fieldMap map[string]field.Expr
 }
@@ -129,7 +129,7 @@ func (t taskPool) replaceDB(db *gorm.DB) taskPool {
 	return t
 }
 
-type taskPoolHasOnePool struct {
+type taskPoolBelongsToPool struct {
 	db *gorm.DB
 
 	field.RelationField
@@ -139,7 +139,7 @@ type taskPoolHasOnePool struct {
 	}
 }
 
-func (a taskPoolHasOnePool) Where(conds ...field.Expr) *taskPoolHasOnePool {
+func (a taskPoolBelongsToPool) Where(conds ...field.Expr) *taskPoolBelongsToPool {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -152,27 +152,27 @@ func (a taskPoolHasOnePool) Where(conds ...field.Expr) *taskPoolHasOnePool {
 	return &a
 }
 
-func (a taskPoolHasOnePool) WithContext(ctx context.Context) *taskPoolHasOnePool {
+func (a taskPoolBelongsToPool) WithContext(ctx context.Context) *taskPoolBelongsToPool {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a taskPoolHasOnePool) Session(session *gorm.Session) *taskPoolHasOnePool {
+func (a taskPoolBelongsToPool) Session(session *gorm.Session) *taskPoolBelongsToPool {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a taskPoolHasOnePool) Model(m *models.TaskPool) *taskPoolHasOnePoolTx {
-	return &taskPoolHasOnePoolTx{a.db.Model(m).Association(a.Name())}
+func (a taskPoolBelongsToPool) Model(m *models.TaskPool) *taskPoolBelongsToPoolTx {
+	return &taskPoolBelongsToPoolTx{a.db.Model(m).Association(a.Name())}
 }
 
-type taskPoolHasOnePoolTx struct{ tx *gorm.Association }
+type taskPoolBelongsToPoolTx struct{ tx *gorm.Association }
 
-func (a taskPoolHasOnePoolTx) Find() (result *models.Pool, err error) {
+func (a taskPoolBelongsToPoolTx) Find() (result *models.Pool, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a taskPoolHasOnePoolTx) Append(values ...*models.Pool) (err error) {
+func (a taskPoolBelongsToPoolTx) Append(values ...*models.Pool) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -180,7 +180,7 @@ func (a taskPoolHasOnePoolTx) Append(values ...*models.Pool) (err error) {
 	return a.tx.Append(targetValues...)
 }
 
-func (a taskPoolHasOnePoolTx) Replace(values ...*models.Pool) (err error) {
+func (a taskPoolBelongsToPoolTx) Replace(values ...*models.Pool) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -188,7 +188,7 @@ func (a taskPoolHasOnePoolTx) Replace(values ...*models.Pool) (err error) {
 	return a.tx.Replace(targetValues...)
 }
 
-func (a taskPoolHasOnePoolTx) Delete(values ...*models.Pool) (err error) {
+func (a taskPoolBelongsToPoolTx) Delete(values ...*models.Pool) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -196,11 +196,11 @@ func (a taskPoolHasOnePoolTx) Delete(values ...*models.Pool) (err error) {
 	return a.tx.Delete(targetValues...)
 }
 
-func (a taskPoolHasOnePoolTx) Clear() error {
+func (a taskPoolBelongsToPoolTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a taskPoolHasOnePoolTx) Count() int64 {
+func (a taskPoolBelongsToPoolTx) Count() int64 {
 	return a.tx.Count()
 }
 
