@@ -10,7 +10,7 @@ import {
   updateTest,
   startImmediately,
 } from './service';
-import {Button, message, Popconfirm} from "antd";
+import {Button, message, Popconfirm, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
@@ -148,9 +148,12 @@ const EmailTaskList: React.FC = () => {
     {
       title: '号池',
       dataIndex: 'pools',
+      key: 'pool_ids',
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
+      renderText: (_: any, record: EmailTask.EmailTaskListItem) =>
+        record.pools?.map((pool) => <code>{pool.pool_id}</code>),
     },
     {
       title: '发送频率',
@@ -204,6 +207,7 @@ const EmailTaskList: React.FC = () => {
           key='edit'
           onClick={() => {
             handleUpdateModalOpen(true);
+            record.pool_ids = record.pools && Object.values(record.pools.map((item) => item.pool_id));
             record.receivers = undefined;
             record.content = undefined;
             setCurrentRow(record);
@@ -371,12 +375,6 @@ const EmailTaskList: React.FC = () => {
           label='发送时间'
           placeholder='请选择'
           tooltip='邮件开始发送的时间'
-          rules={[
-            {
-              required: true,
-              message: '发送时间不能为空',
-            },
-          ]}
           width="md"
           name="schedule_at"
         />
@@ -485,12 +483,6 @@ const EmailTaskList: React.FC = () => {
           label='发送时间'
           placeholder='请选择'
           tooltip='邮件开始发送的时间'
-          rules={[
-            {
-              required: true,
-              message: '发送时间不能为空',
-            },
-          ]}
           width="md"
           name="schedule_at"
         />

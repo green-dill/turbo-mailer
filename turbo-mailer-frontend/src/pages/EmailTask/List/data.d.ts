@@ -7,13 +7,19 @@ declare namespace EmailTask {
     receivers?: [];
     metadata?: string;
     state?: string;
-    pools?: [];
+    pools?: TaskPool[];
+    pool_ids?: number[];
     max_dispatch_pre_hour?: number;
     schedule_at?: Date;
     last_dispatch_at?: Date;
     created_at?: Date;
     updated_at?: Date;
   };
+
+  type TaskPool = {
+    pool_id: number;
+    pool_name: string;
+  }
 
   type EmailTaskList = {
     data?: EmailTaskListItem[];
