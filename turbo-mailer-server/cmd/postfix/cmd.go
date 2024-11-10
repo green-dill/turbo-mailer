@@ -89,6 +89,10 @@ func checkAndSetDNSRecord() error {
 		return fmt.Errorf("check and set dkim record failed: %w", err)
 	}
 
+	if err := checkAndSetDMARCRecord(domain); err != nil {
+		return fmt.Errorf("check and set dmarc record failed: %w", err)
+	}
+
 	return nil
 }
 
@@ -249,4 +253,39 @@ func updateDNSRecord(domain, recordType, content string) error {
 	}
 
 	return nil
+}
+
+func checkAndSetDMARCRecord(domain string) error {
+	dmarcDomain := fmt.Sprintf("_dmarc.%s", domain)
+
+	txtRecords, err := dnsServer.GetDNSRecords(dmarcDomain, "TXT")
+	if err != nil {
+		return fmt.Errorf("get dns records failed: %w", err)
+	}
+
+	adminEmail := fmt.Sprintf("dmarc-reports@%s", domain)
+	dmarcRecord := fmt.Sprintf("v=DMARC1; p=none; rua=mailto:%s", adminEmail)
+
+	for _, record := range txtRecords {
+		cleanRecord := strings.Trim(record.Content, `"`)
+		if strings.HasPrefix(cleanRecord, "v=DMARC1") {
+			if cleanRecord == dmarcRecord {
+				log.Info().Str("domain", dmarcDomain).Msg("DMARC record is up to date")
+				return nil
+			}
+			log.Info().
+				Str("domain", dmarcDomain).
+				Str("old_record", cleanRecord).
+				Str("new_record", dmarcRecord).
+				Msg("Updating DMARC record")
+			return updateDNSRecord(dmarcDomain, "TXT", dmarcRecord)
+		}
+	}
+
+	log.Info().
+		Str("domain", dmarcDomain).
+		Str("record", dmarcRecord).
+		Msg("Updating DMARC record")
+
+	return updateDNSRecord(dmarcDomain, "TXT", dmarcRecord)
 }
