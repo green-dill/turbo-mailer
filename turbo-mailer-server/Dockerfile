@@ -11,7 +11,7 @@ RUN go build -o target/turbo-mailer \
 
 
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates tzdata postfix && \
+RUN apt-get update && apt-get install -y ca-certificates tzdata && \
     rm -rf /var/lib/apt/lists/*
 RUN addgroup --gid 1001 appuser && \
     adduser  --uid 1001 --ingroup appuser --disabled-password --gecos "" appuser
