@@ -39,7 +39,7 @@ spec:
         {{- if .Values.setupDNS.enabled }}
         - name: {{ .Chart.Name }}-setup-dns
           image: "{{ .Values.setupDNS.image.repository }}:{{ .Values.setupDNS.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ if eq (.Values.setupDNS.image.tag | default .Chart.AppVersion) "latest" }}Always{{ else }}{{ .Values.setupDNS.image.pullPolicy }}{{ end }}
+          imagePullPolicy: {{ if hasPrefix "v" (.Values.setupDNS.image.tag | default .Chart.AppVersion) }}{{ .Values.setupDNS.image.pullPolicy }}{{ else }}Always{{ end }}
           securityContext:
             runAsUser: 0
             runAsGroup: 0
