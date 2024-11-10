@@ -1,4 +1,5 @@
 declare namespace EmailTask {
+  import NumberPoolListItem = NumberPool.NumberPoolListItem;
   type EmailTaskListItem = {
     id?: stirng;
     subject?: string;
@@ -9,6 +10,7 @@ declare namespace EmailTask {
     state?: string;
     pools?: TaskPool[];
     pool_ids?: number[];
+    pools_weights?: number[];
     max_dispatch_pre_hour?: number;
     schedule_at?: Date;
     last_dispatch_at?: Date;
@@ -19,6 +21,7 @@ declare namespace EmailTask {
   type TaskPool = {
     pool_id: number;
     pool_name: string;
+    pool: NumberPoolListItem;
   }
 
   type EmailTaskList = {

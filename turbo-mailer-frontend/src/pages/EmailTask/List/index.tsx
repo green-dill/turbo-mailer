@@ -62,6 +62,11 @@ const EmailTaskList: React.FC = () => {
   const handleUpdate = async (fields: EmailTask.EmailTaskListItem) => {
     try {
       fields.id = currentRow?.id;
+      // 检查 pool_ids 是否存在且为数组
+      if (Array.isArray(fields.pool_ids)) {
+        // 使用 map 方法创建一个新的数组，其长度与 pool_ids 相同，所有元素都为 1
+        fields.pools_weights = fields.pool_ids.map(() => 1);
+      }
       await updateEmailTask(fields);
       message.success('编辑成功');
       return true;
@@ -135,25 +140,28 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
     },
     {
+      title: '号池',
+      dataIndex: 'pools',
+      hideInSearch: true,
+      render: (text, record, _, action) => {
+        // 假设 pools 是一个数组，每个元素是一个对象，对象中有一个 name 属性
+        if (Array.isArray(text)) {
+          return text.map(pool => pool.pool.name).join(', '); // 将名称用逗号分隔
+        }
+        return '无'; // 如果 pools 不是数组，可以返回一个默认值
+      },
+    },
+    {
       title: '状态',
       dataIndex: 'state',
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
       valueEnum: {
-        '0': { text: '正常', status: 'Processing' },
-        '1': { text: '禁用', status: 'Warning' },
+        'pending': { text: '等待', status: 'Default' },
+        'dispatched': { text: '已调度', status: 'Processing' },
+        'finished': { text: '完成', status: 'Success' },
       },
-    },
-    {
-      title: '号池',
-      dataIndex: 'pools',
-      key: 'pool_ids',
-      hideInSearch: true,
-      hideInForm: true,
-      sorter: true,
-      renderText: (_: any, record: EmailTask.EmailTaskListItem) =>
-        record.pools?.map((pool) => <code>{pool.pool_id}</code>),
     },
     {
       title: '发送频率',
@@ -163,7 +171,7 @@ const EmailTaskList: React.FC = () => {
       sorter: true,
     },
     {
-      title: '调度时间',
+      title: '计划时间',
       dataIndex: 'schedule_at',
       valueType: 'dateTime',
       hideInSearch: true,
@@ -219,7 +227,7 @@ const EmailTaskList: React.FC = () => {
           type="link"
           size="small"
           style={{padding: 0}}
-          key='edit'
+          key='test'
           onClick={() => {
             handleTestModalOpen(true);
             setCurrentRow(record);
@@ -318,11 +326,11 @@ const EmailTaskList: React.FC = () => {
           options={[
             {
               label: 'HTML',
-              value: 'html',
+              value: 'text/html',
             },
             {
               label: 'TXT',
-              value: 'text',
+              value: 'text/plain',
             },
           ]}
           fieldProps={{
@@ -335,7 +343,7 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type || contentType}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${contentType == 'text/plain' ? 'text' : contentType == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           accept={'.html, .txt'}
           fieldProps={{
@@ -382,6 +390,7 @@ const EmailTaskList: React.FC = () => {
           label='号池'
           placeholder='请选择'
           mode="multiple"
+          name="pools"
           allowClear
           width="md"
           request={querySimpleNumberPool}
@@ -431,11 +440,11 @@ const EmailTaskList: React.FC = () => {
           options={[
             {
               label: 'HTML',
-              value: 'html',
+              value: 'text/html',
             },
             {
               label: 'TXT',
-              value: 'txt',
+              value: 'text/plain',
             },
           ]}
         />
@@ -443,7 +452,7 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type || contentType}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={currentRow?.content_type && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type == 'text/plain' ? 'text' : currentRow.content_type == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           accept={'.html, .txt'}
           fieldProps={{
@@ -490,30 +499,11 @@ const EmailTaskList: React.FC = () => {
           label='号池'
           placeholder='请选择'
           mode="multiple"
+          name='pool_ids'
           allowClear
           width="md"
           request={querySimpleNumberPool}
           params={{current: 1, pageSize: 1000}}
-        />
-        <ProFormRadio.Group
-          name="state"
-          label="状态"
-          rules={[
-            {
-              required: true,
-              message: '请选择状态',
-            },
-          ]}
-          options={[
-            {
-              value: '0',
-              label: '正常',
-            },
-            {
-              value: '1',
-              label: '禁用',
-            },
-          ]}
         />
       </ModalForm>
       <ModalForm
