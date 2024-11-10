@@ -1065,6 +1065,26 @@ const docTemplate = `{
                         "description": "Metadata, JSON string of map[string]string",
                         "name": "metadata",
                         "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Pools",
+                        "name": "pools",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Pools weights",
+                        "name": "pools_weights",
+                        "in": "formData"
                     }
                 ],
                 "responses": {

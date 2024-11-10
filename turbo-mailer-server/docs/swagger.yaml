@@ -909,6 +909,20 @@ paths:
         in: formData
         name: metadata
         type: string
+      - collectionFormat: csv
+        description: Pools
+        in: formData
+        items:
+          type: integer
+        name: pools
+        type: array
+      - collectionFormat: csv
+        description: Pools weights
+        in: formData
+        items:
+          type: integer
+        name: pools_weights
+        type: array
       produces:
       - application/json
       responses:

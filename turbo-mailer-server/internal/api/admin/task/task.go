@@ -332,6 +332,8 @@ func Store(c echo.Context) error {
 //	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
 //	@Param			metadata				formData	string	false	"Metadata, JSON string of map[string]string"
+//	@Param			pools					formData	[]int	false	"Pools"
+//	@Param			pools_weights			formData	[]int	false	"Pools weights"
 //	@Success		200						{object}	models.Task
 //	@Failure		400						{object}	map[string]string
 //	@Failure		404						{object}	map[string]string
@@ -405,6 +407,71 @@ func Update(c echo.Context) error {
 		existingTask.ScheduleAt = &scheduleAtTime
 	}
 
+	formPools := c.FormValue("pools")
+	formPoolsWeights := c.FormValue("pools_weights")
+
+	var (
+		poolIds []uint
+		weights []int
+		pools   []*models.TaskPool
+	)
+
+	if formPools != "" {
+		poolIds = lo.Map(strings.Split(formPools, ","), func(poolId string, _ int) uint {
+			poolIdUint, err := strconv.ParseUint(poolId, 10, 32)
+			if err != nil {
+				return 0
+			}
+			return uint(poolIdUint)
+		})
+	}
+
+	if formPoolsWeights != "" {
+		weights = lo.Map(strings.Split(formPoolsWeights, ","), func(weight string, _ int) int {
+			weightInt, err := strconv.Atoi(weight)
+			if err != nil {
+				return 0
+			}
+			return weightInt
+		})
+	}
+
+	if len(poolIds) != len(weights) {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Pools and weights must have the same length"})
+	}
+
+	ps, err := query.Pool.WithContext(ctx).
+		Select(query.Pool.ID, query.Pool.Name).
+		Where(query.Pool.ID.In(poolIds...)).
+		Where(query.Pool.SenderCount.Gt(0)).
+		Find()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get pools"})
+	}
+	if len(ps) != len(poolIds) {
+		missingPoolIds := lo.Filter(poolIds, func(poolId uint, _ int) bool {
+			return !lo.ContainsBy(ps, func(pool *models.Pool) bool {
+				return pool.ID == poolId
+			})
+		})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("some of the pools are not found: %v", missingPoolIds)})
+	}
+
+	for i, poolId := range poolIds {
+		pools = append(pools, &models.TaskPool{
+			PoolID: poolId,
+			Pool:   ps[i],
+			Weight: weights[i],
+		})
+	}
+
+	// clean up existing pools
+	if len(existingTask.Pools) > 0 {
+		query.TaskPool.WithContext(ctx).Where(query.TaskPool.TaskID.Eq(existingTask.ID)).Unscoped().Delete()
+	}
+
+	existingTask.Pools = pools
+
 	// Perform the update
 	_, err = query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).Updates(existingTask)
 	if err != nil {
@@ -434,7 +501,7 @@ func Delete(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
-	task, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).First()
+	task, err := query.Task.WithContext(ctx).Preload(query.Task.Pools).Where(query.Task.ID.Eq(uint(id))).First()
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
