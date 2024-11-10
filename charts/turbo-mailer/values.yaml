@@ -206,6 +206,7 @@ rabbitmq:
   auth:
     username: user
     password: password
+    erlangCookie: HTYGTwQJcAI4PwlbMd5RBkr3p5vpbolc
   persistence:
     enabled: true
     size: 10Gi
