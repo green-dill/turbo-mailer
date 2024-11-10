@@ -71,6 +71,7 @@ export default [
     path: '/email-service',
     name: 'email-service',
     icon: 'setting',
+    hideInMenu: true,
     routes: [
       {
         path: '/email-service',

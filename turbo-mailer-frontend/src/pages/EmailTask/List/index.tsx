@@ -150,8 +150,8 @@ const EmailTaskList: React.FC = () => {
       hideInForm: true,
       sorter: true,
       valueEnum: {
-        '0': { text: '正常', status: 'blue' },
-        '1': { text: '禁用', status: 'default' },
+        '0': { text: '正常', status: 'Processing' },
+        '1': { text: '禁用', status: 'Warning' },
       },
     },
     {
@@ -395,7 +395,7 @@ const EmailTaskList: React.FC = () => {
           allowClear
           width="md"
           request={querySimpleNumberPool}
-          params={{current: 1, pageSize: 100}}
+          params={{current: 1, pageSize: 1000}}
         />
       </ModalForm>
       <ModalForm
@@ -500,6 +500,7 @@ const EmailTaskList: React.FC = () => {
           allowClear
           width="md"
           request={querySimpleNumberPool}
+          params={{current: 1, pageSize: 1000}}
         />
         <ProFormRadio.Group
           name="state"
