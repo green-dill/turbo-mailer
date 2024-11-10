@@ -41,6 +41,7 @@ func run(ctx context.Context) {
 }
 
 func consumeAndSend() {
+	ctx := context.Background()
 	conn, err := rabbitmq.Dial()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to dial")
@@ -86,7 +87,7 @@ func consumeAndSend() {
 		r := query.Redis.Incr(context.Background(), key)
 		if r.Val() > 10 {
 			log.Error().Msg("send too many times")
-			updateTaskLog(context.Background(), email.LogID, models.TaskLogStateFailed)
+			updateTaskLog(ctx, email.LogID, models.TaskLogStateFailed)
 			delivery.Reject(false)
 			continue
 		}
@@ -94,16 +95,33 @@ func consumeAndSend() {
 		success, err := send(&email)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to send email")
-			updateTaskLog(context.Background(), email.LogID, models.TaskLogStateFailed)
+			updateTaskLog(ctx, email.LogID, models.TaskLogStateFailed)
 			delivery.Nack(false, true)
 			continue
 		}
 
 		if success {
-			updateTaskLog(context.Background(), email.LogID, models.TaskLogStateSent)
+			updateTaskLog(ctx, email.LogID, models.TaskLogStateSent)
 			delivery.Ack(false)
 		} else {
 			delivery.Nack(false, true)
+		}
+
+		// update task state, no pending task left means task is finished
+		taskLog, err := query.TaskLog.WithContext(ctx).Where(query.TaskLog.ID.Eq(email.LogID)).First()
+		if err != nil {
+			log.Error().Err(err).Msg("failed to get task log")
+			continue
+		}
+
+		pendingTaskCount, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(taskLog.TaskID), query.Task.State.Eq(models.TaskStatePending)).Count()
+		if err != nil {
+			log.Error().Err(err).Msg("failed to count pending tasks")
+			continue
+		}
+
+		if pendingTaskCount == 0 {
+			query.Task.WithContext(ctx).Where(query.Task.ID.Eq(taskLog.TaskID)).Update(query.Task.State, models.TaskStateFinished)
 		}
 	}
 }

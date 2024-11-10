@@ -434,6 +434,15 @@ func Delete(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
+	task, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).First()
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
+	}
+
+	if task.State == models.TaskStateDispatched {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Task is sending, cannot delete"})
+	}
+
 	_, err = query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).Delete()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})

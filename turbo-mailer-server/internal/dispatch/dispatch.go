@@ -57,10 +57,15 @@ func (d *dispatcher) Run(ctx context.Context) {
 func (d *dispatcher) processTasks(ctx context.Context) error {
 	tasks, err := query.Task.WithContext(ctx).
 		Preload(query.Task.Pools).
-		Where(query.Task.State.Eq(models.TaskStatePending)).
+		Where(query.Task.State.In(models.TaskStatePending, models.TaskStateDispatched)).
 		Where(query.Task.ScheduleAt.Gte(time.Now().Add(-time.Hour * 24))).
 		Order(query.Task.CreatedAt.Asc()).
 		Limit(100).Find()
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get tasks")
+		return err
+	}
 
 	conn, channel, err := d.createChannel()
 	if err != nil {
@@ -91,6 +96,11 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to create lock for task %d", task.ID)
 		return err
+	}
+
+	if task.State == models.TaskStatePending {
+		query.Task.WithContext(ctx).Where(query.Task.ID.Eq(task.ID)).Update(query.Task.State, models.TaskStateDispatched)
+		task.State = models.TaskStateDispatched
 	}
 
 	lastDispatchAt := task.LastDispatchAt
