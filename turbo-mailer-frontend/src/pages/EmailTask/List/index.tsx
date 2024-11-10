@@ -45,6 +45,7 @@ const EmailTaskList: React.FC = () => {
    */
   const handleUpdate = async (fields: EmailTask.EmailTaskListItem) => {
     try {
+      fields.id = currentRow?.id;
       await updateEmailTask(fields);
       message.success('编辑成功');
       return true;
@@ -87,11 +88,6 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
     },
     {
-      title: '内容',
-      dataIndex: 'content',
-      hideInSearch: true,
-    },
-    {
       title: '接收者',
       dataIndex: 'receivers',
       hideInSearch: true,
@@ -104,6 +100,10 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
+      valueEnum: {
+        '0': { text: '正常', status: 'blue' },
+        '1': { text: '禁用', status: 'default' },
+      },
     },
     {
       title: '号池',
@@ -128,7 +128,7 @@ const EmailTaskList: React.FC = () => {
       sorter: true,
     },
     {
-      title: '上传调度时间',
+      title: '上次调度时间',
       dataIndex: 'last_dispatch_at',
       valueType: 'dateTime',
       hideInSearch: true,
@@ -164,6 +164,8 @@ const EmailTaskList: React.FC = () => {
           key='edit'
           onClick={() => {
             handleUpdateModalOpen(true);
+            record.receivers = undefined;
+            record.content = undefined;
             setCurrentRow(record);
           }}
         >
@@ -315,14 +317,8 @@ const EmailTaskList: React.FC = () => {
         />
         <ProFormUploadButton
           label='邮件内容'
-          placeholder='请上传'
+          placeholder='重新上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          rules={[
-            {
-              required: true,
-              message: '请上传邮件内容',
-            },
-          ]}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
@@ -333,13 +329,7 @@ const EmailTaskList: React.FC = () => {
         <ProFormUploadButton
           label='收件人列表'
           placeholder='请上传'
-          tooltip='上传 CSV/EXCEL 文件'
-          rules={[
-            {
-              required: true,
-              message: '请上传收件人列表',
-            },
-          ]}
+          tooltip='重新上传 CSV/EXCEL 文件'
           name="recipients"
           fieldProps={{
             beforeUpload(file, fileList) {

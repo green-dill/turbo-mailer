@@ -5,6 +5,7 @@ declare namespace EmailTask {
     content_type?: string;
     content?: string;
     receivers?: [];
+    metadata?: string;
     state?: string;
     pools?: [];
     max_dispatch_pre_hour?: number;

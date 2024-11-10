@@ -28,10 +28,11 @@ export async function queryEmailTaskById(params: EmailTask.EmailTaskListItem, op
 }
 
 export async function updateEmailTask(body: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/v1/task', {
-    method: 'PUT',
+  const { id } = body;
+  return request<Record<string, any>>(`/api/v1/task/${id}`, {
+    method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'multipart/form-data',
     },
     data: body,
     ...(options || {}),
