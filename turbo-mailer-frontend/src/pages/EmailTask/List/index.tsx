@@ -10,7 +10,7 @@ import {
   updateTest,
   startImmediately,
 } from './service';
-import {Button, message, Popconfirm, Tag} from "antd";
+import {Button, message, Modal, Popconfirm, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
@@ -452,7 +452,7 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={currentRow?.content_type && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type == 'text/plain' ? 'text' : currentRow.content_type == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={<>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type == 'text/plain' ? 'text' : currentRow?.content_type == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           accept={'.html, .txt'}
           fieldProps={{
