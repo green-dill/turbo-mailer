@@ -250,26 +250,6 @@ const PoolSenderList: React.FC = () => {
           name="from_email"
           label="发件人地址"
         />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="reply_to"
-          label="回复地址"
-        />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="domain"
-          label="域名"
-        />
       </ModalForm>
       <ModalForm
         title="编辑发件人"
@@ -307,26 +287,6 @@ const PoolSenderList: React.FC = () => {
           ]}
           name="from_email"
           label="发件人地址"
-        />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="reply_to"
-          label="回复地址"
-        />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="domain"
-          label="域名"
         />
       </ModalForm>
     </PageContainer>
