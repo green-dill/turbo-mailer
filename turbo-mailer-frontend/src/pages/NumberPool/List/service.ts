@@ -1,5 +1,4 @@
 import { request } from 'umi';
-import {errorConfig} from "@/requestErrorConfig";
 
 export async function queryNumberPool(params: API.PageParams, options?: { [key: string]: any }) {
   return request<NumberPool.NumberPoolList>('/api/v1/pool', {

@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask } from './service';
+import {addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask, updateTest} from './service';
 import {Button, Drawer, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
@@ -28,6 +28,7 @@ const EmailTaskList: React.FC = () => {
    * @zh-CN 分布更新窗口的弹窗
    * */
   const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
+  const [testModalOpen, handleTestModalOpen] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<EmailTask.EmailTaskListItem>();
@@ -59,6 +60,22 @@ const EmailTaskList: React.FC = () => {
       return true;
     } catch (error) {
       message.error('编辑失败请重试！');
+      return false;
+    }
+  };
+
+  /**
+   * 修改邮件任务
+   * @param fields 邮件任务
+   */
+  const handleTest = async (fields: EmailTask.EmailTaskListItem) => {
+    try {
+      fields.id = currentRow?.id;
+      await updateTest(fields);
+      message.success('测试邮件发送成功');
+      return true;
+    } catch (error) {
+      message.error('测试邮件发送失败请重试！');
       return false;
     }
   };
@@ -171,6 +188,18 @@ const EmailTaskList: React.FC = () => {
           }}
         >
           编辑
+        </Button>,
+        <Button
+          type="link"
+          size="small"
+          style={{padding: 0}}
+          key='edit'
+          onClick={() => {
+            handleTestModalOpen(true);
+            setCurrentRow(record);
+          }}
+        >
+          测试
         </Button>,
         <Popconfirm
           key='delete'
@@ -399,6 +428,37 @@ const EmailTaskList: React.FC = () => {
               label: '禁用',
             },
           ]}
+        />
+      </ModalForm>
+      <ModalForm
+        title="发送测试邮件"
+        width="400px"
+        open={testModalOpen}
+        onOpenChange={handleTestModalOpen}
+        initialValues={currentRow} // 设置初始值
+        onFinish={async (value) => {
+          const success = await handleTest(value as EmailTask.EmailTaskListItem);
+          if (success) {
+            handleTestModalOpen(false);
+            setCurrentRow(undefined);
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+      >
+        <ProFormText
+          label='邮件地址'
+          placeholder='请输入'
+          tooltip='接收测试邮件的地址'
+          rules={[
+            {
+              required: true,
+              message: '请输入邮件地址',
+            },
+          ]}
+          width="md"
+          name="email"
         />
       </ModalForm>
     </PageContainer>
