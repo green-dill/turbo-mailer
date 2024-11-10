@@ -86,7 +86,7 @@ func (d *dispatcher) processTasks(ctx context.Context) error {
 
 func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channel *amqp.Channel) error {
 	lockKey := query.Redis.Key("lock", "task", fmt.Sprintf("%d", task.ID))
-	lock, err := redislock.New(query.Redis.Client).Obtain(ctx, lockKey, 10*time.Second, nil)
+	lock, err := redislock.New(query.Redis.Client).Obtain(ctx, lockKey, 5*time.Minute, nil)
 	if err != nil && errors.Is(err, redislock.ErrNotObtained) {
 		log.Info().Msgf("failed to obtain lock for task %d", task.ID)
 		return nil
@@ -115,11 +115,10 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 	var remaining int
 
 	if lastDispatchAt != nil && task.MaxDispatchPreHour > 0 {
-		var count int64
-		err := query.DB.WithContext(ctx).
+		count, err := query.TaskLog.WithContext(ctx).
 			Where(query.TaskLog.TaskID.Eq(task.ID)).
 			Where(query.TaskLog.CreatedAt.Gte(time.Now().Add(-time.Hour))).
-			Count(&count).Error
+			Count()
 
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to count task log for task %d", task.ID)
@@ -147,11 +146,10 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 
 	count := 0
 	for _, receiver := range task.Receivers.Val() {
-		var n int64
-		err := query.DB.WithContext(ctx).
+		n, err := query.TaskLog.WithContext(ctx).
 			Where(query.TaskLog.TaskID.Eq(task.ID)).
 			Where(query.TaskLog.Receiver.Eq(receiver)).
-			Count(&n).Error
+			Count()
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to count task log for task %d", task.ID)
 			return err
