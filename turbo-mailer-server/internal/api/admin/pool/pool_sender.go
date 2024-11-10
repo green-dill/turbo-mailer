@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
 	"turbo-mailer-server/internal/schema"
@@ -159,8 +160,13 @@ func SenderStore(c echo.Context) error {
 	poolSender.PoolID = pool.ID
 
 	// Validate required fields
-	if poolSender.FromName == "" || poolSender.FromEmail == "" || poolSender.Domain == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "fromName, fromEmail, and domain are required"})
+	if poolSender.FromEmail == "" || !strings.Contains(poolSender.FromEmail, "@") {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "fromEmail is required"})
+	}
+
+	if poolSender.Domain == "" {
+		domain := strings.Split(poolSender.FromEmail, "@")[1]
+		poolSender.Domain = domain
 	}
 
 	err = query.PoolSender.WithContext(ctx).Create(poolSender)
