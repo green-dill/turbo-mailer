@@ -14,10 +14,10 @@ export async function queryNumberPool(params: API.PageParams, options?: { [key: 
   });
 }
 
-export async function querySimpleNumberPool(options?: { [key: string]: any }) {
+export async function querySimpleNumberPool(params?: { [key: string]: any }) {
   return request<Record<string, any>>('/api/v1/pool', {
     method: 'GET',
-    ...(options || {}),
+    ...(params || {}),
   }).then((response) =>
     response.list.map((item: { name: string; id: number }) => ({
       label: item.name,

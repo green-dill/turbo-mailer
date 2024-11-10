@@ -2,7 +2,14 @@ import React, {useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import {addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask, updateTest, startImmediately} from './service';
+import {
+  addEmailTask,
+  removeEmailTask,
+  queryEmailTask,
+  updateEmailTask,
+  updateTest,
+  startImmediately,
+} from './service';
 import {Button, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
@@ -14,7 +21,7 @@ import {
   ProFormText,
   ProFormUploadButton
 } from "@ant-design/pro-components";
-import {queryNumberPool, querySimpleNumberPool} from "@/pages/NumberPool/List/service";
+import {querySimpleNumberPool} from "@/pages/NumberPool/List/service";
 
 const EmailTaskList: React.FC = () => {
   /**
@@ -108,6 +115,15 @@ const EmailTaskList: React.FC = () => {
       message.error('删除失败请重试！');
       return false;
     }
+  };
+
+  const downloadFile = (response: BlobPart, filename: string) => {
+    const url = URL.createObjectURL(new Blob([response]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const columns: ProColumns<EmailTask.EmailTaskListItem>[] = [
@@ -311,12 +327,12 @@ const EmailTaskList: React.FC = () => {
             },
             {
               label: 'TXT',
-              value: 'txt',
+              value: 'text',
             },
           ]}
           fieldProps={{
-            onChange: (val) => {
-              setContentType(val)
+            onChange: (e) => {
+              setContentType(e.target.value)
             },
           }}
         />
@@ -324,7 +340,7 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={contentType && <>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type || contentType}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
@@ -337,7 +353,7 @@ const EmailTaskList: React.FC = () => {
           label='收件人列表'
           placeholder='请上传'
           tooltip='上传 CSV/EXCEL 文件'
-          help={<>需要帮助？<a href="/api/v1/task/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={<>需要帮助？<a href="/api/v1/tasks/recipients-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="recipients"
           accept={'.xlsx,.xls,.xlsm,.csv'}
           fieldProps={{
@@ -357,7 +373,7 @@ const EmailTaskList: React.FC = () => {
             },
           ]}
           width="md"
-          name="maxDispatchPerHour"
+          name="max_dispatch_per_hour"
         />
         <ProFormDateTimePicker
           label='发送时间'
@@ -379,6 +395,7 @@ const EmailTaskList: React.FC = () => {
           allowClear
           width="md"
           request={querySimpleNumberPool}
+          params={{current: 1, pageSize: 100}}
         />
       </ModalForm>
       <ModalForm
@@ -436,19 +453,13 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='重新上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={contentType && <>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
-          name="content"
-          fieldProps={{
-            beforeUpload(file, fileList) {
-              return false;
-            },
-          }}
+          help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type || contentType}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
         />
         <ProFormUploadButton
           label='收件人列表'
           placeholder='请上传'
           tooltip='重新上传 CSV/EXCEL 文件'
-          help={<>需要帮助？<a href="/api/v1/task/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="recipients"
           fieldProps={{
             beforeUpload(file, fileList) {
