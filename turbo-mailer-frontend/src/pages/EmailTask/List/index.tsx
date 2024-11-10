@@ -117,15 +117,6 @@ const EmailTaskList: React.FC = () => {
     }
   };
 
-  const downloadFile = (response: BlobPart, filename: string) => {
-    const url = URL.createObjectURL(new Blob([response]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
   const columns: ProColumns<EmailTask.EmailTaskListItem>[] = [
     {
       title: 'ID',
@@ -342,6 +333,7 @@ const EmailTaskList: React.FC = () => {
           tooltip='上传 HTML/TXT 文件，支持模板语法'
           help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type || contentType}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
+          accept={'.html, .txt'}
           fieldProps={{
             beforeUpload(file, fileList) {
               return false;
@@ -355,7 +347,7 @@ const EmailTaskList: React.FC = () => {
           tooltip='上传 CSV/EXCEL 文件'
           help={<>需要帮助？<a href="/api/v1/tasks/recipients-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="recipients"
-          accept={'.xlsx,.xls,.xlsm,.csv'}
+          accept={'.csv'}
           fieldProps={{
             beforeUpload(file, fileList) {
               return false;
@@ -451,9 +443,17 @@ const EmailTaskList: React.FC = () => {
         />
         <ProFormUploadButton
           label='邮件内容'
-          placeholder='重新上传'
+          placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
           help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type || contentType}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          name="content"
+          accept={'.html, .txt'}
+          fieldProps={{
+            beforeUpload(file, fileList) {
+              return false;
+            },
+            disabled: contentType === undefined,
+          }}
         />
         <ProFormUploadButton
           label='收件人列表'
@@ -461,6 +461,7 @@ const EmailTaskList: React.FC = () => {
           tooltip='重新上传 CSV/EXCEL 文件'
           help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="recipients"
+          accept={'.csv'}
           fieldProps={{
             beforeUpload(file, fileList) {
               return false;
