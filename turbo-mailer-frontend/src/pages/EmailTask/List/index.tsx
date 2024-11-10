@@ -3,7 +3,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {addEmailTask, removeEmailTask, queryEmailTask, updateEmailTask, updateTest, startImmediately} from './service';
-import {Button, Drawer, message, Popconfirm} from "antd";
+import {Button, message, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
@@ -12,7 +12,6 @@ import {
   ProFormRadio,
   ProFormSelect,
   ProFormText,
-  ProFormTextArea,
   ProFormUploadButton
 } from "@ant-design/pro-components";
 import {queryNumberPool, querySimpleNumberPool} from "@/pages/NumberPool/List/service";
@@ -29,6 +28,7 @@ const EmailTaskList: React.FC = () => {
    * */
   const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
   const [testModalOpen, handleTestModalOpen] = useState<boolean>(false);
+  const [contentType, setContentType] = useState<string>();
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<EmailTask.EmailTaskListItem>();
@@ -220,7 +220,7 @@ const EmailTaskList: React.FC = () => {
           key='start'
           title="确定执行吗？"
           onConfirm={async () => {
-            const success = await handleRemove(record);
+            const success = await handleStartImmediately(record);
             if (success) {
               if (actionRef.current) {
                 actionRef.current.reload();
@@ -294,16 +294,43 @@ const EmailTaskList: React.FC = () => {
           width="md"
           name="subject"
         />
+        <ProFormRadio.Group
+          name="content_type"
+          width="md"
+          label="内容类型"
+          rules={[
+            {
+              required: true,
+              message: '请选择内容类型',
+            },
+          ]}
+          options={[
+            {
+              label: 'HTML',
+              value: 'html',
+            },
+            {
+              label: 'TXT',
+              value: 'txt',
+            },
+          ]}
+          fieldProps={{
+            onChange: (val) => {
+              setContentType(val)
+            },
+          }}
+        />
         <ProFormUploadButton
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={<>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={contentType && <>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
               return false;
             },
+            disabled: contentType === undefined,
           }}
         />
         <ProFormUploadButton
@@ -384,11 +411,32 @@ const EmailTaskList: React.FC = () => {
           width="md"
           name="subject"
         />
+        <ProFormRadio.Group
+          name="content_type"
+          width="md"
+          label="内容类型"
+          rules={[
+            {
+              required: true,
+              message: '请选择内容类型',
+            },
+          ]}
+          options={[
+            {
+              label: 'HTML',
+              value: 'html',
+            },
+            {
+              label: 'TXT',
+              value: 'txt',
+            },
+          ]}
+        />
         <ProFormUploadButton
           label='邮件内容'
           placeholder='重新上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={<>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+          help={contentType && <>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
