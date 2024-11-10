@@ -56,7 +56,7 @@ func (d *dispatcher) Run(ctx context.Context) {
 
 func (d *dispatcher) processTasks(ctx context.Context) error {
 	tasks, err := query.Task.WithContext(ctx).
-		Preload(query.Task.Pools).
+		Preload(query.Task.Pools.Pool).
 		Where(query.Task.State.In(models.TaskStatePending, models.TaskStateDispatched)).
 		Where(query.Task.ScheduleAt.Gte(time.Now().Add(-time.Hour * 24))).
 		Order(query.Task.CreatedAt.Asc()).
@@ -195,6 +195,11 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			return err
 		}
 		count++
+	}
+
+	if count == 0 {
+		query.Task.WithContext(ctx).Where(query.Task.ID.Eq(task.ID)).Update(query.Task.State, models.TaskStateFinished)
+		task.State = models.TaskStateFinished
 	}
 
 	return nil
