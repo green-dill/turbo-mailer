@@ -110,6 +110,7 @@ const PoolSenderList: React.FC = () => {
       title: '域名',
       dataIndex: 'domain',
       hideInSearch: true,
+      hideInTable: true,
     },
     {
       title: '创建时间',
@@ -200,7 +201,6 @@ const PoolSenderList: React.FC = () => {
         />
       }
     >
-
       <ProTable<PoolSender.PoolSenderListItem, API.PageParams>
         headerTitle="发件人列表"
         actionRef={actionRef}
@@ -250,6 +250,14 @@ const PoolSenderList: React.FC = () => {
           name="from_email"
           label="发件人地址"
         />
+        <ProFormText
+          name="reply_to"
+          label="回复地址"
+        />
+        <ProFormText
+          name="domain"
+          label="域名"
+        />
       </ModalForm>
       <ModalForm
         title="编辑发件人"
@@ -287,6 +295,14 @@ const PoolSenderList: React.FC = () => {
           ]}
           name="from_email"
           label="发件人地址"
+        />
+        <ProFormText
+          name="reply_to"
+          label="回复地址"
+        />
+        <ProFormText
+          name="domain"
+          label="域名"
         />
       </ModalForm>
     </PageContainer>
