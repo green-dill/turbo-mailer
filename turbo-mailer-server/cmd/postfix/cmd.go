@@ -207,7 +207,11 @@ func checkAndSetDKIMRecord(domain string) error {
 	}
 
 	publicKey := &privateKey.PublicKey
-	publicKeyBytes := x509.MarshalPKCS1PublicKey(publicKey)
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return fmt.Errorf("marshal public key failed: %w", err)
+	}
+
 	publicKeyBase64 := base64.StdEncoding.EncodeToString(publicKeyBytes)
 
 	dkimRecord := fmt.Sprintf("v=DKIM1; k=rsa; h=sha256; s=mail; p=%s", publicKeyBase64)
