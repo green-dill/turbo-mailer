@@ -298,6 +298,7 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='请上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
+          help={<>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
@@ -309,6 +310,7 @@ const EmailTaskList: React.FC = () => {
           label='收件人列表'
           placeholder='请上传'
           tooltip='上传 CSV/EXCEL 文件'
+          help={<>需要帮助？<a href="/api/v1/task/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="recipients"
           accept={'.xlsx,.xls,.xlsm,.csv'}
           fieldProps={{
@@ -386,6 +388,7 @@ const EmailTaskList: React.FC = () => {
           label='邮件内容'
           placeholder='重新上传'
           tooltip='上传 HTML/TXT 文件，支持模板语法'
+          help={<>需要帮助？<a href="/api/v1/task/content-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           fieldProps={{
             beforeUpload(file, fileList) {
@@ -397,6 +400,7 @@ const EmailTaskList: React.FC = () => {
           label='收件人列表'
           placeholder='请上传'
           tooltip='重新上传 CSV/EXCEL 文件'
+          help={<>需要帮助？<a href="/api/v1/task/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="recipients"
           fieldProps={{
             beforeUpload(file, fileList) {
