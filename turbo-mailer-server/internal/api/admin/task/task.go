@@ -475,6 +475,10 @@ func Test(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
 
+	if task.State != models.TaskStatePending {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Task is not pending"})
+	}
+
 	err = dispatch.TestSend(ctx, task.ID, email)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send test email")
@@ -512,6 +516,10 @@ func StartImmediately(c echo.Context) error {
 	task, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).First()
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
+	}
+
+	if task.State != models.TaskStatePending {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Task is not pending"})
 	}
 
 	// Update the schedule_at to current time
