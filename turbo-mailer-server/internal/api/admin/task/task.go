@@ -20,6 +20,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 // List
@@ -54,7 +55,7 @@ func List(c echo.Context) error {
 	search := c.QueryParam("search")
 
 	// Build query
-	q := query.Task.WithContext(ctx).Preload(query.Task.Pools.Pool)
+	q := query.Task.WithContext(ctx).Preload(query.Task.Pools)
 
 	// Apply search filter if provided
 	if search != "" {
@@ -276,7 +277,6 @@ func Store(c echo.Context) error {
 
 	// pool ids must exists
 	ps, err := query.Pool.WithContext(ctx).
-		Select(query.Pool.ID, query.Pool.Name).
 		Where(query.Pool.ID.In(poolIds...)).
 		Where(query.Pool.SenderCount.Gt(0)).
 		Find()
@@ -293,19 +293,27 @@ func Store(c echo.Context) error {
 	}
 
 	// create task pools
-	for i, poolId := range poolIds {
-		pools = append(pools, &models.TaskPool{
-			PoolID: poolId,
-			Pool:   ps[i],
+	for i, p := range ps {
+		taskPool := &models.TaskPool{
+			PoolID: p.ID,
+			Pool:   p,
 			Weight: weights[i],
-		})
+		}
+		pools = append(pools, taskPool)
 	}
-	task.Pools = pools
 
-	err = query.Task.WithContext(ctx).Create(task)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-	}
+	query.DB.Transaction(func(tx *gorm.DB) error {
+		// err = query.TaskPool.WithContext(ctx).Save(pools...)
+		// if err != nil {
+		// 	return err
+		// }
+		task.Pools = pools
+		err = query.Task.WithContext(ctx).Create(task)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 
 	// Limit the number of receivers to 100
 	// reduce the response payload size

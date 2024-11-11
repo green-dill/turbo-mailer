@@ -19,7 +19,7 @@ type Task struct {
 	Receivers          StringArray      `gorm:"column:receivers;type:json;not null" json:"receivers"`
 	Metadata           *json.RawMessage `gorm:"column:metadata;type:json;default:null" json:"metadata"`
 	State              string           `gorm:"column:state;type:varchar(255);not null" json:"state"`
-	Pools              []*TaskPool      `gorm:"many2many:task_pool_ref;" json:"pools"`
+	Pools              []*TaskPool      `gorm:"has_many:task_pool;" json:"pools"`
 	MaxDispatchPreHour int              `gorm:"column:max_dispatch_pre_hour;type:int;not null" json:"max_dispatch_pre_hour"`
 	ScheduleAt         *time.Time       `gorm:"column:schedule_at;default:null" json:"schedule_at"`
 	LastDispatchAt     *time.Time       `gorm:"column:last_dispatch_at;default:null" json:"last_dispatch_at"`
