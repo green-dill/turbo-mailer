@@ -31,7 +31,16 @@ const EmailTaskList: React.FC = () => {
    */
   const handleSubmit = async (fields: EmailTask.EmailTaskListItem) => {
     try {
-      fields.id ? await updateEmailTask(fields) : await addEmailTask(fields);
+      const formData = new FormData();
+
+      for (const key in fields) {
+          formData.append(key, fields[key as keyof EmailTask.EmailTaskListItem]);
+      }
+
+      formData.append('pools_weights', fields.pool_ids?.map(id => 1).join(',') || '');
+      formData.append('pools', fields.pool_ids?.join(',') || '');
+
+      fields.id ? await updateEmailTask(formData, fields.id) : await addEmailTask(formData);
       message.success(`${fields.id ? '编辑' : '添加'}成功`);
       return true;
     } catch (error) {
@@ -149,7 +158,10 @@ const EmailTaskList: React.FC = () => {
         name: 'content',
         valuePropName: 'content',
         getValueFromEvent: e => {
-          return e && e.fileList;
+          if ('file' in e) {
+            return e.file?.originFileObj;
+          }
+          return undefined;
         }
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
@@ -200,7 +212,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '收件人列表',
-      dataIndex: 'recipients',
+      dataIndex: 'receivers',
       hideInSearch: true,
       hideInTable: true,
       tooltip: '上传 CSV/EXCEL 文件',
@@ -211,10 +223,13 @@ const EmailTaskList: React.FC = () => {
             message: '请上传',
           },
         ],
-        name: 'recipients',
-        valuePropName: 'recipients',
+        name: 'receivers',
+        valuePropName: 'receivers',
         getValueFromEvent: e => {
-          return e && e.fileList;
+          if ('file' in e) {
+            return e.file?.originFileObj;
+          }
+          return undefined;
         }
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
@@ -239,17 +254,11 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInForm: true,
       render: (text, record, _, action) => {
-        // 假设 pools 是一个数组，每个元素是一个对象，对象中有一个 name 属性
-        if (Array.isArray(text)) {
-          return (
-            <>
-              {text.map((pool, index) => (
-                <Tag key={index}>{pool.pool.name}</Tag> // 使用 tag 标签包裹 pool.name，并添加 key 属性以避免警告
-              ))}
-            </>
-          );
+        const items = record?.pools?.map(item => <Tag key={item.pool_id}>{item.pool.name}</Tag>)
+        if (items) {
+          return items;
         }
-        return '无'; // 如果 pools 不是数组，可以返回一个默认值
+        return '无';
       },
     },
     {

@@ -4,8 +4,8 @@ declare namespace EmailTask {
     id?: stirng;
     subject?: string;
     content_type?: string;
-    content?: string;
-    receivers?: [];
+    content?: string|File;
+    receivers?: string[]|File;
     metadata?: string;
     state?: string;
     pools?: TaskPool[];
