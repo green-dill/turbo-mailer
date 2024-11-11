@@ -1,11 +1,13 @@
 declare namespace EmailTask {
   import NumberPoolListItem = NumberPool.NumberPoolListItem;
   type EmailTaskListItem = {
-    id?: stirng;
+    id?: string;
     subject?: string;
     content_type?: string;
-    content?: string|File;
-    receivers?: string[]|File;
+    content: File;
+    receivers: File;
+    content_files: RcFile[];
+    receivers_files: RcFile[];
     metadata?: string;
     state?: string;
     pools?: TaskPool[];
