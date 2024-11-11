@@ -184,6 +184,7 @@ const EmailTaskList: React.FC = () => {
               name="content"
               accept={acceptTypes}
               max={1}
+              disabled={content_type === undefined}
             />
           );
         }
