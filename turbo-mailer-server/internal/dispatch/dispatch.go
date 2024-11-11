@@ -176,7 +176,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 		email, sender, err := d.buildEmail(ctx, task, receiver)
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to build email for task %d", task.ID)
-			return err
+			continue
 		}
 
 		taskLogID, err := d.saveTaskLog(ctx, task.ID, sender.PoolID, sender.FromEmail, receiver, models.TaskLogStatePending, "")
