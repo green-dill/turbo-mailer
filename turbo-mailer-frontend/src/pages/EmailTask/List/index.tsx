@@ -17,6 +17,7 @@ import {
   ProFormText, ProFormUploadButton,
 } from "@ant-design/pro-components";
 import {querySimpleNumberPool} from "@/pages/NumberPool/List/service";
+import moment from "moment";
 
 const EmailTaskList: React.FC = () => {
   const [modalOpen, handleModalOpen] = useState<boolean>(false);
@@ -320,6 +321,7 @@ const EmailTaskList: React.FC = () => {
           onClick={() => {
             handleModalOpen(true);
             record.pool_ids = record.pools && Object.values(record.pools.map((item) => item.pool_id));
+            record.schedule_at = moment(record.schedule_at).format('YYYY-MM-DD HH:mm:ss')
             record.receivers = undefined;
             record.content = undefined;
             setCurrentRow(record);

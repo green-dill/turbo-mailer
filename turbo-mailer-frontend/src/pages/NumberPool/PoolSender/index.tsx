@@ -63,7 +63,7 @@ const PoolSenderList: React.FC = () => {
       title: '发件人名称',
       dataIndex: 'from_name',
       hideInSearch: true,
-      fieldProps: {
+      formItemProps: {
         rules: [
           {
             required: true,
@@ -76,7 +76,7 @@ const PoolSenderList: React.FC = () => {
       title: '发件人地址',
       dataIndex: 'from_email',
       hideInSearch: true,
-      fieldProps: {
+      formItemProps: {
         rules: [
           {
             required: true,
@@ -88,20 +88,21 @@ const PoolSenderList: React.FC = () => {
             message: '电子邮箱格式不正确',
           },
         ],
-        style: { width: '100%' },
       },
     },
     {
       title: '回复地址',
       dataIndex: 'reply_to',
       hideInSearch: true,
-      fieldProps: {
+      formItemProps: {
         rules: [
           {
             type: 'email',
             message: '电子邮箱格式不正确',
           },
         ],
+      },
+      fieldProps: {
         style: { width: '100%' },
       },
     },
