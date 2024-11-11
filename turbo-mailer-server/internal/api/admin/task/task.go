@@ -55,7 +55,7 @@ func List(c echo.Context) error {
 	search := c.QueryParam("search")
 
 	// Build query
-	q := query.Task.WithContext(ctx).Preload(query.Task.Pools)
+	q := query.Task.WithContext(ctx).Preload(query.Task.Pools.Pool)
 
 	// Apply search filter if provided
 	if search != "" {
