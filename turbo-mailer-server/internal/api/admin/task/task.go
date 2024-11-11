@@ -196,36 +196,36 @@ func Store(c echo.Context) error {
 	task.State = models.TaskStatePending
 	maxDispatchPerHour, err := strconv.Atoi(c.FormValue("max_dispatch_per_hour"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid max_dispatch_per_hour"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid max_dispatch_per_hour", "detail": err.Error()})
 	}
 	task.MaxDispatchPreHour = maxDispatchPerHour
 
 	// Handle content file
 	contentFile, err := c.FormFile("content")
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Content file is required"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Content file is required", "detail": err.Error()})
 	}
 	content, err := readFile(contentFile)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read content file"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read content file", "detail": err.Error()})
 	}
 	task.Content = string(content)
 
 	// Handle receivers file
 	receiversFile, err := c.FormFile("receivers")
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Receivers file is required"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Receivers file is required", "detail": err.Error()})
 	}
 	receivers, err := readCSV(receiversFile)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file", "detail": err.Error()})
 	}
 	task.Receivers = models.NewJSON(receivers)
 
 	if scheduleAt := c.FormValue("schedule_at"); scheduleAt != "" {
 		scheduleAtTime, err := time.Parse(time.DateTime, scheduleAt)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid schedule_at"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid schedule_at", "detail": err.Error()})
 		}
 		task.ScheduleAt = &scheduleAtTime
 	} else {
@@ -238,7 +238,7 @@ func Store(c echo.Context) error {
 		metadataMap := make(map[string]string)
 		raw := []byte(metadata)
 		if err := json.Unmarshal(raw, &metadataMap); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid metadata"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid metadata", "detail": err.Error()})
 		} else {
 			task.Metadata = ptr.Ptr(json.RawMessage(raw))
 		}
@@ -281,7 +281,7 @@ func Store(c echo.Context) error {
 		Where(query.Pool.SenderCount.Gt(0)).
 		Find()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get pools"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get pools", "detail": err.Error()})
 	}
 	if len(ps) != len(poolIds) {
 		missingPoolIds := lo.Filter(poolIds, func(poolId uint, _ int) bool {
