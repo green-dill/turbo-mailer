@@ -258,11 +258,11 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInTable: true,
       valueType: 'select',
-      disable: currentRow !== undefined,
       request: querySimpleNumberPool,
       params: {current: 1, pageSize: 1000},
       fieldProps: {
         mode: 'multiple',
+        disabled: currentRow !== undefined,
       },
       formItemProps: {
         rules: [
