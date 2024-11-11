@@ -346,6 +346,7 @@ const EmailTaskList: React.FC = () => {
           help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${contentType == 'text/plain' ? 'text' : contentType == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
           name="content"
           accept={'.html, .txt'}
+          max={1}
           fieldProps={{
             beforeUpload(file, fileList) {
               return false;

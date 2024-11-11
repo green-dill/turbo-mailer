@@ -1,62 +1,30 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {addPoolSender, removePoolSender, queryPoolSender, updatePoolSender} from './service';
-import {Button, message, Popconfirm} from "antd";
+import {Button, message, Modal, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import {
-  ModalForm,
-  ProDescriptions,
-  ProFormText,
-} from "@ant-design/pro-components";
+import {ProDescriptions} from "@ant-design/pro-components";
 import {useParams} from "react-router";
 import {queryNumberPoolById} from "@/pages/NumberPool/List/service";
-
-
 const PoolSenderList: React.FC = () => {
-  /**
-   * @en-US Pop-up window of new window
-   * @zh-CN 新建窗口的弹窗
-   *  */
-  const [createModalOpen, handleModalOpen] = useState<boolean>(false);
-  /**
-   * @en-US The pop-up window of the distribution update window
-   * @zh-CN 分布更新窗口的弹窗
-   * */
-  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
-
+  const [modalOpen, handleModalOpen] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<PoolSender.PoolSenderListItem>();
-
   const params  = useParams();
 
   /**
-   * 添加发件人
-   * @param fields 发件人
+   * 添加或修改号池
+   * @param fields 号池
    */
-  const handleAdd = async (fields: PoolSender.PoolSenderListItem) => {
+  const handleSubmit = async (fields: NumberPool.NumberPoolListItem) => {
     try {
-      await addPoolSender(params.poolId, fields);
-      message.success('添加成功');
+      fields.id ? await updatePoolSender(params.poolId, fields) : await addPoolSender(params.poolId, fields);
+      message.success(`${fields.id ? '编辑' : '添加'}成功`);
       return true;
     } catch (error) {
-      message.error('添加失败请重试！');
-      return false;
-    }
-  };
-
-  /**
-   * 修改发件人
-   * @param fields 发件人
-   */
-  const handleUpdate = async (fields: PoolSender.PoolSenderListItem) => {
-    try {
-      await updatePoolSender(params.poolId, fields);
-      message.success('编辑成功');
-      return true;
-    } catch (error) {
-      message.error('编辑失败请重试！');
+      message.error(`${fields.id ? '编辑' : '添加'}失败请重试!`);
       return false;
     }
   };
@@ -95,16 +63,47 @@ const PoolSenderList: React.FC = () => {
       title: '发件人名称',
       dataIndex: 'from_name',
       hideInSearch: true,
+      fieldProps: {
+        rules: [
+          {
+            required: true,
+            message: '请输入',
+          },
+        ],
+      },
     },
     {
       title: '发件人地址',
       dataIndex: 'from_email',
       hideInSearch: true,
+      fieldProps: {
+        rules: [
+          {
+            required: true,
+            whitespace: true,
+            message: '请填写电子邮箱',
+          },
+          {
+            type: 'email',
+            message: '电子邮箱格式不正确',
+          },
+        ],
+        style: { width: '100%' },
+      },
     },
     {
       title: '回复地址',
       dataIndex: 'reply_to',
       hideInSearch: true,
+      fieldProps: {
+        rules: [
+          {
+            type: 'email',
+            message: '电子邮箱格式不正确',
+          },
+        ],
+        style: { width: '100%' },
+      },
     },
     {
       title: '域名',
@@ -115,7 +114,7 @@ const PoolSenderList: React.FC = () => {
     {
       title: '创建时间',
       dataIndex: 'created_at',
-      valueType: 'date',
+      valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
@@ -124,7 +123,7 @@ const PoolSenderList: React.FC = () => {
     {
       title: '更新时间',
       dataIndex: 'updated_at',
-      valueType: 'date',
+      valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
       sorter: true,
@@ -140,9 +139,10 @@ const PoolSenderList: React.FC = () => {
           style={{padding: 0}}
           key='edit'
           onClick={() => {
-            handleUpdateModalOpen(true);
+            handleModalOpen(true);
             setCurrentRow(record);
           }}
+          hidden
         >
           编辑
         </Button>,
@@ -214,97 +214,39 @@ const PoolSenderList: React.FC = () => {
         request={() => queryPoolSender(params.poolId)}
         columns={columns}
       />
-      <ModalForm
-        title="添加发件人"
-        width="400px"
-        open={createModalOpen}
-        onOpenChange={handleModalOpen}
-        onFinish={async (value) => {
-          const success = await handleAdd(value as PoolSender.PoolSenderListItem);
-          if (success) {
-            handleModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+      <Modal
+        title={`${currentRow?.id ? '更新' : '新建'}发件人`}
+        open={modalOpen}
+        onCancel={() => {
+          handleModalOpen(false);
+          setCurrentRow({});
         }}
+        footer={null}
+        destroyOnClose // 确保弹窗关闭时子组件被销毁
       >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="from_name"
-          label="发件人名称"
-        />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="from_email"
-          label="发件人地址"
-        />
-        <ProFormText
-          name="reply_to"
-          label="回复地址"
-        />
-        <ProFormText
-          name="domain"
-          label="域名"
-        />
-      </ModalForm>
-      <ModalForm
-        title="编辑发件人"
-        width="400px"
-        open={updateModalOpen}
-        onOpenChange={handleUpdateModalOpen}
-        initialValues={currentRow} // 设置初始值
-        onFinish={async (value) => {
-          const success = await handleUpdate(value as PoolSender.PoolSenderListItem);
-          if (success) {
-            handleUpdateModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
+        <ProTable<PoolSender.PoolSenderListItem, PoolSender.PoolSenderListItem>
+          onSubmit={async (fields) => {
+            const values = {
+              ...fields,
+              id: currentRow?.id,
+            };
+            const success = await handleSubmit(values as PoolSender.PoolSenderListItem);
+            if (success) {
+              handleModalOpen(false);
+              setCurrentRow(undefined);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
             }
-          }
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="from_name"
-          label="发件人名称"
+          }}
+          rowKey="id"
+          type="form"
+          columns={columns}
+          form={{
+            initialValues: currentRow,
+          }}
         />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '请输入',
-            },
-          ]}
-          name="from_email"
-          label="发件人地址"
-        />
-        <ProFormText
-          name="reply_to"
-          label="回复地址"
-        />
-        <ProFormText
-          name="domain"
-          label="域名"
-        />
-      </ModalForm>
+      </Modal>
     </PageContainer>
   );
 };

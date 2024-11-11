@@ -39,7 +39,7 @@ export async function queryNumberPoolById(params: NumberPool.NumberPoolListItem,
 
 export async function updateNumberPool(body: NumberPool.NumberPoolListItem, options?: { [key: string]: any }) {
   return request<Record<string, any>>(`/api/v1/pool/${body.id}`, {
-    method: 'PUT',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },

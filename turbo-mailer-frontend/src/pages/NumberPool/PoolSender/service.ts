@@ -16,8 +16,8 @@ export async function queryPoolSender(poolId?: string, params?: API.PageParams, 
 }
 
 export async function updatePoolSender(poolId?: string, body?: PoolSender.PoolSenderListItem, options?: { [key: string]: any }) {
-  return request<Record<string, any>>(`/api/v1/pool-senders/${poolId}`, {
-    method: 'PUT',
+  return request<Record<string, any>>(`/api/v1/pool-senders/${body?.id}`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
