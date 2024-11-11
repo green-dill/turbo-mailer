@@ -17,9 +17,6 @@ import {
   ProFormText, ProFormUploadButton,
 } from "@ant-design/pro-components";
 import {querySimpleNumberPool} from "@/pages/NumberPool/List/service";
-import moment from "moment";
-import exports from "@umijs/bundler-webpack/compiled/webpack";
-import schemes = exports.experiments.schemes;
 
 const EmailTaskList: React.FC = () => {
   const [modalOpen, handleModalOpen] = useState<boolean>(false);
@@ -33,12 +30,6 @@ const EmailTaskList: React.FC = () => {
    */
   const handleSubmit = async (fields: EmailTask.EmailTaskListItem) => {
     try {
-      // 检查 pool_ids 是否存在且为数组
-      if (Array.isArray(fields.pool_ids)) {
-        // 使用 map 方法创建一个新的数组，其长度与 pool_ids 相同，所有元素都为 1
-        fields.pools_weights = fields.pool_ids.map(() => 1);
-      }
-
       fields.id ? await updateEmailTask(fields) : await addEmailTask(fields);
       message.success(`${fields.id ? '编辑' : '添加'}成功`);
       return true;
@@ -147,6 +138,13 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInTable: true,
       tooltip: '上传 HTML/TXT 文件，支持模板语法',
+      formItemProps: {
+        name: 'content',
+        valuePropName: 'content',
+        getValueFromEvent: e => {
+          return e && e.fileList;
+        }
+      },
       renderFormItem: (_, { type, defaultRender }, form) => {
         if (type === 'form') {
           const content_type = form.getFieldValue('content_type');
@@ -185,12 +183,7 @@ const EmailTaskList: React.FC = () => {
               help={helpContent}
               name="content"
               accept={acceptTypes}
-              fieldProps={{
-                beforeUpload(file, fileList) {
-                  return false;
-                },
-                disabled: content_type === undefined,
-              }}
+              max={1}
             />
           );
         }
@@ -203,6 +196,13 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInTable: true,
       tooltip: '上传 CSV/EXCEL 文件',
+      formItemProps: {
+        name: 'recipients',
+        valuePropName: 'recipients',
+        getValueFromEvent: e => {
+          return e && e.fileList;
+        }
+      },
       renderFormItem: (_, { type, defaultRender }, form) => {
         if (type === 'form') {
           return (
@@ -212,11 +212,7 @@ const EmailTaskList: React.FC = () => {
               help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
               name="recipients"
               accept={'.csv'}
-              fieldProps={{
-                beforeUpload(file, fileList) {
-                  return false;
-                },
-              }}
+              max={1}
             />
           );
         }
@@ -403,11 +399,13 @@ const EmailTaskList: React.FC = () => {
       >
         <ProTable<EmailTask.EmailTaskListItem, EmailTask.EmailTaskListItem>
           onSubmit={async (fields) => {
-            const values = {
-              ...fields,
-              id: currentRow?.id,
-            };
-            const success = await handleSubmit(values as EmailTask.EmailTaskListItem);
+            fields.id = currentRow?.id;
+            // 检查 pool_ids 是否存在且为数组
+            if (Array.isArray(fields.pool_ids)) {
+              // 使用 map 方法创建一个新的数组，其长度与 pool_ids 相同，所有元素都为 1
+              fields.pools_weights = fields.pool_ids.map(() => 1);
+            }
+            const success = await handleSubmit(fields);
             if (success) {
               handleModalOpen(false);
               setCurrentRow(undefined);
