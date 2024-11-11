@@ -140,6 +140,12 @@ const EmailTaskList: React.FC = () => {
       hideInTable: true,
       tooltip: '上传 HTML/TXT 文件，支持模板语法',
       formItemProps: {
+        rules: [
+          {
+            required: currentRow === undefined,
+            message: '请上传',
+          },
+        ],
         name: 'content',
         valuePropName: 'content',
         getValueFromEvent: e => {
@@ -199,6 +205,12 @@ const EmailTaskList: React.FC = () => {
       hideInTable: true,
       tooltip: '上传 CSV/EXCEL 文件',
       formItemProps: {
+        rules: [
+          {
+            required: currentRow === undefined,
+            message: '请上传',
+          },
+        ],
         name: 'recipients',
         valuePropName: 'recipients',
         getValueFromEvent: e => {
@@ -246,10 +258,19 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInTable: true,
       valueType: 'select',
+      disable: currentRow !== undefined,
       request: querySimpleNumberPool,
       params: {current: 1, pageSize: 1000},
       fieldProps: {
         mode: 'multiple',
+      },
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '请选择',
+          },
+        ],
       },
     },
     {
@@ -271,9 +292,14 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       sorter: true,
       valueType: 'digit',
-      fieldProps: {
-        width: '100%',
-      }
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '请输入',
+          },
+        ],
+      },
     },
     {
       title: '计划时间',
@@ -282,6 +308,14 @@ const EmailTaskList: React.FC = () => {
       tooltip: '计划发送邮件的时间',
       hideInSearch: true,
       sorter: true,
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '请选择',
+          },
+        ],
+      },
     },
     {
       title: '上次调度时间',
@@ -383,7 +417,10 @@ const EmailTaskList: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <Button type="primary" onClick={() => handleModalOpen(true)}>
+          <Button type="primary" onClick={() => {
+            handleModalOpen(true);
+            setCurrentRow(undefined);
+          }}>
             <PlusOutlined /> 新建
           </Button>,
         ]}
@@ -391,11 +428,11 @@ const EmailTaskList: React.FC = () => {
         columns={columns}
       />
       <Modal
-        title={`${currentRow?.id ? '更新' : '新建'}号池`}
+        title={`${currentRow?.id ? '更新' : '新建'}任务`}
         open={modalOpen}
         onCancel={() => {
           handleModalOpen(false);
-          setCurrentRow({});
+          setCurrentRow(undefined);
         }}
         footer={null}
         destroyOnClose // 确保弹窗关闭时子组件被销毁
