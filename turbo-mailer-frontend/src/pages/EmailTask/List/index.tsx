@@ -14,64 +14,36 @@ import {Button, message, Modal, Popconfirm, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
-  ProFormDateTimePicker,
-  ProFormDigit,
-  ProFormRadio,
-  ProFormSelect,
-  ProFormText,
-  ProFormUploadButton
+  ProFormText, ProFormUploadButton,
 } from "@ant-design/pro-components";
 import {querySimpleNumberPool} from "@/pages/NumberPool/List/service";
+import moment from "moment";
+import exports from "@umijs/bundler-webpack/compiled/webpack";
+import schemes = exports.experiments.schemes;
 
 const EmailTaskList: React.FC = () => {
-  /**
-   * @en-US Pop-up window of new window
-   * @zh-CN 新建窗口的弹窗
-   *  */
-  const [createModalOpen, handleModalOpen] = useState<boolean>(false);
-  /**
-   * @en-US The pop-up window of the distribution update window
-   * @zh-CN 分布更新窗口的弹窗
-   * */
-  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
+  const [modalOpen, handleModalOpen] = useState<boolean>(false);
   const [testModalOpen, handleTestModalOpen] = useState<boolean>(false);
-  const [contentType, setContentType] = useState<string>();
-
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<EmailTask.EmailTaskListItem>();
 
   /**
-   * 添加邮件任务
+   * 添加或修改邮件任务
    * @param fields 邮件任务
    */
-  const handleAdd = async (fields: EmailTask.EmailTaskListItem) => {
+  const handleSubmit = async (fields: EmailTask.EmailTaskListItem) => {
     try {
-      await addEmailTask(fields);
-      message.success('添加成功');
-      return true;
-    } catch (error) {
-      message.error('添加失败请重试！');
-      return false;
-    }
-  };
-
-  /**
-   * 修改邮件任务
-   * @param fields 邮件任务
-   */
-  const handleUpdate = async (fields: EmailTask.EmailTaskListItem) => {
-    try {
-      fields.id = currentRow?.id;
       // 检查 pool_ids 是否存在且为数组
       if (Array.isArray(fields.pool_ids)) {
         // 使用 map 方法创建一个新的数组，其长度与 pool_ids 相同，所有元素都为 1
         fields.pools_weights = fields.pool_ids.map(() => 1);
       }
-      await updateEmailTask(fields);
-      message.success('编辑成功');
+
+      fields.id ? await updateEmailTask(fields) : await addEmailTask(fields);
+      message.success(`${fields.id ? '编辑' : '添加'}成功`);
       return true;
     } catch (error) {
-      message.error('编辑失败请重试！');
+      message.error(`${fields.id ? '编辑' : '添加'}失败请重试!`);
       return false;
     }
   };
@@ -133,22 +105,153 @@ const EmailTaskList: React.FC = () => {
     {
       title: '标题',
       dataIndex: 'subject',
+      tooltip: '支持模板语法',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '请输入',
+          },
+        ],
+      }
     },
     {
-      title: '类型',
+      title: '内容类型',
       dataIndex: 'content_type',
       hideInSearch: true,
+      valueType: "radio",
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '请输入',
+          },
+        ]
+      },
+      fieldProps: {
+        options: [
+          {
+            label: 'html',
+            value: 'text/html',
+          },
+          {
+            label: 'text',
+            value: 'text/plain',
+          },
+        ]
+      }
+    },
+    {
+      title: '邮件内容',
+      dataIndex: 'content',
+      hideInSearch: true,
+      hideInTable: true,
+      tooltip: '上传 HTML/TXT 文件，支持模板语法',
+      renderFormItem: (_, { type, defaultRender }, form) => {
+        if (type === 'form') {
+          const content_type = form.getFieldValue('content_type');
+
+          const helpContent = (
+            content_type && <>
+              需要帮助？
+              {content_type === 'text/plain' && (
+                <a href='/api/v1/tasks/content-template?type=text' target="_blank" rel="noopener noreferrer">
+                  下载模板
+                </a>
+              )}
+              {content_type === 'text/html' && (
+                <a href='/api/v1/tasks/content-template?type=html' target="_blank" rel="noopener noreferrer">
+                  下载模板
+                </a>
+              )}
+            </>
+          );
+
+          // 根据 content_type 动态设置接受的文件类型
+          let acceptTypes;
+          if (content_type === 'text/html') {
+            acceptTypes = '.html';
+          } else if (content_type === 'text/plain') {
+            acceptTypes = '.txt';
+          } else {
+            // 如果 content_type 不是 'text/html' 或 'text/plain'，则默认接受两种类型
+            acceptTypes = '.html, .txt';
+          }
+
+          return (
+            <ProFormUploadButton
+              placeholder='请上传'
+              tooltip='上传 HTML/TXT 文件，支持模板语法'
+              help={helpContent}
+              name="content"
+              accept={acceptTypes}
+              fieldProps={{
+                beforeUpload(file, fileList) {
+                  return false;
+                },
+                disabled: content_type === undefined,
+              }}
+            />
+          );
+        }
+        return defaultRender(_);
+      },
+    },
+    {
+      title: '收件人列表',
+      dataIndex: 'recipients',
+      hideInSearch: true,
+      hideInTable: true,
+      tooltip: '上传 CSV/EXCEL 文件',
+      renderFormItem: (_, { type, defaultRender }, form) => {
+        if (type === 'form') {
+          return (
+            <ProFormUploadButton
+              placeholder='请上传'
+              tooltip='上传 CSV/EXCEL 文件'
+              help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+              name="recipients"
+              accept={'.csv'}
+              fieldProps={{
+                beforeUpload(file, fileList) {
+                  return false;
+                },
+              }}
+            />
+          );
+        }
+        return defaultRender(_);
+      },
     },
     {
       title: '号池',
       dataIndex: 'pools',
       hideInSearch: true,
+      hideInForm: true,
       render: (text, record, _, action) => {
         // 假设 pools 是一个数组，每个元素是一个对象，对象中有一个 name 属性
         if (Array.isArray(text)) {
-          return text.map(pool => pool.pool.name).join(', '); // 将名称用逗号分隔
+          return (
+            <>
+              {text.map((pool, index) => (
+                <Tag key={index}>{pool.pool.name}</Tag> // 使用 tag 标签包裹 pool.name，并添加 key 属性以避免警告
+              ))}
+            </>
+          );
         }
         return '无'; // 如果 pools 不是数组，可以返回一个默认值
+      },
+    },
+    {
+      title: '号池',
+      dataIndex: 'pool_ids',
+      hideInSearch: true,
+      hideInTable: true,
+      valueType: 'select',
+      request: querySimpleNumberPool,
+      params: {current: 1, pageSize: 1000},
+      fieldProps: {
+        mode: 'multiple',
       },
     },
     {
@@ -166,16 +269,20 @@ const EmailTaskList: React.FC = () => {
     {
       title: '发送频率',
       dataIndex: 'max_dispatch_pre_hour',
+      tooltip: '每小时最多发送邮件的数量',
       hideInSearch: true,
-      hideInForm: true,
       sorter: true,
+      valueType: 'digit',
+      fieldProps: {
+        width: '100%',
+      }
     },
     {
       title: '计划时间',
       dataIndex: 'schedule_at',
       valueType: 'dateTime',
+      tooltip: '计划发送邮件的时间',
       hideInSearch: true,
-      hideInForm: true,
       sorter: true,
     },
     {
@@ -214,7 +321,7 @@ const EmailTaskList: React.FC = () => {
           style={{padding: 0}}
           key='edit'
           onClick={() => {
-            handleUpdateModalOpen(true);
+            handleModalOpen(true);
             record.pool_ids = record.pools && Object.values(record.pools.map((item) => item.pool_id));
             record.receivers = undefined;
             record.content = undefined;
@@ -284,229 +391,39 @@ const EmailTaskList: React.FC = () => {
         request={queryEmailTask}
         columns={columns}
       />
-      <ModalForm
-        title="添加邮件任务"
-        width="400px"
-        open={createModalOpen}
-        onOpenChange={handleModalOpen}
-        onFinish={async (value) => {
-          const success = await handleAdd(value as EmailTask.EmailTaskListItem);
-          if (success) {
-            handleModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+      <Modal
+        title={`${currentRow?.id ? '更新' : '新建'}号池`}
+        open={modalOpen}
+        onCancel={() => {
+          handleModalOpen(false);
+          setCurrentRow({});
         }}
+        footer={null}
+        destroyOnClose // 确保弹窗关闭时子组件被销毁
       >
-        <ProFormText
-          label='邮件标题'
-          placeholder='请输入'
-          tooltip='支持模板语法'
-          rules={[
-            {
-              required: true,
-              message: '请输入邮件标题',
-            },
-          ]}
-          width="md"
-          name="subject"
-        />
-        <ProFormRadio.Group
-          name="content_type"
-          width="md"
-          label="内容类型"
-          rules={[
-            {
-              required: true,
-              message: '请选择内容类型',
-            },
-          ]}
-          options={[
-            {
-              label: 'HTML',
-              value: 'text/html',
-            },
-            {
-              label: 'TXT',
-              value: 'text/plain',
-            },
-          ]}
-          fieldProps={{
-            onChange: (e) => {
-              setContentType(e.target.value)
-            },
-          }}
-        />
-        <ProFormUploadButton
-          label='邮件内容'
-          placeholder='请上传'
-          tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={contentType && <>需要帮助？<a href={`/api/v1/tasks/content-template?type=${contentType == 'text/plain' ? 'text' : contentType == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
-          name="content"
-          accept={'.html, .txt'}
-          max={1}
-          fieldProps={{
-            beforeUpload(file, fileList) {
-              return false;
-            },
-            disabled: contentType === undefined,
-          }}
-        />
-        <ProFormUploadButton
-          label='收件人列表'
-          placeholder='请上传'
-          tooltip='上传 CSV/EXCEL 文件'
-          help={<>需要帮助？<a href="/api/v1/tasks/recipients-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
-          name="recipients"
-          accept={'.csv'}
-          fieldProps={{
-            beforeUpload(file, fileList) {
-              return false;
-            },
-          }}
-        />
-        <ProFormDigit
-          label='发送频率'
-          placeholder='请输入'
-          tooltip='每小时发送的邮件数量'
-          rules={[
-            {
-              required: true,
-              message: '发送频率不能为空',
-            },
-          ]}
-          width="md"
-          name="max_dispatch_per_hour"
-        />
-        <ProFormDateTimePicker
-          label='发送时间'
-          placeholder='请选择'
-          tooltip='邮件开始发送的时间'
-          width="md"
-          name="schedule_at"
-        />
-        <ProFormSelect
-          label='号池'
-          placeholder='请选择'
-          mode="multiple"
-          name="pools"
-          allowClear
-          width="md"
-          request={querySimpleNumberPool}
-          params={{current: 1, pageSize: 1000}}
-        />
-      </ModalForm>
-      <ModalForm
-        title="编辑邮件任务"
-        width="400px"
-        open={updateModalOpen}
-        onOpenChange={handleUpdateModalOpen}
-        initialValues={currentRow} // 设置初始值
-        onFinish={async (value) => {
-          const success = await handleUpdate(value as EmailTask.EmailTaskListItem);
-          if (success) {
-            handleUpdateModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
+        <ProTable<EmailTask.EmailTaskListItem, EmailTask.EmailTaskListItem>
+          onSubmit={async (fields) => {
+            const values = {
+              ...fields,
+              id: currentRow?.id,
+            };
+            const success = await handleSubmit(values as EmailTask.EmailTaskListItem);
+            if (success) {
+              handleModalOpen(false);
+              setCurrentRow(undefined);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
             }
-          }
-        }}
-      >
-        <ProFormText
-          label='邮件标题'
-          placeholder='请输入'
-          tooltip='支持模板语法'
-          rules={[
-            {
-              required: true,
-              message: '请输入邮件标题',
-            },
-          ]}
-          width="md"
-          name="subject"
-        />
-        <ProFormRadio.Group
-          name="content_type"
-          width="md"
-          label="内容类型"
-          rules={[
-            {
-              required: true,
-              message: '请选择内容类型',
-            },
-          ]}
-          options={[
-            {
-              label: 'HTML',
-              value: 'text/html',
-            },
-            {
-              label: 'TXT',
-              value: 'text/plain',
-            },
-          ]}
-        />
-        <ProFormUploadButton
-          label='邮件内容'
-          placeholder='请上传'
-          tooltip='上传 HTML/TXT 文件，支持模板语法'
-          help={<>需要帮助？<a href={`/api/v1/tasks/content-template?type=${currentRow?.content_type == 'text/plain' ? 'text' : currentRow?.content_type == 'text/html' ? 'html' : undefined}`} target="_blank" rel="noopener noreferrer">下载模板</a></>}
-          name="content"
-          accept={'.html, .txt'}
-          fieldProps={{
-            beforeUpload(file, fileList) {
-              return false;
-            },
-            disabled: contentType === undefined,
+          }}
+          rowKey="id"
+          type="form"
+          columns={columns}
+          form={{
+            initialValues: currentRow,
           }}
         />
-        <ProFormUploadButton
-          label='收件人列表'
-          placeholder='请上传'
-          tooltip='重新上传 CSV/EXCEL 文件'
-          help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
-          name="recipients"
-          accept={'.csv'}
-          fieldProps={{
-            beforeUpload(file, fileList) {
-              return false;
-            },
-          }}
-        />
-        <ProFormDigit
-          label='发送频率'
-          placeholder='请输入'
-          tooltip='每小时发送的邮件数量'
-          rules={[
-            {
-              required: true,
-              message: '发送频率不能为空',
-            },
-          ]}
-          width="md"
-          name="max_dispatch_pre_hour"
-        />
-        <ProFormDateTimePicker
-          label='发送时间'
-          placeholder='请选择'
-          tooltip='邮件开始发送的时间'
-          width="md"
-          name="schedule_at"
-        />
-        <ProFormSelect
-          label='号池'
-          placeholder='请选择'
-          mode="multiple"
-          name='pool_ids'
-          allowClear
-          width="md"
-          request={querySimpleNumberPool}
-          params={{current: 1, pageSize: 1000}}
-        />
-      </ModalForm>
+      </Modal>
       <ModalForm
         title="发送测试邮件"
         width="400px"
@@ -532,6 +449,10 @@ const EmailTaskList: React.FC = () => {
             {
               required: true,
               message: '请输入邮件地址',
+            },
+            {
+              type: 'email',
+              message: '电子邮箱格式不正确',
             },
           ]}
           width="md"

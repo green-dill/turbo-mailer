@@ -1,5 +1,4 @@
 import { request } from 'umi';
-import {errorConfig} from "@/requestErrorConfig";
 
 export async function queryEmailTask(params: API.PageParams, options?: { [key: string]: any }) {
   return request<EmailTask.EmailTaskList>('/api/v1/task', {
