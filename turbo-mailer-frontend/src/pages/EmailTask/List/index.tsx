@@ -366,8 +366,6 @@ const EmailTaskList: React.FC = () => {
             handleModalOpen(true);
             record.pool_ids = record.pools && Object.values(record.pools.map((item) => item.pool_id));
             record.schedule_at = moment(record.schedule_at).format('YYYY-MM-DD HH:mm:ss')
-            record.receivers = undefined;
-            record.content = undefined;
             setCurrentRow(record);
           }}
         >
@@ -450,11 +448,20 @@ const EmailTaskList: React.FC = () => {
         <ProTable<EmailTask.EmailTaskListItem, EmailTask.EmailTaskListItem>
           onSubmit={async (fields) => {
             fields.id = currentRow?.id;
-            fields.pools_weights = fields.pool_ids.map(() => 1);
-            fields.receivers = fields.receivers_files[0].originFileObj
-            fields.receivers_files = undefined;
-            fields.content = fields.content_files[0].originFileObj
-            fields.content_files = undefined;
+
+            if (Array.isArray(fields.pool_ids)) {
+              fields.pools_weights = fields.pool_ids.map(() => 1);
+            }
+
+            if (Array.isArray(fields.receivers_files)) {
+              fields.receivers = fields.receivers_files[0].originFileObj
+              fields.receivers_files = undefined;
+            }
+
+            if (Array.isArray(fields.content_files)) {
+              fields.content = fields.content_files[0].originFileObj
+              fields.content_files = undefined;
+            }
             const success = await handleSubmit(fields);
             if (success) {
               handleModalOpen(false);

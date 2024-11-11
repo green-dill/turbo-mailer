@@ -27,15 +27,6 @@ export async function queryEmailTaskById(params: EmailTask.EmailTaskListItem, op
 }
 
 export async function updateEmailTask(body: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
-  // const { id } = body;
-  //
-  // // 检查 pool_ids 是否存在且为数组
-  // if (Array.isArray(body.pool_ids)) {
-  //   // 使用 map 方法创建一个新的数组，其长度与 pool_ids 相同，所有元素都为 1
-  //   body.pools_weights = body.pool_ids.map(() => 1);
-  // }
-
-
   return request<Record<string, any>>(`/api/v1/task/${body.id}`, {
     method: 'POST',
     headers: {
