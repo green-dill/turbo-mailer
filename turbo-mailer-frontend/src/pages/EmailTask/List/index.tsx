@@ -287,7 +287,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '发送频率',
-      dataIndex: 'max_dispatch_pre_hour',
+      dataIndex: 'max_dispatch_per_hour',
       tooltip: '每小时最多发送邮件的数量',
       hideInSearch: true,
       sorter: true,

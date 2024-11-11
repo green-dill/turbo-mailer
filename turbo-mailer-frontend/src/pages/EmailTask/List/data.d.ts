@@ -11,7 +11,7 @@ declare namespace EmailTask {
     pools?: TaskPool[];
     pool_ids?: number[];
     pools_weights?: number[];
-    max_dispatch_pre_hour?: number;
+    max_dispatch_per_hour?: number;
     schedule_at?: string;
     last_dispatch_at?: Date;
     created_at?: Date;
