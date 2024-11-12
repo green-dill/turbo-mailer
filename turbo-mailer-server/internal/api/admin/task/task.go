@@ -539,6 +539,10 @@ func Delete(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+type TestTask struct {
+	Email string `json:"email"`
+}
+
 // Test
 //
 //	@Summary		Test a task
@@ -561,7 +565,11 @@ func Test(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid task ID"})
 	}
 
-	email := c.FormValue("email")
+	testTask := new(TestTask)
+	if err := c.Bind(testTask); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	email := testTask.Email
 	if email == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Test email is required"})
 	}
