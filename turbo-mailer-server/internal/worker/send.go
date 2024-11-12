@@ -148,7 +148,7 @@ func send(email *schema.Email) (bool, error) {
 	hasher := sha1.New()
 	hasher.Write([]byte(email.Domain))
 	hash := hex.EncodeToString(hasher.Sum(nil))
-	smtpHost := fmt.Sprintf("postfix.%s", hash[:8])
+	smtpHost := fmt.Sprintf("postfix-%s", hash[:8])
 
 	log.Debug().Str("domain", email.Domain).Str("smtp_host", smtpHost).Msg("send email")
 

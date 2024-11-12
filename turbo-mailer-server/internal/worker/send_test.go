@@ -15,7 +15,7 @@ func TestSend_via_postfix(t *testing.T) {
 	hash := sha1.New()
 	hash.Write([]byte(domain))
 	hashStr := hex.EncodeToString(hash.Sum(nil))
-	smtpHost := fmt.Sprintf("postfix.%s", hashStr[:8])
+	smtpHost := fmt.Sprintf("postfix-%s", hashStr[:8])
 	smtpPort := 587
 
 	from := fmt.Sprintf("noreply@%s", domain)
