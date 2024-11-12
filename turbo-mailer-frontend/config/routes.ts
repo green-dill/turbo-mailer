@@ -23,10 +23,10 @@ export default [
     ],
   },
   {
-    path: '/welcome',
+    path: '/dashboard/welcome',
     name: 'welcome',
     icon: 'smile',
-    component: './Welcome',
+    component: './DashBoard/Welcome',
   },
   {
     path: '/admin',
@@ -109,7 +109,7 @@ export default [
   },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/dashboard/welcome',
   },
   {
     path: '*',
