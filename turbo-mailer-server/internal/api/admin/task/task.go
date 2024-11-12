@@ -199,7 +199,7 @@ func Store(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid max_dispatch_per_hour", "detail": err.Error()})
 	}
-	task.MaxDispatchPreHour = maxDispatchPerHour
+	task.MaxDispatchPerHour = maxDispatchPerHour
 
 	// Handle content file
 	contentFile, err := c.FormFile("content")
@@ -376,7 +376,7 @@ func Update(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid maxDispatchPerHour"})
 		}
-		existingTask.MaxDispatchPreHour = maxDispatchPerHour
+		existingTask.MaxDispatchPerHour = maxDispatchPerHour
 	}
 
 	if metadata := c.FormValue("metadata"); metadata != "" {

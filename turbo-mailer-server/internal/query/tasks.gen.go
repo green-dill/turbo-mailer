@@ -36,10 +36,10 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	_task.Receivers = field.NewField(tableName, "receivers")
 	_task.Metadata = field.NewBytes(tableName, "metadata")
 	_task.State = field.NewString(tableName, "state")
-	_task.MaxDispatchPreHour = field.NewInt(tableName, "max_dispatch_pre_hour")
+	_task.MaxDispatchPerHour = field.NewInt(tableName, "max_dispatch_per_hour")
 	_task.ScheduleAt = field.NewTime(tableName, "schedule_at")
 	_task.LastDispatchAt = field.NewTime(tableName, "last_dispatch_at")
-	_task.Pools = taskManyToManyPools{
+	_task.Pools = taskHasManyPools{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Pools", "models.TaskPool"),
@@ -77,10 +77,10 @@ type task struct {
 	Receivers          field.Field
 	Metadata           field.Bytes
 	State              field.String
-	MaxDispatchPreHour field.Int
+	MaxDispatchPerHour field.Int
 	ScheduleAt         field.Time
 	LastDispatchAt     field.Time
-	Pools              taskManyToManyPools
+	Pools              taskHasManyPools
 
 	fieldMap map[string]field.Expr
 }
@@ -107,7 +107,7 @@ func (t *task) updateTableName(table string) *task {
 	t.Receivers = field.NewField(table, "receivers")
 	t.Metadata = field.NewBytes(table, "metadata")
 	t.State = field.NewString(table, "state")
-	t.MaxDispatchPreHour = field.NewInt(table, "max_dispatch_pre_hour")
+	t.MaxDispatchPerHour = field.NewInt(table, "max_dispatch_per_hour")
 	t.ScheduleAt = field.NewTime(table, "schedule_at")
 	t.LastDispatchAt = field.NewTime(table, "last_dispatch_at")
 
@@ -145,7 +145,7 @@ func (t *task) fillFieldMap() {
 	t.fieldMap["receivers"] = t.Receivers
 	t.fieldMap["metadata"] = t.Metadata
 	t.fieldMap["state"] = t.State
-	t.fieldMap["max_dispatch_pre_hour"] = t.MaxDispatchPreHour
+	t.fieldMap["max_dispatch_per_hour"] = t.MaxDispatchPerHour
 	t.fieldMap["schedule_at"] = t.ScheduleAt
 	t.fieldMap["last_dispatch_at"] = t.LastDispatchAt
 
@@ -161,7 +161,7 @@ func (t task) replaceDB(db *gorm.DB) task {
 	return t
 }
 
-type taskManyToManyPools struct {
+type taskHasManyPools struct {
 	db *gorm.DB
 
 	field.RelationField
@@ -174,7 +174,7 @@ type taskManyToManyPools struct {
 	}
 }
 
-func (a taskManyToManyPools) Where(conds ...field.Expr) *taskManyToManyPools {
+func (a taskHasManyPools) Where(conds ...field.Expr) *taskHasManyPools {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -187,27 +187,27 @@ func (a taskManyToManyPools) Where(conds ...field.Expr) *taskManyToManyPools {
 	return &a
 }
 
-func (a taskManyToManyPools) WithContext(ctx context.Context) *taskManyToManyPools {
+func (a taskHasManyPools) WithContext(ctx context.Context) *taskHasManyPools {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a taskManyToManyPools) Session(session *gorm.Session) *taskManyToManyPools {
+func (a taskHasManyPools) Session(session *gorm.Session) *taskHasManyPools {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a taskManyToManyPools) Model(m *models.Task) *taskManyToManyPoolsTx {
-	return &taskManyToManyPoolsTx{a.db.Model(m).Association(a.Name())}
+func (a taskHasManyPools) Model(m *models.Task) *taskHasManyPoolsTx {
+	return &taskHasManyPoolsTx{a.db.Model(m).Association(a.Name())}
 }
 
-type taskManyToManyPoolsTx struct{ tx *gorm.Association }
+type taskHasManyPoolsTx struct{ tx *gorm.Association }
 
-func (a taskManyToManyPoolsTx) Find() (result []*models.TaskPool, err error) {
+func (a taskHasManyPoolsTx) Find() (result []*models.TaskPool, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a taskManyToManyPoolsTx) Append(values ...*models.TaskPool) (err error) {
+func (a taskHasManyPoolsTx) Append(values ...*models.TaskPool) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -215,7 +215,7 @@ func (a taskManyToManyPoolsTx) Append(values ...*models.TaskPool) (err error) {
 	return a.tx.Append(targetValues...)
 }
 
-func (a taskManyToManyPoolsTx) Replace(values ...*models.TaskPool) (err error) {
+func (a taskHasManyPoolsTx) Replace(values ...*models.TaskPool) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -223,7 +223,7 @@ func (a taskManyToManyPoolsTx) Replace(values ...*models.TaskPool) (err error) {
 	return a.tx.Replace(targetValues...)
 }
 
-func (a taskManyToManyPoolsTx) Delete(values ...*models.TaskPool) (err error) {
+func (a taskHasManyPoolsTx) Delete(values ...*models.TaskPool) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -231,11 +231,11 @@ func (a taskManyToManyPoolsTx) Delete(values ...*models.TaskPool) (err error) {
 	return a.tx.Delete(targetValues...)
 }
 
-func (a taskManyToManyPoolsTx) Clear() error {
+func (a taskHasManyPoolsTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a taskManyToManyPoolsTx) Count() int64 {
+func (a taskHasManyPoolsTx) Count() int64 {
 	return a.tx.Count()
 }
 

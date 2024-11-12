@@ -117,7 +117,7 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 
 	var remaining int
 
-	if lastDispatchAt != nil && task.MaxDispatchPreHour > 0 {
+	if lastDispatchAt != nil && task.MaxDispatchPerHour > 0 {
 		count, err := query.TaskLog.WithContext(ctx).
 			Where(query.TaskLog.TaskID.Eq(task.ID)).
 			Where(query.TaskLog.CreatedAt.Gte(time.Now().Add(-time.Hour))).
@@ -128,20 +128,20 @@ func (d *dispatcher) dispatchTask(ctx context.Context, task *models.Task, channe
 			return err
 		}
 
-		if count >= int64(task.MaxDispatchPreHour) {
-			log.Info().Uint("task_id", task.ID).Msg("task reached max dispatch pre hour")
+		if count >= int64(task.MaxDispatchPerHour) {
+			log.Info().Uint("task_id", task.ID).Msg("task reached max dispatch per hour")
 			return nil
 		}
 
-		remaining = task.MaxDispatchPreHour - int(count)
+		remaining = task.MaxDispatchPerHour - int(count)
 
 		log.Info().
 			Uint("task_id", task.ID).
 			Int("remaining", remaining).
 			Msg("task check remaining for limit dispatch policy")
 	} else {
-		if task.MaxDispatchPreHour > 0 {
-			remaining = task.MaxDispatchPreHour
+		if task.MaxDispatchPerHour > 0 {
+			remaining = task.MaxDispatchPerHour
 		} else {
 			remaining = math.MaxInt
 		}

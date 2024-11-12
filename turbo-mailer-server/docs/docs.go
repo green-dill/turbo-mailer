@@ -1510,7 +1510,7 @@ const docTemplate = `{
                 "last_dispatch_at": {
                     "type": "string"
                 },
-                "max_dispatch_pre_hour": {
+                "max_dispatch_per_hour": {
                     "type": "integer"
                 },
                 "metadata": {
