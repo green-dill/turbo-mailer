@@ -95,13 +95,13 @@ const Welcome: React.FC = () => {
           <Card title="任务状态统计" bordered={false}>
             <Space direction="vertical" style={{width: '100%'}}>
               <Space key='pending' style={{marginBottom: 8}}>
-                待处理 - {dashBoardStats.taskStateCount?.pending}
+                待处理 - {dashBoardStats.taskStateCount?.pending || 0}
               </Space>
               <Space key='dispatched' style={{ marginBottom: 8 }}>
-                已调度 - {dashBoardStats.taskStateCount?.dispatched}
+                已调度 - {dashBoardStats.taskStateCount?.dispatched || 0}
               </Space>
               <Space key='finished' style={{ marginBottom: 8 }}>
-                已完成 - {dashBoardStats.taskStateCount?.finished}
+                已完成 - {dashBoardStats.taskStateCount?.finished || 0}
               </Space>
             </Space>
           </Card>
