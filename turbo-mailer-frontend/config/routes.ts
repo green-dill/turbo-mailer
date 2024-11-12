@@ -26,7 +26,7 @@ export default [
     path: '/dashboard/welcome',
     name: 'welcome',
     icon: 'smile',
-    component: './DashBoard/Welcome',
+    component: './Dashboard/Welcome',
   },
   {
     path: '/admin',
