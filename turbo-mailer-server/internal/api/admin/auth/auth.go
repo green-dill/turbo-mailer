@@ -21,14 +21,14 @@ type Credentials struct {
 	Password string `json:"password" validate:"required"`
 }
 
-//	@Summary		User login
-//	@Description	Authenticate a user and return a JWT token
-//	@Tags			Auth
-//	@Accept			json
-//	@Produce		json
-//	@Param			credentials	body		Credentials	true	"User credentials"
-//	@Success		200			{object}	map[string]string
-//	@Router			/api/v1/auth/login [post]
+// @Summary		User login
+// @Description	Authenticate a user and return a JWT token
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			credentials	body		Credentials	true	"User credentials"
+// @Success		200			{object}	map[string]string
+// @Router			/api/v1/auth/login [post]
 func Login(ctx echo.Context) error {
 	var credentials Credentials
 	if err := ctx.Bind(&credentials); err != nil {
@@ -68,12 +68,12 @@ func Login(ctx echo.Context) error {
 	})
 }
 
-//	@Summary		User logout
-//	@Description	Invalidate the user's JWT token
-//	@Tags			Auth
-//	@Produce		json
-//	@Success		200	{object}	map[string]string
-//	@Router			/api/v1/auth/logout [post]
+// @Summary		User logout
+// @Description	Invalidate the user's JWT token
+// @Tags			Auth
+// @Produce		json
+// @Success		200	{object}	map[string]string
+// @Router			/api/v1/auth/logout [post]
 func Logout(ctx echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "jwt"
@@ -94,15 +94,15 @@ type ChangePasswordRequest struct {
 	NewPassword string `json:"new_password" validate:"required,min=8"`
 }
 
-//	@Summary		Change user password
-//	@Description	Change the authenticated user's password
-//	@Tags			Auth
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		ChangePasswordRequest	true	"Change password request"
-//	@Success		200		{object}	map[string]string
-//	@Security		JWT
-//	@Router			/api/v1/auth/change-password [post]
+// @Summary		Change user password
+// @Description	Change the authenticated user's password
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			request	body		ChangePasswordRequest	true	"Change password request"
+// @Success		200		{object}	map[string]string
+// @Security		JWT
+// @Router			/api/v1/auth/change-password [post]
 func ChangePassword(ctx echo.Context) error {
 	var req ChangePasswordRequest
 	if err := ctx.Bind(&req); err != nil {
@@ -147,13 +147,13 @@ type ProfileResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-//	@Summary		Get user profile
-//	@Description	Retrieve the profile of the currently authenticated user
-//	@Tags			Auth
-//	@Produce		json
-//	@Success		200	{object}	ProfileResponse
-//	@Security		JWT
-//	@Router			/api/v1/auth/profile [get]
+// @Summary		Get user profile
+// @Description	Retrieve the profile of the currently authenticated user
+// @Tags			Auth
+// @Produce		json
+// @Success		200	{object}	ProfileResponse
+// @Security		JWT
+// @Router			/api/v1/auth/profile [get]
 func Profile(ctx echo.Context) error {
 	// 使用 echojwt 获取用户信息
 	user := ctx.Get("user").(*jwt.Token)
