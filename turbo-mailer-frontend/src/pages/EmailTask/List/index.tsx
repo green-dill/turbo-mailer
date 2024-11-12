@@ -118,6 +118,7 @@ const EmailTaskList: React.FC = () => {
     {
       title: '标题',
       dataIndex: 'subject',
+      ellipsis: true,
       tooltip: '支持模板语法',
       formItemProps: {
         rules: [
