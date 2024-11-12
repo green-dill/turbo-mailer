@@ -351,6 +351,7 @@ const EmailTaskList: React.FC = () => {
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
+      hideInTable: true,
       sorter: true,
       defaultSortOrder: 'descend',
     },
@@ -360,6 +361,7 @@ const EmailTaskList: React.FC = () => {
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
+      hideInTable: true,
       sorter: true,
     },
     {
@@ -388,6 +390,7 @@ const EmailTaskList: React.FC = () => {
           size="small"
           style={{padding: 0}}
           key='test'
+          disabled={record?.state === 'finished'}
           onClick={() => {
             handleTestModalOpen(true);
             setCurrentRow(record);
@@ -407,7 +410,7 @@ const EmailTaskList: React.FC = () => {
             }
           }}
         >
-          <Button style={{padding: 0}} type="link" size="small">执行</Button>
+          <Button disabled={record?.state === 'finished'} style={{padding: 0}} type="link" size="small">执行</Button>
         </Popconfirm>,
         <Popconfirm
           key='delete'
@@ -421,7 +424,7 @@ const EmailTaskList: React.FC = () => {
             }
           }}
         >
-          <Button style={{padding: 0}} type="link" size="small">删除</Button>
+          <Button disabled={record?.state === 'dispatched'} style={{padding: 0}} type="link" size="small">删除</Button>
         </Popconfirm>,
       ],
     },
