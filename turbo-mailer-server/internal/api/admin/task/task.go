@@ -561,7 +561,7 @@ func Test(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid task ID"})
 	}
 
-	email := c.QueryParam("email")
+	email := c.FormValue("email")
 	if email == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Test email is required"})
 	}
