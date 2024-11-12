@@ -69,7 +69,7 @@ const Welcome: React.FC = () => {
       <Row gutter={24}>
         <Col span={6}>
           <Card title="号池总数" bordered={false}>
-            <Statistic value={dashBoardStats.poolCount} />
+            <Space style={{ marginBottom: 8 }}>{dashBoardStats.poolCount}</Space>
           </Card>
         </Col>
 
@@ -87,21 +87,21 @@ const Welcome: React.FC = () => {
 
         <Col span={6}>
           <Card title="任务总数" bordered={false}>
-            <Statistic value={dashBoardStats.taskCount} />
+            <Space style={{ marginBottom: 8 }}>{dashBoardStats.taskCount}</Space>
           </Card>
         </Col>
 
         <Col span={6}>
           <Card title="任务状态统计" bordered={false}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Space key='pending' style={{ marginBottom: 8 }}>
-                待处理 - {dashBoardStats.taskStateCount?.pending || 0}
+            <Space direction="vertical" style={{width: '100%'}}>
+              <Space key='pending' style={{marginBottom: 8}}>
+                待处理 - {dashBoardStats.taskStateCount?.pending}
               </Space>
               <Space key='dispatched' style={{ marginBottom: 8 }}>
-                已调度 - {dashBoardStats.taskStateCount?.dispatched || 0}
+                已调度 - {dashBoardStats.taskStateCount?.dispatched}
               </Space>
               <Space key='finished' style={{ marginBottom: 8 }}>
-                已完成 - {dashBoardStats.taskStateCount?.finished || 0}
+                已完成 - {dashBoardStats.taskStateCount?.finished}
               </Space>
             </Space>
           </Card>
