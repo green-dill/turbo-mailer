@@ -356,7 +356,7 @@ func Update(c echo.Context) error {
 	}
 
 	// Fetch the existing task
-	existingTask, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).First()
+	existingTask, err := query.Task.WithContext(ctx).Preload(query.Task.Pools).Where(query.Task.ID.Eq(uint(id))).First()
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
@@ -465,23 +465,36 @@ func Update(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("some of the pools are not found: %v", missingPoolIds)})
 	}
 
-	for i, poolId := range poolIds {
-		pools = append(pools, &models.TaskPool{
-			PoolID: poolId,
-			Pool:   ps[i],
-			Weight: weights[i],
-		})
+	// diff pools with ps, and update the weight
+	// should delete the pool that is not in the ps
+	// should add the new pool that is in the ps
+	poolMap := make(map[uint]*models.TaskPool)
+
+	// build map of existing pools for quick lookup
+	for _, pool := range existingTask.Pools {
+		poolMap[pool.PoolID] = pool
 	}
 
-	// clean up existing pools
-	if len(existingTask.Pools) > 0 {
-		query.TaskPool.WithContext(ctx).Where(query.TaskPool.TaskID.Eq(existingTask.ID)).Unscoped().Delete()
+	for i, poolId := range poolIds {
+		if existingPool, ok := poolMap[poolId]; ok {
+			existingPool.Weight = weights[i]
+			pools = append(pools, existingPool)
+		} else {
+			pools = append(pools, &models.TaskPool{
+				PoolID: poolId,
+				Pool:   ps[i],
+				Weight: weights[i],
+			})
+		}
 	}
 
 	existingTask.Pools = pools
 
-	// Perform the update
-	_, err = query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).Updates(existingTask)
+	for _, pool := range existingTask.Pools {
+		query.TaskPool.WithContext(ctx).Save(pool)
+	}
+
+	err = query.Task.WithContext(ctx).Save(existingTask)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
