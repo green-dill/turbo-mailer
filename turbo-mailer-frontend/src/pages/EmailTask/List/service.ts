@@ -26,12 +26,9 @@ export async function queryEmailTaskById(params: EmailTask.EmailTaskListItem, op
   });
 }
 
-export async function updateEmailTask(body: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
-  return request<Record<string, any>>(`/api/v1/task/${body.id}`, {
+export async function updateEmailTask(body: FormData, id: string, options?: { [key: string]: any }) {
+  return request<Record<string, any>>(`/api/v1/task/${id}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
     data: body,
     ...(options || {}),
   });
@@ -49,12 +46,9 @@ export async function updateTest(body: EmailTask.EmailTaskListItem, options?: { 
   });
 }
 
-export async function addEmailTask(body: EmailTask.EmailTaskListItem, options?: { [key: string]: any }) {
+export async function addEmailTask(body: FormData, options?: { [key: string]: any }) {
   return request<Record<string, any>>('/api/v1/task', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
     data: body,
     ...(options || {}),
   });

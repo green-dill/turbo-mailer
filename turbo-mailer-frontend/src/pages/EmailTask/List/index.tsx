@@ -31,7 +31,28 @@ const EmailTaskList: React.FC = () => {
    */
   const handleSubmit = async (fields: EmailTask.EmailTaskListItem) => {
     try {
-      fields.id ? await updateEmailTask(fields) : await addEmailTask(fields);
+      const formData = new FormData();
+
+      formData.append('pools_weights', fields.pool_ids?.map(id => 1).join(',') || '');
+      formData.append('pools', fields.pool_ids?.join(',') || '');
+
+      fields.pools = undefined;
+      fields.pool_ids = undefined;
+
+      for (const key in fields) {
+        if (fields[key as keyof EmailTask.EmailTaskListItem] !== undefined) {
+          const value = fields[key as keyof EmailTask.EmailTaskListItem];
+          if (value instanceof Blob || value instanceof File) {
+            // 如果值是 Blob 或 File 类型，直接添加
+            formData.append(key, value as Blob);
+          } else {
+            // 如果值是其他类型，转换为字符串然后添加
+            formData.append(key, String(value));
+          }
+        }
+      }
+
+      fields.id ? await updateEmailTask(formData, fields.id) : await addEmailTask(formData);
       message.success(`${fields.id ? '编辑' : '添加'}成功`);
       return true;
     } catch (error) {
@@ -123,11 +144,11 @@ const EmailTaskList: React.FC = () => {
       fieldProps: {
         options: [
           {
-            label: 'html',
+            label: 'text/html',
             value: 'text/html',
           },
           {
-            label: 'text',
+            label: 'text/plain',
             value: 'text/plain',
           },
         ]
@@ -135,7 +156,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '邮件内容',
-      dataIndex: 'content_files',
+      dataIndex: 'content',
       hideInSearch: true,
       hideInTable: true,
       tooltip: '上传 HTML/TXT 文件，支持模板语法',
@@ -146,10 +167,13 @@ const EmailTaskList: React.FC = () => {
             message: '请上传',
           },
         ],
-        name: 'content_files',
-        valuePropName: 'content_files',
+        name: 'content',
+        valuePropName: 'content',
         getValueFromEvent: e => {
-          return e && e.fileList;
+          if ('file' in e) {
+            return e.file?.originFileObj;
+          }
+          return undefined;
         }
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
@@ -188,15 +212,10 @@ const EmailTaskList: React.FC = () => {
               placeholder='请上传'
               tooltip='上传 HTML/TXT 文件，支持模板语法'
               help={helpContent}
-              name="content_files"
+              name="content"
               accept={acceptTypes}
               max={1}
               disabled={content_type === undefined}
-              fieldProps={{
-                beforeUpload(file, fileList) {
-                  return false;
-                },
-              }}
             />
           );
         }
@@ -205,7 +224,7 @@ const EmailTaskList: React.FC = () => {
     },
     {
       title: '收件人列表',
-      dataIndex: 'receivers_files',
+      dataIndex: 'receivers',
       hideInSearch: true,
       hideInTable: true,
       tooltip: '上传 CSV/EXCEL 文件',
@@ -216,10 +235,13 @@ const EmailTaskList: React.FC = () => {
             message: '请上传',
           },
         ],
-        name: 'receivers_files',
-        valuePropName: 'receivers_files',
+        name: 'receivers',
+        valuePropName: 'receivers',
         getValueFromEvent: e => {
-          return e && e.fileList;
+          if ('file' in e) {
+            return e.file?.originFileObj;
+          }
+          return undefined;
         }
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
@@ -229,14 +251,9 @@ const EmailTaskList: React.FC = () => {
               placeholder='请上传'
               tooltip='上传 CSV/EXCEL 文件'
               help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
-              name="receivers_files"
+              name="receivers"
               accept={'.csv'}
               max={1}
-              fieldProps={{
-                beforeUpload(file, fileList) {
-                  return false;
-                },
-              }}
             />
           );
         }
@@ -249,17 +266,11 @@ const EmailTaskList: React.FC = () => {
       hideInSearch: true,
       hideInForm: true,
       render: (text, record, _, action) => {
-        // 假设 pools 是一个数组，每个元素是一个对象，对象中有一个 name 属性
-        if (Array.isArray(text)) {
-          return (
-            <>
-              {text.map((pool, index) => (
-                <Tag key={index}>{pool.pool.name}</Tag> // 使用 tag 标签包裹 pool.name，并添加 key 属性以避免警告
-              ))}
-            </>
-          );
+        const items = record?.pools?.map(item => <Tag key={item.pool_id}>{item.pool.name}</Tag>)
+        if (items) {
+          return items;
         }
-        return '无'; // 如果 pools 不是数组，可以返回一个默认值
+        return '无';
       },
     },
     {
@@ -272,7 +283,6 @@ const EmailTaskList: React.FC = () => {
       params: {current: 1, pageSize: 1000},
       fieldProps: {
         mode: 'multiple',
-        disabled: currentRow !== undefined,
       },
       formItemProps: {
         rules: [
@@ -365,7 +375,9 @@ const EmailTaskList: React.FC = () => {
           onClick={() => {
             handleModalOpen(true);
             record.pool_ids = record.pools && Object.values(record.pools.map((item) => item.pool_id));
-            record.schedule_at = moment(record.schedule_at).format('YYYY-MM-DD HH:mm:ss')
+            record.schedule_at = moment(record.schedule_at).format('YYYY-MM-DD HH:mm:ss');
+            record.content = undefined;
+            record.receivers = undefined;
             setCurrentRow(record);
           }}
         >
@@ -436,7 +448,7 @@ const EmailTaskList: React.FC = () => {
         columns={columns}
       />
       <Modal
-        title={`${currentRow?.id ? '更新' : '新建'}任务s`}
+        title={`${currentRow?.id ? '更新' : '新建'}任务`}
         open={modalOpen}
         onCancel={() => {
           handleModalOpen(false);
@@ -448,20 +460,6 @@ const EmailTaskList: React.FC = () => {
         <ProTable<EmailTask.EmailTaskListItem, EmailTask.EmailTaskListItem>
           onSubmit={async (fields) => {
             fields.id = currentRow?.id;
-
-            if (Array.isArray(fields.pool_ids)) {
-              fields.pools_weights = fields.pool_ids.map(() => 1);
-            }
-
-            if (Array.isArray(fields.receivers_files)) {
-              fields.receivers = fields.receivers_files[0].originFileObj
-              fields.receivers_files = undefined;
-            }
-
-            if (Array.isArray(fields.content_files)) {
-              fields.content = fields.content_files[0].originFileObj
-              fields.content_files = undefined;
-            }
             const success = await handleSubmit(fields);
             if (success) {
               handleModalOpen(false);
