@@ -36,7 +36,7 @@ const Welcome: React.FC = () => {
               <StatisticCard
                 statistic={{
                   title: '号池数',
-                  tip: '号池',
+                  tip: '号池总数',
                   value: dashBoardStats.poolCount,
                 }}
               />
@@ -57,7 +57,7 @@ const Welcome: React.FC = () => {
               <StatisticCard
                 statistic={{
                   title: '任务数',
-                  tip: '帮助文字',
+                  tip: '任务总数',
                   value: dashBoardStats.taskCount,
                 }}
               />
