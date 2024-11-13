@@ -145,6 +145,13 @@ const NumberPoolList: React.FC = () => {
           </Button>,
         ]}
         request={queryNumberPool}
+        columnsState={{
+          persistenceKey: 'number-pool-list',
+          persistenceType: 'localStorage',
+          defaultValue: {
+            option: {fixed: 'right', disable: true},
+          },
+        }}
         columns={columns}
       />
       <Modal

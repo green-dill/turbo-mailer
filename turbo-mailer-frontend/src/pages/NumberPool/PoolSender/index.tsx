@@ -213,6 +213,13 @@ const PoolSenderList: React.FC = () => {
           </Button>,
         ]}
         request={() => queryPoolSender(params.poolId)}
+        columnsState={{
+          persistenceKey: 'pool-sender-list',
+          persistenceType: 'localStorage',
+          defaultValue: {
+            option: {fixed: 'right', disable: true},
+          },
+        }}
         columns={columns}
       />
       <Modal
