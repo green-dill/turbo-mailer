@@ -2,6 +2,7 @@ helmDefaults:
   createNamespace: true
   atomic: true
   timeout: 300
+  wait: true
 
 environments:
   dev:
