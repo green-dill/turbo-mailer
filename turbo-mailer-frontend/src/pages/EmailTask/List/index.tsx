@@ -171,10 +171,7 @@ const EmailTaskList: React.FC = () => {
         name: 'content',
         valuePropName: 'content',
         getValueFromEvent: e => {
-          if ('file' in e) {
-            return e.file?.originFileObj;
-          }
-          return undefined;
+          return e.fileList[0]?.originFileObj;
         }
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
@@ -217,6 +214,11 @@ const EmailTaskList: React.FC = () => {
               accept={acceptTypes}
               max={1}
               disabled={content_type === undefined}
+              fieldProps={{
+                beforeUpload: () => {
+                  return false;
+                },
+              }}
             />
           );
         }
@@ -239,10 +241,7 @@ const EmailTaskList: React.FC = () => {
         name: 'receivers',
         valuePropName: 'receivers',
         getValueFromEvent: e => {
-          if ('file' in e) {
-            return e.file?.originFileObj;
-          }
-          return undefined;
+          return e.fileList[0]?.originFileObj;
         }
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
@@ -255,6 +254,11 @@ const EmailTaskList: React.FC = () => {
               name="receivers"
               accept={'.csv'}
               max={1}
+              fieldProps={{
+                beforeUpload: () => {
+                  return false;
+                },
+              }}
             />
           );
         }
