@@ -1,6 +1,7 @@
-import {PageContainer, ProCard, Statistic} from '@ant-design/pro-components';
+import {PageContainer, StatisticCard} from '@ant-design/pro-components';
+import RcResizeObserver from 'rc-resize-observer';
 import { useModel } from '@umijs/max';
-import {Card, Col, Row, Space, theme} from 'antd';
+import {Card, Col, Divider, Row, theme} from 'antd';
 import React, {useEffect, useState} from 'react';
 import {queryDashboardStats} from "@/pages/Dashboard/service";
 
@@ -8,6 +9,7 @@ const Welcome: React.FC = () => {
   const { token } = theme.useToken();
   const { initialState } = useModel('@@initialState');
   const [dashBoardStats, setDashBoardStats] = useState<Dashboard.Stats>({});
+  const [responsive, setResponsive] = useState(false);
 
   const fetchDashboardStats = async () => {
     return await queryDashboardStats();
@@ -17,9 +19,74 @@ const Welcome: React.FC = () => {
     fetchDashboardStats().then((response) => setDashBoardStats(response));
   }, []);
 
-
   return (dashBoardStats.topPools !== undefined &&
     <PageContainer>
+      <RcResizeObserver
+        key="resize-observer"
+        onResize={(offset) => {
+          setResponsive(offset.width < 596);
+        }}
+      >
+        <Row gutter={24}>
+          <Col span={8}>
+            <StatisticCard.Group direction={responsive ? 'column' : 'row'} style={{
+              borderRadius: 8,
+              marginBottom: 24,
+            }}>
+              <StatisticCard
+                statistic={{
+                  title: '号池数',
+                  tip: '号池',
+                  value: dashBoardStats.poolCount,
+                }}
+              />
+              <Divider type={responsive ? 'horizontal' : 'vertical'} />
+              <StatisticCard
+                statistic={{
+                  title: '热门号池',
+                  value: dashBoardStats.topPools[0].name
+                }}
+              />
+            </StatisticCard.Group>
+          </Col>
+          <Col span={16}>
+            <StatisticCard.Group direction={responsive ? 'column' : 'row'} style={{
+              borderRadius: 8,
+              marginBottom: 24,
+            }}>
+              <StatisticCard
+                statistic={{
+                  title: '任务数',
+                  tip: '帮助文字',
+                  value: dashBoardStats.taskCount,
+                }}
+              />
+              <Divider type={responsive ? 'horizontal' : 'vertical'} />
+              <StatisticCard
+                statistic={{
+                  title: '待处理',
+                  value: dashBoardStats.taskStateCount?.pending || 0,
+                  status: 'default',
+                }}
+              />
+              <StatisticCard
+                statistic={{
+                  title: '已调度',
+                  value: dashBoardStats.taskStateCount?.dispatched || 0,
+                  status: 'processing',
+                }}
+              />
+              <StatisticCard
+                statistic={{
+                  title: '已完成',
+                  value: dashBoardStats.taskStateCount?.finished || 0,
+                  status: 'success',
+                }}
+              />
+            </StatisticCard.Group>
+          </Col>
+        </Row>
+      </RcResizeObserver>
       <Card
         style={{
           borderRadius: 8,
@@ -58,6 +125,7 @@ const Welcome: React.FC = () => {
               lineHeight: '22px',
               marginTop: 16,
               marginBottom: 32,
+              paddingBottom: 128,
               width: '65%',
             }}
           >
@@ -65,48 +133,6 @@ const Welcome: React.FC = () => {
           </p>
         </div>
       </Card>
-
-      <Row gutter={24}>
-        <Col span={6}>
-          <Card title="号池总数" bordered={false}>
-            <Space style={{ marginBottom: 8 }}>{dashBoardStats.poolCount}</Space>
-          </Card>
-        </Col>
-
-        <Col span={6}>
-          <Card title="号池排行" bordered={false}>
-            <Space direction="vertical">
-              {dashBoardStats.topPools.map((pool, index) => (
-                <Space key={index} style={{ marginBottom: 8 }}>
-                  {pool.name} - {pool.senderCount}
-                </Space>
-              ))}
-            </Space>
-          </Card>
-        </Col>
-
-        <Col span={6}>
-          <Card title="任务总数" bordered={false}>
-            <Space style={{ marginBottom: 8 }}>{dashBoardStats.taskCount}</Space>
-          </Card>
-        </Col>
-
-        <Col span={6}>
-          <Card title="任务状态统计" bordered={false}>
-            <Space direction="vertical" style={{width: '100%'}}>
-              <Space key='pending' style={{marginBottom: 8}}>
-                待处理 - {dashBoardStats.taskStateCount?.pending || 0}
-              </Space>
-              <Space key='dispatched' style={{ marginBottom: 8 }}>
-                已调度 - {dashBoardStats.taskStateCount?.dispatched || 0}
-              </Space>
-              <Space key='finished' style={{ marginBottom: 8 }}>
-                已完成 - {dashBoardStats.taskStateCount?.finished || 0}
-              </Space>
-            </Space>
-          </Card>
-        </Col>
-      </Row>
     </PageContainer>
   );
 };
