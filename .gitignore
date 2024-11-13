@@ -137,6 +137,8 @@ dist
 
 turbo-mailer-server/storage/*.pem
 
+tmp_*.go
+tmp_*.txt
 
 !.keep
 !.github
