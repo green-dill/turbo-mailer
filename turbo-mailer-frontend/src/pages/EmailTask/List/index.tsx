@@ -373,6 +373,7 @@ const EmailTaskList: React.FC = () => {
           size="small"
           style={{padding: 0}}
           key='edit'
+          disabled={record?.state === 'finished'}
           onClick={() => {
             handleModalOpen(true);
             record.pool_ids = record.pools && Object.values(record.pools.map((item) => item.pool_id));
@@ -404,9 +405,13 @@ const EmailTaskList: React.FC = () => {
               key: 'start',
               name: '执行',
               disabled: record?.state === 'finished',
-              onClick: () => {
-                handleTestModalOpen(true);
-                setCurrentRow(record);
+              onClick: async () => {
+                const success = await handleStartImmediately(record);
+                if (success) {
+                  if (actionRef.current) {
+                    actionRef.current.reload();
+                  }
+                }
             }},
             {
               key: 'delete',
