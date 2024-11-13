@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
+import ProTable, {TableDropdown} from '@ant-design/pro-table';
 import {
   addEmailTask,
   removeEmailTask,
@@ -10,7 +10,7 @@ import {
   updateTest,
   startImmediately,
 } from './service';
-import {Button, message, Modal, Popconfirm, Tag} from "antd";
+import {Button, message, Modal, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
@@ -352,7 +352,6 @@ const EmailTaskList: React.FC = () => {
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
-      hideInTable: true,
       sorter: true,
       defaultSortOrder: 'descend',
     },
@@ -362,14 +361,13 @@ const EmailTaskList: React.FC = () => {
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
-      hideInTable: true,
       sorter: true,
     },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record: EmailTask.EmailTaskListItem) => [
+      render: (text, record: EmailTask.EmailTaskListItem, _, action) => [
         <Button
           type="link"
           size="small"
@@ -399,34 +397,40 @@ const EmailTaskList: React.FC = () => {
         >
           测试
         </Button>,
-        <Popconfirm
-          key='start'
-          title="确定执行吗？"
-          onConfirm={async () => {
-            const success = await handleStartImmediately(record);
-            if (success) {
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
-          }}
-        >
-          <Button disabled={record?.state === 'finished'} style={{padding: 0}} type="link" size="small">执行</Button>
-        </Popconfirm>,
-        <Popconfirm
-          key='delete'
-          title="确定删除吗？"
-          onConfirm={async () => {
-            const success = await handleRemove(record);
-            if (success) {
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
-          }}
-        >
-          <Button disabled={record?.state === 'dispatched'} style={{padding: 0}} type="link" size="small">删除</Button>
-        </Popconfirm>,
+        <TableDropdown
+          key="actionGroup"
+          menus={[
+            {
+              key: 'start',
+              name: '执行',
+              disabled: record?.state === 'finished',
+              onClick: () => {
+                handleTestModalOpen(true);
+                setCurrentRow(record);
+            }},
+            {
+              key: 'delete',
+              name: '删除',
+              disabled: record?.state === 'dispatched',
+              onClick: (e) => {
+                Modal.confirm({
+                  title: '确定删除吗？',
+                  content: '此操作将永久删除该记录，是否继续？',
+                  okText: '确定',
+                  cancelText: '取消',
+                  onOk: async () => {
+                    const success = await handleRemove(record);
+                    if (success) {
+                      if (actionRef.current) {
+                        actionRef.current.reload();
+                      }
+                    }
+                  },
+                });
+              },
+            },
+          ]}
+        />,
       ],
     },
   ];
@@ -449,6 +453,15 @@ const EmailTaskList: React.FC = () => {
           </Button>,
         ]}
         request={queryEmailTask}
+        columnsState={{
+          persistenceKey: 'email-task-list',
+          persistenceType: 'localStorage',
+          defaultValue: {
+            created_at: {show: false},
+            updated_at: {show: false},
+            option: {fixed: 'right', disable: true},
+          },
+        }}
         columns={columns}
       />
       <Modal
