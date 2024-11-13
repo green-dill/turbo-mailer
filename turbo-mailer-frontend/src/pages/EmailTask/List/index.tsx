@@ -10,7 +10,7 @@ import {
   updateTest,
   startImmediately,
 } from './service';
-import {Button, message, Modal, Tag} from "antd";
+import {Button, message, Modal, Space, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
   ModalForm,
@@ -270,13 +270,15 @@ const EmailTaskList: React.FC = () => {
       dataIndex: 'pools',
       hideInSearch: true,
       hideInForm: true,
-      render: (text, record, _, action) => {
-        const items = record?.pools?.map(item => <Tag key={item.pool_id}>{item.pool.name}</Tag>)
-        if (items) {
-          return items;
-        }
-        return '无';
-      },
+      render: (_, record) => (
+        <Space>
+          {record?.pools?.map(({ pool }) => (
+            <Tag key={pool.id}>
+              {pool.name}
+            </Tag>
+          ))}
+        </Space>
+      ),
     },
     {
       title: '号池',
