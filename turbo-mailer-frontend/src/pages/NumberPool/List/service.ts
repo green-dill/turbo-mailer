@@ -5,12 +5,6 @@ export async function queryNumberPool(params: API.PageParams, options?: { [key: 
     method: 'GET',
     params,
     ...(options || {}),
-  }).then(res => {
-    return {
-      total: res.total,
-      data: res.list,
-      success: true,
-    }
   });
 }
 

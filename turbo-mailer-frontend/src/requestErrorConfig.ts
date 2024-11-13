@@ -96,13 +96,18 @@ export const errorConfig: RequestConfig = {
 
   // 响应拦截器
   responseInterceptors: [
-    (response) => {
-      // 拦截响应数据，进行个性化处理
-      const { data } = response as unknown as ResponseStructure;
-
-      if (data?.success === false) {
-        message.error('请求失败！');
+    (response: any) => {
+      if (
+        response.data.currentPage &&
+        response.data.totalPages
+      ) {
+        response.data.data = response.data.list;
+        response.data.page = response.data.currentPage;
+        delete response.data.list;
+        delete response.data.currentPage;
+        delete response.data.totalPages;
       }
+      response.success = true;
       return response;
     },
   ],

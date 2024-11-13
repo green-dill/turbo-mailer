@@ -5,12 +5,6 @@ export async function queryEmailTask(params: API.PageParams, options?: { [key: s
     method: 'GET',
     params,
     ...(options || {}),
-  }).then(res => {
-    return {
-      total: res.total,
-      data: res.list,
-      success: true,
-    }
   });
 }
 
@@ -19,10 +13,6 @@ export async function queryEmailTaskById(params: EmailTask.EmailTaskListItem, op
   return request<EmailTask.EmailTaskListItem>(`/api/v1/task/${id}`, {
     method: 'GET',
     ...(options || {}),
-  }).then(res => {
-    return {
-      data: res,
-    }
   });
 }
 

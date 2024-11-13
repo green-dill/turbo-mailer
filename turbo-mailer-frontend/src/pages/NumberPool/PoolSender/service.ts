@@ -6,21 +6,12 @@ export async function queryPoolSender(poolId?: string, params?: API.PageParams, 
     method: 'GET',
     params,
     ...(options || {}),
-  }).then(res => {
-    return {
-      total: res.total,
-      data: res.list,
-      success: true,
-    }
   });
 }
 
 export async function updatePoolSender(poolId?: string, body?: PoolSender.PoolSenderListItem, options?: { [key: string]: any }) {
   return request<Record<string, any>>(`/api/v1/pool-senders/${body?.id}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     data: body,
     ...(options || {}),
   });
@@ -29,9 +20,6 @@ export async function updatePoolSender(poolId?: string, body?: PoolSender.PoolSe
 export async function addPoolSender(poolId?: string, body?: PoolSender.PoolSenderListItem, options?: { [key: string]: any }) {
   return request<Record<string, any>>(`/api/v1/pool-senders/${poolId}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     data: body,
     ...(options || {}),
   });
