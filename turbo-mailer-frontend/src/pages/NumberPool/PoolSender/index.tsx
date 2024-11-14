@@ -111,6 +111,15 @@ const PoolSenderList: React.FC = () => {
       dataIndex: 'domain',
       hideInSearch: true,
       hideInTable: true,
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            whitespace: true,
+            message: '请填写域名',
+          },
+        ],
+      },
     },
     {
       title: '创建时间',
