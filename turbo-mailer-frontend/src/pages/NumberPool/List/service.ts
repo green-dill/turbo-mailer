@@ -13,7 +13,7 @@ export async function querySimpleNumberPool(params?: { [key: string]: any }) {
     method: 'GET',
     ...(params || {}),
   }).then((response) =>
-    response.list.map((item: { name: string; id: number }) => ({
+    response.data.map((item: { name: string; id: number }) => ({
       label: item.name,
       value: item.id,
     })),
