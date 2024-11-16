@@ -618,7 +618,7 @@ func StartImmediately(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid task ID"})
 	}
 	// Fetch the task
-	task, err := query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).First()
+	task, err := query.Task.WithContext(ctx).Preload(query.Task.Pools.Pool).Where(query.Task.ID.Eq(uint(id))).First()
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Task not found"})
 	}
@@ -627,9 +627,8 @@ func StartImmediately(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Task is not pending"})
 	}
 
-	// Update the schedule_at to current time
-	now := time.Now()
-	_, err = query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).Update(query.Task.ScheduleAt, now)
+	task.ScheduleAt = ptr.Ptr(time.Now())
+	_, err = query.Task.WithContext(ctx).Where(query.Task.ID.Eq(uint(id))).Update(query.Task.ScheduleAt, task.ScheduleAt)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update task schedule"})
 	}
@@ -642,7 +641,7 @@ func StartImmediately(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"message":    "Task scheduled to start immediately",
 		"taskId":     strconv.FormatUint(uint64(task.ID), 10),
-		"scheduleAt": now.Format(time.RFC3339),
+		"scheduleAt": task.ScheduleAt.Format(time.RFC3339),
 	})
 
 }
