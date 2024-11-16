@@ -91,6 +91,11 @@ func List(c echo.Context) error {
 		if len(task.Receivers.Val()) > 100 {
 			task.Receivers = models.NewJSON(task.Receivers.Val()[:100])
 		}
+
+		// remove pool null
+		task.Pools = lo.Filter(task.Pools, func(p *models.TaskPool, _ int) bool {
+			return p.Pool != nil
+		})
 	}
 
 	// Build next and prev URLs
