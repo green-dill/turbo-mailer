@@ -1,6 +1,7 @@
 package task
 
 import (
+	"bufio"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -8,10 +9,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 	"turbo-mailer-server/internal/dispatch"
+	"turbo-mailer-server/internal/eml"
 	"turbo-mailer-server/internal/models"
 	"turbo-mailer-server/internal/query"
 	"turbo-mailer-server/internal/schema"
@@ -179,8 +182,8 @@ func Get(c echo.Context) error {
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			subject					formData	string	true	"Task subject"
-//	@Param			context_type			formData	string	true	"Context type (html or text)"
-//	@Param			content					formData	file	true	"Content file (html or text)"
+//	@Param			context_type			formData	string	false	"Context type (html or text)"
+//	@Param			content					formData	file	true	"Content file (html or text or eml)"
 //	@Param			receivers				formData	file	true	"Receivers CSV file"
 //	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
@@ -211,18 +214,24 @@ func Store(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Content file is required", "detail": err.Error()})
 	}
-	content, err := readFile(contentFile)
+	contentType, content, err := readFile(contentFile)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read content file", "detail": err.Error()})
 	}
-	task.Content = string(content)
+	if contentType != "" {
+		task.ContentType = contentType
+	}
+	if task.ContentType == "" {
+		task.ContentType = "text/plain"
+	}
+	task.Content = content
 
 	// Handle receivers file
 	receiversFile, err := c.FormFile("receivers")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Receivers file is required", "detail": err.Error()})
 	}
-	receivers, err := readCSV(receiversFile)
+	receivers, err := readReceivers(receiversFile)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file", "detail": err.Error()})
 	}
@@ -338,9 +347,9 @@ func Store(c echo.Context) error {
 //	@Produce		json
 //	@Param			id						path		int		true	"Task ID"
 //	@Param			subject					formData	string	false	"Task subject"
-//	@Param			context_type			formData	string	false	"Context type (html or text)"
-//	@Param			content					formData	file	false	"Content file (html or text)"
-//	@Param			receivers				formData	file	false	"Receivers CSV file"
+//	@Param			context_type			formData	string	false	"Context type (html or text or eml)"
+//	@Param			content					formData	file	false	"Content file (html or text or eml)"
+//	@Param			receivers				formData	file	false	"Receivers CSV/TXT file"
 //	@Param			state					formData	string	false	"Task state"
 //	@Param			max_dispatch_per_hour	formData	int		false	"Max dispatch per hour"
 //	@Param			schedule_at				formData	string	false	"Schedule at, format: YYYY-MM-DD HH:MM:SS"
@@ -396,16 +405,19 @@ func Update(c echo.Context) error {
 
 	// Handle content file if provided
 	if contentFile, err := c.FormFile("content"); err == nil {
-		content, err := readFile(contentFile)
+		contentType, content, err := readFile(contentFile)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read content file"})
 		}
-		existingTask.Content = string(content)
+		if contentType != "" {
+			existingTask.ContentType = contentType
+		}
+		existingTask.Content = content
 	}
 
 	// Handle receivers file if provided
 	if receiversFile, err := c.FormFile("receivers"); err == nil {
-		receivers, err := readCSV(receiversFile)
+		receivers, err := readReceivers(receiversFile)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to read receivers file"})
 		}
@@ -717,35 +729,65 @@ user@example.com`
 
 // Helper functions
 
-func readFile(file *multipart.FileHeader) ([]byte, error) {
+func readFile(file *multipart.FileHeader) (string, string, error) {
 	src, err := file.Open()
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 	defer src.Close()
 
-	return io.ReadAll(src)
+	ext := filepath.Ext(file.Filename)
+	if ext == ".eml" {
+		email, err := eml.Parse(src)
+		if err != nil {
+			return "", "", err
+		}
+		return email.ContentType, email.Body, nil
+	}
+
+	content, err := io.ReadAll(src)
+	if err != nil {
+		return "", "", err
+	}
+	return "", string(content), nil
 }
 
-func readCSV(file *multipart.FileHeader) ([]string, error) {
+func readReceivers(file *multipart.FileHeader) ([]string, error) {
 	src, err := file.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer src.Close()
 
-	reader := csv.NewReader(src)
-	records, err := reader.ReadAll()
-	if err != nil {
-		return nil, err
+	var emails []string
+
+	ext := filepath.Ext(file.Filename)
+
+	if ext == ".csv" {
+		reader := csv.NewReader(src)
+		records, err := reader.ReadAll()
+		if err != nil {
+			return nil, err
+		}
+
+		for i, record := range records {
+			if i == 0 || len(record) == 0 { // Skip header and empty rows
+				continue
+			}
+			emails = append(emails, record[0])
+		}
+
+		return emails, nil
 	}
 
-	var emails []string
-	for i, record := range records {
-		if i == 0 || len(record) == 0 { // Skip header and empty rows
+	// if not csv, assume it's a text file with one email per line
+	scanner := bufio.NewScanner(src)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
 			continue
 		}
-		emails = append(emails, record[0])
+		emails = append(emails, line)
 	}
 
 	return emails, nil

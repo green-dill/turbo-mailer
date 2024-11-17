@@ -781,12 +781,11 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Context type (html or text)",
                         "name": "context_type",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "file",
-                        "description": "Content file (html or text)",
+                        "description": "Content file (html or text or eml)",
                         "name": "content",
                         "in": "formData",
                         "required": true
@@ -1026,19 +1025,19 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Context type (html or text)",
+                        "description": "Context type (html or text or eml)",
                         "name": "context_type",
                         "in": "formData"
                     },
                     {
                         "type": "file",
-                        "description": "Content file (html or text)",
+                        "description": "Content file (html or text or eml)",
                         "name": "content",
                         "in": "formData"
                     },
                     {
                         "type": "file",
-                        "description": "Receivers CSV file",
+                        "description": "Receivers CSV/TXT file",
                         "name": "receivers",
                         "in": "formData"
                     },

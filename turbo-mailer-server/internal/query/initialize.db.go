@@ -77,7 +77,7 @@ func buildOrm(cfg *DbConfig) (*gorm.DB, error) {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
-		Logger: &gormLogger{},
+		Logger: &gormLogger{level: logger.Error},
 	})
 }
 
@@ -92,16 +92,22 @@ func initializeRedis() {
 	}
 }
 
-type gormLogger struct{}
+type gormLogger struct {
+	level logger.LogLevel
+}
 
 // Error implements logger.Interface.
 func (l *gormLogger) Error(ctx context.Context, msg string, args ...any) {
-	log.Ctx(ctx).Error().Msgf(msg, args...)
+	if l.level >= logger.Error {
+		log.Ctx(ctx).Error().Msgf(msg, args...)
+	}
 }
 
 // Info implements logger.Interface.
 func (l *gormLogger) Info(ctx context.Context, msg string, args ...any) {
-	log.Ctx(ctx).Info().Msgf(msg, args...)
+	if l.level >= logger.Info {
+		log.Ctx(ctx).Info().Msgf(msg, args...)
+	}
 }
 
 // LogMode implements logger.Interface.
@@ -111,13 +117,17 @@ func (l *gormLogger) LogMode(logger.LogLevel) logger.Interface {
 
 // Trace implements logger.Interface.
 func (l *gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
-	sql, rowsAffected := fc()
-	end := time.Now()
-	escaped := end.Sub(begin)
-	log.Ctx(ctx).Debug().Msgf("sql: %s, rowsAffected: %d, escaped: %s, err: %v", sql, rowsAffected, escaped, err)
+	if l.level >= logger.Info {
+		sql, rowsAffected := fc()
+		end := time.Now()
+		escaped := end.Sub(begin)
+		log.Ctx(ctx).Debug().Msgf("sql: %s, rowsAffected: %d, escaped: %s, err: %v", sql, rowsAffected, escaped, err)
+	}
 }
 
 // Warn implements logger.Interface.
 func (l *gormLogger) Warn(ctx context.Context, msg string, args ...any) {
-	log.Ctx(ctx).Warn().Msgf(msg, args...)
+	if l.level >= logger.Warn {
+		log.Ctx(ctx).Warn().Msgf(msg, args...)
+	}
 }

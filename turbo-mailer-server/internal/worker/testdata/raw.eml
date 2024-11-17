@@ -1,0 +1,529 @@
+Return-Path: <bounces+22465813-5e2e-megumilk56=i.softbank.jp@em8451.ml.kuronekoyamato.co.jp>
+Received: from ebmts115sc.i.softbank.jp ([172.25.80.235])
+          by dimts101sc.i.softbank.jp with ESMTP
+          id <20240720080854555.HUCL.11329.dimts101sc.i.softbank.jp@dimts101sb.mailsv.softbank.jp>
+          for <megumilk56@i.softbank.jp>; Sat, 20 Jul 2024 17:08:54 +0900
+Received: from o7.ptr9307.ml.kuronekoyamato.co.jp ([167.89.53.5])
+          by ebmts115sc.i.softbank.jp with ESMTP
+          id <20240720080854144.NLJZ.55717.ebmts115sc.i.softbank.jp@ebmts115sb.mailsv.softbank.jp>
+          for <megumilk56@i.softbank.jp>; Sat, 20 Jul 2024 17:08:54 +0900
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=i.softbank.jp; s=isoftbank202401; t=1721462934;
+    b=0XQVdJeJhT3sx+U3BCSRM+itDuxYe+AzzJcqXZ56UG12Hch5b24qtVRNNQWh1Bzn+yfYNJWliQj0/c+MsSXPCwCWWYTl9jTqQ8gwiDBwIStgIbSsNIGQTspr3RymlDtH0+i1Nuo5Ny52AEQjTbIQugZKK6cRxif41RxJyka5fanIcptXidT8Itvv03ipMdLvZrpfypHsdnnkj5jcNYZUTLCq+dO1C5FkIE68IF++T97DQzjRTkilEoMmALOuitxojn4aBqE2Hc+7g2Qua/xU2CgsHabRj30WlaUFcq94Az9RbTERAaxT+80mQY7T4IDeMIjCJeCo4r/tsNODCd0/qg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=i.softbank.jp; s=isoftbank202401; t=1721462934; 
+        bh=focKruEY+yWXsQKphCw2ODjtelFDPK3CTf8cQ1T/Qr8=;
+        h=DKIM-Signature:Date:From:Mime-Version:Message-ID:To;
+        b=P8N+5yPpYi79ic+29680KjTR3LJqvarRe/b2vWYdYV+Cbx/lG/ZgGXlFOucEvFsec9lVnxFZnXgr2WDiKBpaVhyrGtRAAe6YAdBE/TMFmW7jqXtoOv4pj3F4dZcQPS2RqXc7+C1x1q9yIssrS5WRvq/qQj+DKsC3hJbQr/sHvqCl4orkumr6RuJtUV/sJ3SOLN2ArhXIamcfUFxJa0cNyqPFnHSFlNEQ9FH8z6eUaj42Yzur1m6sarLLB71KuKtgwL5ekXCBBnM+VSCRWocDeUg1bMMh4jHyBQxUfdKvM1a2h1xq0gDOlQS+m6cUwUGMYRB4tGVcvWKce82gvdyYFw==
+ARC-Authentication-Results: i=1; i.softbank.jp;
+    dmarc=pass header.from=kuronekoyamato.co.jp;
+    dkim=pass;
+    spf=none smtp.helo=o7.ptr9307.ml.kuronekoyamato.co.jp;
+    spf=none smtp.mailfrom=em8451.ml.kuronekoyamato.co.jp;
+    arc=none smtp.client-ip=167.89.53.5
+X-SMGAF: 02 02 00 00 -1 665417B68D47433B-665417B68D474553 20 99 -1 -1
+ sender=bounces+22465813-5e2e-megumilk56=i.softbank.jp@em8451.ml.kuronekoyamato.co.jp
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ml.kuronekoyamato.co.jp;
+	h=content-type:from:mime-version:subject:to:cc:content-type:from:
+	subject:to;
+	s=s1; bh=focKruEY+yWXsQKphCw2ODjtelFDPK3CTf8cQ1T/Qr8=;
+	b=DeBcX+oTUitH9kz5KeJs0WxrLil/En7WJ3dgaItBcvAI/3sT0EbW5kSUeNhO4sbjKcRd
+	tPcTmnWMDSDME4z4fAX6RCgNLcSEek4tsTVTH5cXoqiGWFqkucPyX0V0NyzA2/eQQJEIrj
+	OrRnuYO3RYEpfmkH8nZ/9ylrr3X+E+vqacecZ/y3oHDfxEIeFX7pXBP6pHQVyvsTh3gaiT
+	dubuC8hsZ7hmbVxBZS0YO4fzhTREWhatZOAZpRf5/tijwYhwoNs6C0AphaKjsW6EXU8igx
+	gJ4wApv+UL48CV5ucU2HzID6raq9WsVpzaenYDGSuv9ShhqjVpDuUWuzR4YsSxvQ==
+Received: by recvd-7db976ddb6-cn6hw with SMTP id recvd-7db976ddb6-cn6hw-1-669B7095-6
+	2024-07-20 08:08:53.139968585 +0000 UTC m=+1954420.954871692
+Received: from MjI0NjU4MTM (unknown)
+	by geopod-ismtpd-4 (SG) with HTTP
+	id pBI_4UuDRzSnRPCYWRqpAw
+	Sat, 20 Jul 2024 08:08:53.063 +0000 (UTC)
+Content-Type: multipart/alternative; boundary=89df2f65b5b3e7eaeb2e6f3fc9b570db44fa1e5055ffb2a92d5c9dc2ff7c
+Date: Sat, 20 Jul 2024 08:08:53 +0000 (UTC)
+From: 
+	=?utf-8?q?=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E6=A0=AA=E5=BC=8F?=
+	=?utf-8?q?=E4=BC=9A=E7=A4=BE?= <mail@kuronekoyamato.co.jp>
+Mime-Version: 1.0
+Message-ID: <pBI_4UuDRzSnRPCYWRqpAw@geopod-ismtpd-4>
+Subject: 
+ =?UTF-8?B?5pys5pel44CB44GK6I2354mp44KS44GK5bGK44GR44GE44Gf44GX44G+44GZ?=
+X-SG-EID: 
+ =?us-ascii?Q?u001=2EAK99vlLnMAOmTYSIlIUxlKvnEhDlCfQTVB690FpwMt4KsiMbzVJjBisQe?=
+ =?us-ascii?Q?T4ANy=2FZfluPaba9GwslvrojzQT0PLknnviYXVg0?=
+ =?us-ascii?Q?6UMVxYKzyscZ7SZ5+dzIqEKx0jRwSbnyajlrtyv?=
+ =?us-ascii?Q?g1B4YIXWy+J0Yg2nAzlZdzYHml8g+2okcUwPa4D?=
+ =?us-ascii?Q?yhkG1brMWNLGAUoyNi+uIk3ntg06eZC47Luqx20?=
+ =?us-ascii?Q?EBd7pGiDg7QynFOTz9RcB9aRDiPJ84AAIgibtQ9?=
+ =?us-ascii?Q?5IJjU9nPNKZ7kT3T5ZKG5TUY1A=3D=3D?=
+X-SG-ID: 
+ =?us-ascii?Q?u001=2ESdBcvi+Evd=2FbQef8eZF3BpTL9BgbK5wfSJMJGMsmprB0Y35j83L8cDN6n?=
+ =?us-ascii?Q?l+VJcsu7xZmI3awLK9h1yCCGnCFx8M9gvDRItob?=
+ =?us-ascii?Q?TdTX6gKpmyGidNRqNQylNlrvaN7vAyWCqJQKT7Z?=
+ =?us-ascii?Q?08edmNMtXxEk9Vqc9KAxjxU8Zi=2FM3xVJxQwFTfY?=
+ =?us-ascii?Q?tUb3MIe1YRbpnY0ZvZsPkcRUUN5=2FspofaCr9mBi?=
+ =?us-ascii?Q?Tlq5e8=2FCP1LmNA0UgDORaWEII5sjgidpqF3p+E4?=
+ =?us-ascii?Q?14l6YBqEYC8toy5KTaCDcSUlZs8iSheBqxh2Hxm?=
+ =?us-ascii?Q?qdAcy+zeAdBqtICYnrrpn3LQZnhbjawenxwDGut?=
+ =?us-ascii?Q?BAHJBnmXn+EA=3D=3D?=
+To: megumilk56@i.softbank.jp
+X-Entity-ID: u001.7sDvwnar0icsKfCn2lnW5Q==
+
+--89df2f65b5b3e7eaeb2e6f3fc9b570db44fa1e5055ffb2a92d5c9dc2ff7c
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Mime-Version: 1.0
+
+=E5=B1=B1=E5=B4=8E=E3=80=80=E3=82=81=E3=81=90=E3=81=BF =E6=A7=98
+
+=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E3=82=92=E3=81=94=E5=88=A9=E7=
+=94=A8=E3=81=84=E3=81=9F=E3=81=A0=E3=81=8D=E3=81=82=E3=82=8A=E3=81=8C=E3=81=
+=A8=E3=81=86=E3=81=94=E3=81=96=E3=81=84=E3=81=BE=E3=81=99=E3=80=82
+
+=E3=83=A1=E3=83=AB=E3=82=AB=E3=83=AA =E6=A7=98=E3=81=8B=E3=82=89=E3=81=AE=
+=E3=81=8A=E8=8D=B7=E7=89=A9=E3=82=92=E9=85=8D=E9=81=94=E3=81=97=E3=81=A6=E3=
+=81=84=E3=81=BE=E3=81=99=E3=80=82
+
+=E3=81=8A=E8=8D=B7=E7=89=A9=E3=81=AF=E3=80=81=E6=9C=AC=E6=97=A5=E3=80=907=
+=E6=9C=8820=E6=97=A5(=E5=9C=9F)=E3=80=91=E3=80=80=E3=81=AB=E3=81=8A=E5=B1=
+=8A=E3=81=91=E4=BA=88=E5=AE=9A=E3=81=A7=E3=81=99=E3=80=82
+
+=E4=BB=A5=E4=B8=8B=E3=82=88=E3=82=8A=E3=80=81=E3=81=8A=E8=8D=B7=E7=89=A9=E3=
+=81=AE=E7=A2=BA=E8=AA=8D=E3=81=A8=E5=8F=97=E5=8F=96=E6=96=B9=E6=B3=95=E3=81=
+=AE=E5=A4=89=E6=9B=B4=E3=81=8C=E3=81=A7=E3=81=8D=E3=81=BE=E3=81=99=E3=80=82=
+=EF=BC=88=E7=BD=AE=E3=81=8D=E9=85=8D=E3=82=82=E3=81=94=E6=8C=87=E5=AE=9A=E3=
+=81=84=E3=81=9F=E3=81=A0=E3=81=91=E3=81=BE=E3=81=99=EF=BC=89
+https://member.kms.kuronekoyamato.co.jp/parcel/detail?pno=3D623518724765&en=
+c=3DQVonDBolhkqq5c0cZs3JzSOWaMAiXc3K0gQYTznQnp8QTIYQo1Txf1ypeedfIKzi&notifC=
+h=3D01&notifType=3DMCD_M011&utm_source=3Dmail_notice&utm_medium=3Demail&utm=
+_campaign=3Dkm_07-001
+
+=E3=80=90=E8=8D=B7=E7=89=A9=E3=81=AE=E3=81=8A=E5=B1=8A=E3=81=91=E7=8A=B6=E6=
+=B3=81=E3=81=AB=E3=81=A4=E3=81=84=E3=81=A6=E3=80=91
+=E6=9C=80=E6=96=B0=E3=81=AE=E3=81=8A=E8=8D=B7=E7=89=A9=E3=81=AE=E9=9B=86=E9=
+=85=8D=E3=81=8A=E3=82=88=E3=81=B3=E7=9B=B4=E5=96=B6=E5=BA=97=E3=81=AE=E5=96=
+=B6=E6=A5=AD=E7=8A=B6=E6=B3=81=E3=81=AF=E3=80=81=E4=BB=A5=E4=B8=8B=E3=82=92=
+=E3=81=94=E7=A2=BA=E8=AA=8D=E3=81=8F=E3=81=A0=E3=81=95=E3=81=84=E3=80=82
+https://www.kuronekoyamato.co.jp/ytc/chien/chien_hp.html
+
+=EF=BC=9C=E3=81=8A=E8=8D=B7=E7=89=A9=E6=83=85=E5=A0=B1=EF=BC=9E
+=E2=96=A0=E3=82=B5=E3=83=BC=E3=83=93=E3=82=B9=E5=90=8D=EF=BC=9A=E5=AE=85=E6=
+=80=A5=E4=BE=BF=EF=BC=88=E7=BD=AE=E3=81=8D=E9=85=8D=E6=8C=87=E5=AE=9A=E5=8F=
+=AF=E8=83=BD=EF=BC=89
+=E2=96=A0=E5=93=81=E5=90=8D=EF=BC=9A=E3=82=AD=E3=83=A3=E3=83=A9=E3=82=AF=E3=
+=82=BF=E3=83=BC=E3=82=B0=E3=83=83=E3=82=BA
+=E2=96=A0=E9=80=81=E3=82=8A=E7=8A=B6=E7=95=AA=E5=8F=B7=EF=BC=9A6235-1872-47=
+65
+
+=EF=BC=9C=E3=82=88=E3=81=8F=E3=81=82=E3=82=8B=E3=81=94=E8=B3=AA=E5=95=8F=EF=
+=BC=9E
+https://faq.kuronekoyamato.co.jp/app/answers/list/c/2?utm_source=3Dmail_not=
+ice&utm_medium=3Demail&utm_campaign=3Dkm_07-001
+
+=E2=80=BB=E3=81=93=E3=81=AE=E3=83=A1=E3=83=BC=E3=83=AB=E3=81=B8=E3=81=AE=E8=
+=BF=94=E4=BF=A1=E3=81=AF=E6=89=BF=E3=82=8C=E3=81=BE=E3=81=9B=E3=82=93=E3=80=
+=82
+=E6=9C=AC=E3=83=A1=E3=83=BC=E3=83=AB=E3=81=AE=E5=86=85=E5=AE=B9=E3=81=AB=E3=
+=81=8A=E5=BF=83=E3=81=82=E3=81=9F=E3=82=8A=E3=81=8C=E7=84=A1=E3=81=84=E6=96=
+=B9=E3=81=AF=E3=80=81=E4=B8=8B=E8=A8=98=E3=83=9A=E3=83=BC=E3=82=B8=E3=81=8B=
+=E3=82=89=E3=80=8C=E3=82=88=E3=81=8F=E3=81=82=E3=82=8B=E3=81=94=E8=B3=AA=E5=
+=95=8F=E3=80=8D=E3=82=92=E3=81=94=E7=A2=BA=E8=AA=8D=E3=81=8A=E9=A1=98=E3=81=
+=84=E3=81=97=E3=81=BE=E3=81=99=E3=80=82
+https://faq.kuronekoyamato.co.jp/app/answers/detail/a_id/2507?utm_source=3D=
+mail_notice&utm_medium=3Demail&utm_campaign=3Dkm_07-001
+
+=EF=BC=9C=E3=81=94=E6=B3=A8=E6=84=8F=EF=BC=9E
+=E4=BA=A4=E9=80=9A=E4=BA=8B=E6=83=85=E3=81=AB=E3=82=88=E3=81=A3=E3=81=A6=E3=
+=81=AF=E9=81=85=E5=BB=B6=E3=81=99=E3=82=8B=E5=A0=B4=E5=90=88=E3=81=8C=E3=81=
+=82=E3=82=8A=E3=81=BE=E3=81=99=E3=80=82
+
+=EF=BC=9C=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E3=82=92=E8=A3=85=E3=
+=81=A3=E3=81=9F=E8=BF=B7=E6=83=91=E3=83=A1=E3=83=BC=E3=83=AB=E3=83=BB=E9=80=
+=9A=E7=9F=A5=E3=81=AB=E3=81=94=E6=B3=A8=E6=84=8F=E3=81=8F=E3=81=A0=E3=81=95=
+=E3=81=84=EF=BC=9E
+=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E3=82=92=E8=A3=85=E3=81=A3=E3=
+=81=9F=E4=B8=8D=E5=AF=A9=E3=81=AA=E3=83=A1=E3=83=BC=E3=83=AB=E3=82=84=E9=80=
+=9A=E7=9F=A5=E3=81=8C=E7=99=BA=E7=94=9F=E3=81=97=E3=81=A6=E3=81=84=E3=81=BE=
+=E3=81=99=E3=80=82
+=E8=A8=98=E8=BC=89=E3=81=95=E3=82=8C=E3=81=9FURL=E3=82=84=E6=B7=BB=E4=BB=98=
+=E3=83=95=E3=82=A1=E3=82=A4=E3=83=AB=E3=82=92=E9=96=8B=E3=81=84=E3=81=9F=E3=
+=82=8A=E3=80=81=E3=83=A1=E3=83=BC=E3=83=AB=E3=81=AB=E8=BF=94=E4=BF=A1=E3=81=
+=97=E3=81=9F=E3=82=8A=E3=81=95=E3=82=8C=E3=81=AA=E3=81=84=E3=82=88=E3=81=86=
+=E3=81=94=E6=B3=A8=E6=84=8F=E3=81=8F=E3=81=A0=E3=81=95=E3=81=84=E3=80=82
+=E3=81=BE=E3=81=9F=E3=80=81=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E3=
+=81=AFSMS=E3=81=A7=E9=80=9A=E7=9F=A5=E3=82=92=E9=85=8D=E4=BF=A1=E3=81=97=E3=
+=81=A6=E3=81=84=E3=81=BE=E3=81=9B=E3=82=93=E3=80=82
+
+=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=
+=A4=BE
+--89df2f65b5b3e7eaeb2e6f3fc9b570db44fa1e5055ffb2a92d5c9dc2ff7c
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=utf-8
+Mime-Version: 1.0
+
+<html xmlns=3D"http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8">
+<title>=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8 =E3=83=A1=E3=83=BC=E3=
+=83=AB</title>
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">
+
+
+</head>
+<body style=3D"margin: 0;background: #ffffff;">
+
+<!-- wrapper -->
+<table id=3D"wrapper" width=3D"600" align=3D"center"><tr><td>
+
+<!-- =E3=83=98=E3=83=83=E3=83=80=E3=83=BC=E3=82=A8=E3=83=AA=E3=82=A2 -->
+<table class=3D"header" height=3D"80" width=3D"100%">
+	<tr><td><a href=3D"https://www.kuronekoyamato.co.jp/ytc/customer/"><img sr=
+c=3D"https://www.kuronekoyamato.co.jp/ytc/customer/notice/kyoutuu/logo.png"=
+ width=3D"85" height=3D"80"></a></td><td class=3D"title" width =3D"70%" sty=
+le=3D"font-size: 20px; text-align: center; font-family: '=E6=B8=B8=E3=82=B4=
+=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;" align=3D"center">=E6=9C=
+=AC=E6=97=A5=E3=80=81=E3=81=8A=E8=8D=B7=E7=89=A9=E3=82=92=E3=81=8A=E5=B1=8A=
+=E3=81=91=E3=81=84=E3=81=9F=E3=81=97=E3=81=BE=E3=81=99</td><td width=3D"85"=
+ height=3D"80"></td></tr>=20
+</table>
+
+<!-- =E7=BD=AB=E7=B7=9Atable -->
+<table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0">
+	<tr>
+	  <td class=3D"responsive-td" valign=3D"top" align=3D"center" height=3D"2"=
+style=3D"border-bottom:2px solid #f0f0f0; font-size:1px;line-height:0;">&nb=
+sp;
+	=09
+	  </td>
+	</tr>
+	<tr>
+	  <td class=3D"responsive-td" valign=3D"top" align=3D"center" height=3D"2"=
+ style=3D"font-size:1px;line-height:0;">&nbsp;
+	=09
+	  </td>
+	</tr>
+</table>
+
+<!-- =E5=86=92=E9=A0=AD=E6=96=87=E3=82=A8=E3=83=AA=E3=82=A2 -->
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td>&nbsp;</td></tr></table>
+<table class=3D"user_area" style=3D"margin: 0; font-family: '=E6=B8=B8=E3=
+=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=
+=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif; font-size: 22px;">
+	<tr>
+		<td style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=
+=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu =
+Gothic', sans-serif;">
+			<span class=3D"username" style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E5=B1=B1=E5=B4=8E=E3=80=80=E3=
+=82=81=E3=81=90=E3=81=BF</span> =E6=A7=98<br>
+			<br>
+			<p class=3D"txt" style=3D"margin: 0; font-family: '=E6=B8=B8=E3=82=B4=E3=
+=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=
+=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E3=83=A4=E3=83=9E=E3=83=88=
+=E9=81=8B=E8=BC=B8=E3=82=92=E3=81=94=E5=88=A9=E7=94=A8=E3=81=84=E3=81=9F=E3=
+=81=A0=E3=81=8D=E3=81=82=E3=82=8A=E3=81=8C=E3=81=A8=E3=81=86=E3=81=94=E3=81=
+=96=E3=81=84=E3=81=BE=E3=81=99=E3=80=82<br>
+				=E3=83=A1=E3=83=AB=E3=82=AB=E3=83=AA =E6=A7=98=E3=81=8B=E3=82=89=E3=81=
+=AE=E3=81=8A=E8=8D=B7=E7=89=A9=E3=82=92=E9=85=8D=E9=81=94=E3=81=97=E3=81=A6=
+=E3=81=84=E3=81=BE=E3=81=99=E3=80=82
+			</p>
+			<br>
+		</td>
+	</tr>
+</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td>&nbsp;</td></tr></table>
+<!-- =E3=81=8A=E8=8D=B7=E7=89=A9=E6=83=85=E5=A0=B1=E3=82=A8=E3=83=AA=E3=82=
+=A2 -->
+<table class=3D"info_area" align=3D"center" width=3D"100%" style=3D"backgro=
+und: #f0f0f0;padding-bottom: 10px; font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+	<tr>
+		<td>
+			<p class=3D"h2" style=3D"margin: 8px; text-align: center; font-size: 22p=
+x; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', Y=
+uGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans=
+-serif;">=E3=81=8A=E8=8D=B7=E7=89=A9=E6=83=85=E5=A0=B1</p>
+				<table class=3D"info_inner" width=3D"570" align=3D"center"style=3D"back=
+ground: #ffffff;padding: 0 10px; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=
+=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+					<tr>
+						<td width=3D"10"></td>
+						<td style=3D"padding: 10px 0 0;"><p style=3D"margin: 0; font-family: =
+'=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=
+=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif; font-wei=
+ght: bold; font-size: 22px;">7=E6=9C=8820=E6=97=A5(=E5=9C=9F) =E3=81=AB=E3=
+=81=8A=E5=B1=8A=E3=81=91=E4=BA=88=E5=AE=9A=E3=81=A7=E3=81=99=E3=80=82</p></=
+td>
+						<td width=3D"10"></td>
+					</tr>
+					<tr>
+						<td width=3D"10"></td>
+						<td style=3D"padding: 20px 0 10px 0;" align=3D"center">
+							<img src=3D"https://www.kuronekoyamato.co.jp/ytc/customer/notice/kyo=
+utuu/bar_coming.png"  width=3D"506" height=3D"20" style=3D"margin: 0;">
+							<table width=3D"100%" style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=
+=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=
+=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif; font-size: 18px;">
+								<tr>
+									<td width=3D"50%" style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E7=99=BA=E9=80=81</td>
+									<td width=3D"50%" align=3D"right" style=3D"font-family: '=E6=B8=B8=
+=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=
+=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E3=81=8A=E5=B1=
+=8A=E3=81=91=E4=BA=88=E5=AE=9A</td>
+								</tr>
+							</table>
+						</td>
+						<td width=3D"10"></td>
+					</tr>
+					<tr>
+						<td width=3D"10"></td>
+						<td style=3D"padding: 10px 0;font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+							<table style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=
+=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=
+=AF', 'Yu Gothic', sans-serif; font-size: 22px;">
+								<tr valign=3D"top">
+									<td width=3D"140" style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E9=80=81=E3=82=8A=E7=8A=B6=E7=
+=95=AA=E5=8F=B7</td><td style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=
+=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF', 'Yu Gothic', sans-serif;">=EF=BC=9A</td><td style=3D"font-fa=
+mily: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=
+=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">6=
+235-1872-4765</td>
+								</tr>
+								<tr valign=3D"top">
+									<td width=3D"140" style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E3=82=B5=E3=83=BC=E3=83=93=E3=
+=82=B9=E5=90=8D</td><td style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=
+=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF', 'Yu Gothic', sans-serif;">=EF=BC=9A</td><td style=3D"font-fa=
+mily: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=
+=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=
+=E5=AE=85=E6=80=A5=E4=BE=BF=EF=BC=88=E7=BD=AE=E3=81=8D=E9=85=8D=E6=8C=87=E5=
+=AE=9A=E5=8F=AF=E8=83=BD=EF=BC=89</td>
+								</tr>
+								<tr valign=3D"top">
+									<td width=3D"140" style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E5=93=81=E3=80=80=E5=90=8D</td=
+><td style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=
+=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu =
+Gothic', sans-serif;">=EF=BC=9A</td><td style=3D"font-family: '=E6=B8=B8=E3=
+=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=
+=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E3=82=AD=E3=83=A3=
+=E3=83=A9=E3=82=AF=E3=82=BF=E3=83=BC=E3=82=B0=E3=83=83=E3=82=BA</td>
+								</tr>
+							</table>
+						<td width=3D"10"></td>
+					</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td>&nbsp;</td></tr></table>
+<!-- =E3=83=9C=E3=82=BF=E3=83=B3=E3=82=A8=E3=83=AA=E3=82=A2 -->
+<table class=3D"btn_area" align=3D"center">
+	<tr>
+		<td>
+			<!-- =E3=83=9C=E3=82=BF=E3=83=B3=E7=94=A8=E3=81=AE=E3=83=86=E3=83=BC=E3=
+=83=96=E3=83=AB -->
+			<table align=3D"center">
+				<tr><td width=3D"560" align=3D"center" style=3D"font-family: '=E6=B8=B8=
+=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=
+=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif; font-size: 22px; =
+font-weight: bold; line-height: 60px;">=EF=BC=BC=EF=BC=BC=E7=BD=AE=E3=81=8D=
+=E9=85=8D=E3=82=82=E6=8C=87=E5=AE=9A=E3=81=A7=E3=81=8D=E3=81=BE=E3=81=99=EF=
+=BC=8F=EF=BC=8F</td></tr>
+				<tr><td class=3D"btn yellow" width=3D"560" height=3D"70" align=3D"cente=
+r" style=3D"background-color:#FCCF00;">
+					<div><a href=3D"https://member.kms.kuronekoyamato.co.jp/parcel/detail?=
+pno=3D623518724765&enc=3DQVonDBolhkqq5c0cZs3JzSOWaMAiXc3K0gQYTznQnp8QTIYQo1=
+Txf1ypeedfIKzi&notifCh=3D01&notifType=3DMCD_M011&utm_source=3Dmail_notice&u=
+tm_medium=3Demail&utm_campaign=3Dkm_07-001" style=3D"background-color:#FCCF=
+00;border-radius:10px;color:#141414;display:inline-block;font-size: 22px;fo=
+nt-weight:bold;line-height:60px;text-align:center;text-decoration:none;widt=
+h:560px;-webkit-text-size-adjust:none; font-family: '=E6=B8=B8=E3=82=B4=E3=
+=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=
+=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E5=8F=97=E5=8F=96=E3=81=AE=
+=E6=97=A5=E6=99=82=E3=82=84=E5=A0=B4=E6=89=80=E3=82=92=E5=A4=89=E6=9B=B4=E3=
+=81=99=E3=82=8B</a></div>
+				</td></tr>
+			</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td height=3D"10"></td></tr></table>
+        </td>
+    </tr>
+</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td height=3D"60"></td></tr></table>
+<!-- =E3=81=8A=E7=9F=A5=E3=82=89=E3=81=9B=E3=82=A8=E3=83=AA=E3=82=A2 -->
+
+<table class=3D"notice_ttl" style=3D"margin: 0;background: #f0f0f0;width: 1=
+00%;text-align: center; font-size: 22px; font-weight: bold; font-family: '=
+=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=
+=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+	<tr>
+		<td>
+			<p style=3D"margin: 0; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=
+=82=AF', 'Yu Gothic', sans-serif;">=E3=81=8A=E7=9F=A5=E3=82=89=E3=81=9B</p>
+		</td>
+	</tr>
+</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td>&nbsp;</td></tr></table>
+<table class=3D"notice_area" style=3D"margin: 0;width: 600px;font-family: '=
+=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=
+=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+	<tr>
+		<td>
+			<table class=3D"notice_subttl" style=3D"margin: 0;vertical-align: middle=
+;font-size: 22px;font-weight: bold; font-family: '=E6=B8=B8=E3=82=B4=E3=82=
+=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=
+=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+				<tr>
+					<td style=3D"font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=
+=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', '=
+Yu Gothic', sans-serif;">
+						=E3=80=90=E8=8D=B7=E7=89=A9=E3=81=AE=E3=81=8A=E5=B1=8A=E3=81=91=E7=8A=
+=B6=E6=B3=81=E3=81=AB=E3=81=A4=E3=81=84=E3=81=A6=E3=80=91
+					</td>
+				</tr>
+			</table>
+			<p class=3D"howto_link" style=3D"margin: 0; font-family: '=E6=B8=B8=E3=
+=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=
+=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif; font-size: 20px;">=
+=E6=9C=80=E6=96=B0=E3=81=AE=E3=81=8A=E8=8D=B7=E7=89=A9=E3=81=AE=E9=9B=86=E9=
+=85=8D=E3=81=8A=E3=82=88=E3=81=B3=E7=9B=B4=E5=96=B6=E5=BA=97=E3=81=AE=E5=96=
+=B6=E6=A5=AD=E7=8A=B6=E6=B3=81=E3=81=AF=E3=80=81<a href=3D"https://www.kuro=
+nekoyamato.co.jp/ytc/chien/chien_hp.html" style=3D"color: #0000ff;; font-we=
+ight: bold;">=E3=81=93=E3=81=A1=E3=82=89</a>=E3=82=92=E3=81=94=E7=A2=BA=E8=
+=AA=8D=E3=81=8F=E3=81=A0=E3=81=95=E3=81=84=E3=80=82</p>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td height=3D"10"></td></tr></table>
+			<p class=3D"howto_link" style=3D"margin: 0;vertical-align: middle;font-s=
+ize: 22px;font-weight: bold;text-align: center; font-family: '=E6=B8=B8=E3=
+=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=
+=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">=E3=82=88=E3=81=8F=
+=E3=81=82=E3=82=8B=E3=81=94=E8=B3=AA=E5=95=8F=E3=81=AF<a href=3D"https://fa=
+q.kuronekoyamato.co.jp/app/answers/list/c/2?utm_source=3Dmail_notice&utm_me=
+dium=3Demail&utm_campaign=3Dkm_07-001" style=3D"color: #0000ff;">=E3=81=93=
+=E3=81=A1=E3=82=89</a></p>
+		</td>
+	</tr>
+</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td height=3D"60"></td></tr></table>
+<table class=3D"notice_area2" style=3D"margin: 0;width: 100%;background: #f=
+febec; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93=
+', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', =
+sans-serif; font-size: 18px;">
+	<tr>
+		<td class=3D"notice_red" style=3D"color: #fff;background: #fb5555;text-al=
+ign: center;font-weight: bold;border-radius: 5px;">
+			<p style=3D"margin: 0; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=
+=82=AF', 'Yu Gothic', sans-serif;">=E3=81=94=E6=B3=A8=E6=84=8F</p>
+		</td>
+	</tr>
+	<tr>
+		<td class=3D"notice_area2_inner" style=3D"color: #fb5555;padding: 10px 1e=
+m; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', Y=
+uGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans=
+-serif;">
+			=E3=83=BB=E3=81=93=E3=81=AE=E3=83=A1=E3=83=BC=E3=83=AB=E3=81=B8=E3=81=AE=
+=E8=BF=94=E4=BF=A1=E3=81=AF=E6=89=BF=E3=82=8C=E3=81=BE=E3=81=9B=E3=82=93<br=
+>
+			=E3=83=BB=E6=9C=AC=E3=83=A1=E3=83=BC=E3=83=AB=E3=81=AE=E5=86=85=E5=AE=B9=
+=E3=81=AB=E3=81=8A=E5=BF=83=E3=81=82=E3=81=9F=E3=82=8A=E3=81=8C=E7=84=A1=E3=
+=81=84=E6=96=B9=E3=81=AF=E3=80=81<a href=3D"https://faq.kuronekoyamato.co.j=
+p/app/answers/detail/a_id/2507?utm_source=3Dmail_notice&utm_medium=3Demail&=
+utm_campaign=3Dkm_07-001" style=3D"color: #0000ff;">=E3=81=93=E3=81=A1=E3=
+=82=89</a>=E3=81=8B=E3=82=89=E3=80=8C=E3=82=88=E3=81=8F=E3=81=82=E3=82=8B=
+=E3=81=94=E8=B3=AA=E5=95=8F=E3=80=8D=E3=82=92=E3=81=94=E7=A2=BA=E8=AA=8D=E3=
+=81=8A=E9=A1=98=E3=81=84=E3=81=97=E3=81=BE=E3=81=99=E3=80=82<br>
+		</td>
+	</tr>
+	<tr>
+		<td class=3D"notice_red" style=3D"color: #fff;background: #fb5555;text-al=
+ign: center;font-weight: bold;border-radius: 5px;">
+			<p style=3D"margin: 0; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=
+=82=AF', 'Yu Gothic', sans-serif;">=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=
+=BC=B8=E3=82=92=E8=A3=85=E3=81=A3=E3=81=9F=E8=BF=B7=E6=83=91=E3=83=A1=E3=83=
+=BC=E3=83=AB=E3=83=BB=E9=80=9A=E7=9F=A5=E3=81=AB=E3=81=94=E6=B3=A8=E6=84=8F=
+=E3=81=8F=E3=81=A0=E3=81=95=E3=81=84</p>
+		</td>
+	</tr>
+	<tr>
+		<td class=3D"notice_area2_inner" style=3D"color: #fb5555;padding: 10px 1e=
+m; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', Y=
+uGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans=
+-serif;">
+			<p style=3D"margin: 0; font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=
+=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=
+=82=AF', 'Yu Gothic', sans-serif;">=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=
+=BC=B8=E3=82=92=E8=A3=85=E3=81=A3=E3=81=9F=E4=B8=8D=E5=AF=A9=E3=81=AA=E3=83=
+=A1=E3=83=BC=E3=83=AB=E3=82=84=E9=80=9A=E7=9F=A5=E3=81=8C=E7=99=BA=E7=94=9F=
+=E3=81=97=E3=81=A6=E3=81=84=E3=81=BE=E3=81=99=E3=80=82<br>=E8=A8=98=E8=BC=
+=89=E3=81=95=E3=82=8C=E3=81=9FURL=E3=82=84=E6=B7=BB=E4=BB=98=E3=83=95=E3=82=
+=A1=E3=82=A4=E3=83=AB=E3=82=92=E9=96=8B=E3=81=84=E3=81=9F=E3=82=8A=E3=80=81=
+=E3=83=A1=E3=83=BC=E3=83=AB=E3=81=AB=E8=BF=94=E4=BF=A1=E3=81=97=E3=81=9F=E3=
+=82=8A=E3=81=95=E3=82=8C=E3=81=AA=E3=81=84=E3=82=88=E3=81=86=E3=81=94=E6=B3=
+=A8=E6=84=8F=E3=81=8F=E3=81=A0=E3=81=95=E3=81=84=E3=80=82<br>=E3=81=BE=E3=
+=81=9F=E3=80=81=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=E8=BC=B8=E3=81=AFSMS=E3=
+=81=A7=E9=80=9A=E7=9F=A5=E3=82=92=E9=85=8D=E4=BF=A1=E3=81=97=E3=81=A6=E3=81=
+=84=E3=81=BE=E3=81=9B=E3=82=93=E3=80=82</p>
+		</td>
+	</tr>
+</table>
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td>&nbsp;</td></tr></table>
+
+<!-- =E7=BD=AB=E7=B7=9Atable -->
+<table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0">
+	<tr>
+	  <td class=3D"responsive-td" valign=3D"top" align=3D"center" height=3D"2"=
+style=3D"border-bottom:2px solid #f0f0f0; font-size:1px;line-height:0;">&nb=
+sp;
+	  </td>
+	</tr>
+	<tr>
+	  <td class=3D"responsive-td" valign=3D"top" align=3D"center" height=3D"2"=
+ style=3D"font-size:1px;line-height:0;">&nbsp;
+	=09
+	  </td>
+	</tr>
+</table>
+
+<!-- =E3=83=95=E3=83=83=E3=82=BF=E3=83=BC=E3=82=A8=E3=83=AA=E3=82=A2 -->
+<!-- =E4=BD=99=E7=99=BD --><table><tr><td>&nbsp;</td></tr></table>
+<table class=3D"footer" align=3D"center" style=3D" font-family: '=E6=B8=B8=
+=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=
+=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu Gothic', sans-serif;">
+	<tr>
+		<td style=3D" font-family: '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF=
+=E4=BD=93', YuGothic, '=E6=B8=B8=E3=82=B4=E3=82=B7=E3=83=83=E3=82=AF', 'Yu =
+Gothic', sans-serif; font-size: 22px;">=E3=83=A4=E3=83=9E=E3=83=88=E9=81=8B=
+=E8=BC=B8=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE</td>
+	</tr>
+</table>
+
+</td></tr></table> <!--end wrapper -->
+<img src=3D"http://url536.ml.kuronekoyamato.co.jp/wf/open?upn=3Du001.4O5RRC=
+hSGN57Cu6D69HqIZBVAXy26BRSEiRhaPu3WMYH-2FlhVyGd-2B3thic4DlSXsd8mttCLRQUIgMO=
+Hdz6ePqYJe6dpeqZLctMDgYT8-2FK94ZOr5FCN9uQ5L9hiGI5jGO8JuA-2BQnamXHC-2FKGZkXX=
+haPWvzcRFUQpWKcAMIQxEAwYNVJdsC-2BtE-2BsnxNGqhNB2-2FtQYs0-2FVvzwU7OGXcymIGk1=
+WV-2Bte9UCztjEaRVs-2BOD9TTC2Wz2j03yVJ2MUC6dlrFGdReXXlvYuMoKVl0UaeR1J24qozzt=
+yAYuSuXIpXUoDbi9entE2nNYtOyBHfKDULx4Fwhnc9irFOdqPRZS4YVRYbJUu0kujrASI2qESoT=
+1dnfClcUp-2F9c-2BwO0wskND4X-2FOz-2BnBNk1-2B-2BFcZ0TeEaIA2nDDjcq6k75Ed9uDmxj=
+RnAxkAXj4hjGhzrQqeu7FxRWSIAW3GfHjb2X44hVC0x5PY3Y7ii0KoqKALbN7YnejBtnrr8agY2=
+cQUiMIR3p9aMt-2F8" alt=3D"" width=3D"1" height=3D"1" border=3D"0" style=3D"=
+height:1px !important;width:1px !important;border-width:0 !important;margin=
+-top:0 !important;margin-bottom:0 !important;margin-right:0 !important;marg=
+in-left:0 !important;padding-top:0 !important;padding-bottom:0 !important;p=
+adding-right:0 !important;padding-left:0 !important;"/></body>
+</html>
+--89df2f65b5b3e7eaeb2e6f3fc9b570db44fa1e5055ffb2a92d5c9dc2ff7c--

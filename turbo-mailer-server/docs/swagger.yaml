@@ -738,9 +738,8 @@ paths:
       - description: Context type (html or text)
         in: formData
         name: context_type
-        required: true
         type: string
-      - description: Content file (html or text)
+      - description: Content file (html or text or eml)
         in: formData
         name: content
         required: true
@@ -881,15 +880,15 @@ paths:
         in: formData
         name: subject
         type: string
-      - description: Context type (html or text)
+      - description: Context type (html or text or eml)
         in: formData
         name: context_type
         type: string
-      - description: Content file (html or text)
+      - description: Content file (html or text or eml)
         in: formData
         name: content
         type: file
-      - description: Receivers CSV file
+      - description: Receivers CSV/TXT file
         in: formData
         name: receivers
         type: file
