@@ -132,28 +132,8 @@ const EmailTaskList: React.FC = () => {
     {
       title: '内容类型',
       dataIndex: 'content_type',
+      hideInForm: true,
       hideInSearch: true,
-      valueType: "radio",
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            message: '请输入',
-          },
-        ]
-      },
-      fieldProps: {
-        options: [
-          {
-            label: 'text/html',
-            value: 'text/html',
-          },
-          {
-            label: 'text/plain',
-            value: 'text/plain',
-          },
-        ]
-      }
     },
     {
       title: '邮件内容',
@@ -175,34 +155,17 @@ const EmailTaskList: React.FC = () => {
       },
       renderFormItem: (_, { type, defaultRender }, form) => {
         if (type === 'form') {
-          const content_type = form.getFieldValue('content_type');
-
           const helpContent = (
-            content_type && <>
-              需要帮助？
-              {content_type === 'text/plain' && (
+            <>
+              下载
                 <a href='/api/v1/tasks/content-template?type=text' target="_blank" rel="noopener noreferrer">
-                  下载TXT模板
-                </a>
-              )}
-              {content_type === 'text/html' && (
+                  TXT模板
+                </a>,
                 <a href='/api/v1/tasks/content-template?type=html' target="_blank" rel="noopener noreferrer">
-                  下载HTML模板
+                  HTML模板
                 </a>
-              )}
             </>
           );
-
-          // 根据 content_type 动态设置接受的文件类型
-          let acceptTypes;
-          if (content_type === 'text/html') {
-            acceptTypes = '.html, .eml';
-          } else if (content_type === 'text/plain') {
-            acceptTypes = '.txt';
-          } else {
-            // 如果 content_type 不是 'text/html' 或 'text/plain'，则默认接受两种类型
-            acceptTypes = '.html, .txt';
-          }
 
           return (
             <ProFormUploadButton
@@ -210,9 +173,8 @@ const EmailTaskList: React.FC = () => {
               tooltip='上传 HTML/TXT/EML 文件，支持模板语法'
               help={helpContent}
               name="content"
-              accept={acceptTypes}
+              accept={'.html, .eml .txt'}
               max={1}
-              disabled={content_type === undefined}
               fieldProps={{
                 beforeUpload: () => {
                   return false;
@@ -248,7 +210,7 @@ const EmailTaskList: React.FC = () => {
             <ProFormUploadButton
               placeholder='请上传'
               tooltip='上传 CSV/TXT 文件'
-              help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载CSV模板</a></>}
+              help={<>下载<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">CSV模板</a></>}
               name="receivers"
               accept={'.csv, .txt'}
               max={1}
