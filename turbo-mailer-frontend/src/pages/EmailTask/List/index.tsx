@@ -160,7 +160,6 @@ const EmailTaskList: React.FC = () => {
       dataIndex: 'content',
       hideInSearch: true,
       hideInTable: true,
-      tooltip: '上传 HTML/TXT 文件，支持模板语法',
       formItemProps: {
         rules: [
           {
@@ -183,12 +182,12 @@ const EmailTaskList: React.FC = () => {
               需要帮助？
               {content_type === 'text/plain' && (
                 <a href='/api/v1/tasks/content-template?type=text' target="_blank" rel="noopener noreferrer">
-                  下载模板
+                  下载TXT模板
                 </a>
               )}
               {content_type === 'text/html' && (
                 <a href='/api/v1/tasks/content-template?type=html' target="_blank" rel="noopener noreferrer">
-                  下载模板
+                  下载HTML模板
                 </a>
               )}
             </>
@@ -197,7 +196,7 @@ const EmailTaskList: React.FC = () => {
           // 根据 content_type 动态设置接受的文件类型
           let acceptTypes;
           if (content_type === 'text/html') {
-            acceptTypes = '.html';
+            acceptTypes = '.html, .eml';
           } else if (content_type === 'text/plain') {
             acceptTypes = '.txt';
           } else {
@@ -208,7 +207,7 @@ const EmailTaskList: React.FC = () => {
           return (
             <ProFormUploadButton
               placeholder='请上传'
-              tooltip='上传 HTML/TXT 文件，支持模板语法'
+              tooltip='上传 HTML/TXT/EML 文件，支持模板语法'
               help={helpContent}
               name="content"
               accept={acceptTypes}
@@ -230,7 +229,6 @@ const EmailTaskList: React.FC = () => {
       dataIndex: 'receivers',
       hideInSearch: true,
       hideInTable: true,
-      tooltip: '上传 CSV/EXCEL 文件',
       formItemProps: {
         rules: [
           {
@@ -249,10 +247,10 @@ const EmailTaskList: React.FC = () => {
           return (
             <ProFormUploadButton
               placeholder='请上传'
-              tooltip='上传 CSV/EXCEL 文件'
-              help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载模板</a></>}
+              tooltip='上传 CSV/TXT 文件'
+              help={<>需要帮助？<a href="/api/v1/tasks/receivers-template" target="_blank" rel="noopener noreferrer">下载CSV模板</a></>}
               name="receivers"
-              accept={'.csv'}
+              accept={'.csv, .txt'}
               max={1}
               fieldProps={{
                 beforeUpload: () => {
