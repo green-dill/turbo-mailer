@@ -45,6 +45,10 @@ resources: {}
 
 domain: mail.example.com
 
+cloudflare:
+  api_key: ""
+  zone_id: ""
+
 postfix_main_cf: |
   myhostname = {{ .Values.domain }}
   myorigin = $myhostname
@@ -127,5 +131,4 @@ setupDNS:
     repository: yinheli/turbo-mailer-server
     pullPolicy: IfNotPresent
     tag: "latest"
-  config: |
-    # TODO
+  config: ""

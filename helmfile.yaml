@@ -28,11 +28,11 @@ releases:
             {{- $.Values.config | nindent 12 }}
       - worker:
           domains:
-            {{- range .Values.emailDomains }}
+            {{- range .Values.domains }}
             - {{ .domain }}
             {{- end }}
 
-  {{- range .Values.emailDomains }}
+  {{- range .Values.domains }}
   - name: postfix-{{ .domain | sha1sum | trunc 8 }}
     namespace: turbo-mailer-{{ $.Environment.Name }}
     chart: ./charts/postfix
@@ -44,21 +44,26 @@ releases:
           enabled: false
         setupDNS:
           enabled: true
-          config: |
-            {{- $.Values.config | nindent 12 }}
         {{- if and (hasKey . "dkimPrivateKey") .dkimPrivateKey }}
         dkimPrivateKey: |
           {{- printf "\n%s" .dkimPrivateKey | indent 10 }}
         {{- end }}
-        replicaCount: {{ len .serverLabels }}
+        replicaCount: {{ len .server_labels }}
         domain: {{ .domain }}
-        {{- if .serverLabels }}
+        cloudflare:
+          {{- if hasKey . "api_key" }}
+          api_key: {{ .api_key }}
+          {{- else }}
+          api_key: {{ $.Values.cloudflare.api_key }}
+          {{- end }}
+          zone_id: {{ .zone_id }}
+        {{- if .server_labels }}
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
                 - matchExpressions:
-                    {{- range .serverLabels }}
+                    {{- range .server_labels }}
                     - {key: {{ . }}, operator: Exists}
                     {{- end }}
         {{- end }}
