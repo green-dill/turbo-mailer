@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: metabase-backup-db
+  namespace: metabase
+spec:
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: bitnami/postgresql:15.3.0-debian-11-r24
+            securityContext:
+              runAsUser: 0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+              BACKUP_FILE="/backups/${NAMESPACE}_metabase_backup_$(date +%Y%m%d_%H%M%S).dump.gz"
+              PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB -F c | gzip > $BACKUP_FILE
+              # Keep only the last 10 backup files
+              ls -t /backups/${NAMESPACE}_metabase_backup_*.dump.gz | tail -n +11 | xargs -r rm --
+            env:
+            - name: POSTGRES_PASSWORD
+              value: metabase123
+            - name: POSTGRES_HOST
+              value: metabase-postgresql
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_DB
+              value: metabase
+            volumeMounts:
+            - name: backup
+              mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup
+            hostPath:
+              path: /data/backup
+              type: DirectoryOrCreate
