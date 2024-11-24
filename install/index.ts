@@ -176,6 +176,7 @@ async function checkK3sInstallation(): Promise<void> {
       const nodes = await runCommand('k3s kubectl get node');
       if (nodes.includes('Ready')) {
         console.log('K3s is installed and running correctly.');
+        await runCommand('k3s kubectl label node $(k3s kubectl get nodes -o jsonpath="{.items[0].metadata.name}") postfix="" --overwrite');
         return;
       }
     } catch (error) {
@@ -201,7 +202,7 @@ async function installBaseServices(): Promise<void> {
 
 async function installApplications(): Promise<void> {
   console.log('Installing applications...');
-  await runCommand('helmfile -e prod sync');
+  await runCommand('helmfile -e prod apply');
 }
 
 async function main(): Promise<void> {
