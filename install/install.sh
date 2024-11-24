@@ -30,6 +30,21 @@ case "$OS" in
         ;;
 esac
 
+# ipv6 issue: https://github.com/oven-sh/bun/issues/10698
+# Disable IPv6
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+
+# Make IPv6 settings persistent
+echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf
+
+# Apply sysctl changes
+sysctl -p
+
+
 # Install bun
 curl -fsSL https://bun.sh/install | bash
 
