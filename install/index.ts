@@ -35,10 +35,10 @@ async function installPackages(): Promise<void> {
   ];
 
   console.log('Updating package lists...');
-  await runCommand('apt update');
+  await runCommand('apt-get update');
 
   console.log('Installing packages...');
-  await runCommand(`apt install -yq ${aptPackages.join(' ')}`);
+  await runCommand(`apt-get install -yq ${aptPackages.join(' ')}`);
 
   console.log('Installing kubectl...');
   await runCommand(`
