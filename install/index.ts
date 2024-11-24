@@ -162,7 +162,7 @@ async function checkK3sInstallation(): Promise<void> {
 
   while (retries > 0) {
     try {
-      const nodes = await runCommand('kubectl get nodes');
+      const nodes = await runCommand('k3s kubectl get node');
       if (nodes.includes('Ready')) {
         console.log('K3s is installed and running correctly.');
         return;
