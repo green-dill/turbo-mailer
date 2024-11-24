@@ -131,4 +131,5 @@ setupDNS:
     repository: yinheli/turbo-mailer-server
     pullPolicy: IfNotPresent
     tag: "latest"
-  config: ""
+  config: |
+    # yaml config
