@@ -11,14 +11,14 @@ frontend:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:
-      - host: dashboard.degb.cc
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
+    - host: dashboard.degb.cc
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
     tls:
-      - secretName: turbo-mailer-tls
-        hosts:
-          - dashboard.degb.cc
+    - secretName: turbo-mailer-tls
+      hosts:
+      - dashboard.degb.cc
 
 api:
   replicaCount: 2
