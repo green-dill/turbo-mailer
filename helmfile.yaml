@@ -53,10 +53,12 @@ releases:
         cloudflare:
           {{- if hasKey . "api_key" }}
           api_key: {{ .api_key }}
-          {{- else }}
+          {{- else if hasKey $.Values "cloudflare" }}
           api_key: {{ $.Values.cloudflare.api_key }}
           {{- end }}
+          {{- if hasKey . "zone_id" }}
           zone_id: {{ .zone_id }}
+          {{- end }}
         {{- if .server_labels }}
         affinity:
           nodeAffinity:
