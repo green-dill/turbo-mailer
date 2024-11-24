@@ -2,5 +2,5 @@ setupDNS:
   enabled: true
   image:
     repository: yinheli/turbo-mailer-server
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: "develop"
