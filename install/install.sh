@@ -22,7 +22,7 @@ fi
 case "$OS" in
     "Ubuntu"|"Debian GNU/Linux")
         apt-get update
-        apt-get install -y curl git
+        apt-get install -y curl git unzip
         ;;
     *)
         echo "Unsupported operating system: $OS"
