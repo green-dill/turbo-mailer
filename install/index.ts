@@ -213,9 +213,9 @@ async function main(): Promise<void> {
 
   await checkK3sInstallation();
 
-  process.chdir('../infra/cluster');
+  process.chdir(workingDir + '/../infra/cluster');
   await installBaseServices();
-  process.chdir(workingDir);
+  process.chdir(workingDir + '/../');
   await installApplications();
 
   console.log('Installation process completed successfully!');

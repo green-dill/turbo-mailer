@@ -46,11 +46,11 @@ spec:
           env:
             - name: DOMAIN
               value: {{ .Values.domain }}
-            {{- if .Values.cloudflare.api_key }}
+            {{- if and (hasKey .Values "cloudflare") .Values.cloudflare.api_key }}
             - name: CLOUDFLARE__API_KEY
               value: {{ .Values.cloudflare.api_key | quote }}
             {{- end }}
-            {{- if .Values.cloudflare.zone_id }}
+            {{- if and (hasKey .Values "cloudflare") .Values.cloudflare.zone_id }}
             - name: CLOUDFLARE__ZONE_ID
               value: {{ .Values.cloudflare.zone_id | quote }}
             {{- end }}
