@@ -55,6 +55,7 @@ async function installPackages(): Promise<void> {
 
   console.log('Installing Helm...');
   await runCommand('curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash');
+  await runCommand('helm plugin install https://github.com/databus23/helm-diff');
 
   console.log('Installing Helmfile...');
   const helmfileVersion = '0.169.0';
