@@ -62,9 +62,10 @@ releases:
         {{- if .server_labels }}
         affinity:
           nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
                     {{- range .server_labels }}
                     - {key: {{ . }}, operator: Exists}
                     {{- end }}
