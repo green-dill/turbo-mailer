@@ -65,6 +65,11 @@ elif [ $DAYS_UNTIL_EXPIRATION -le 60 ]; then
     echo "WARNING: The GitHub Personal Access Token will expire in $DAYS_UNTIL_EXPIRATION days. Please update the token soon."
 fi
 
+if [ -d "turbo-mailer" ]; then
+    echo "turbo-mailer already exists"
+    mv turbo-mailer .turbo-mailer-backup-$(date +%Y-%m-%d-%H-%M-%S)
+fi
+
 git clone https://yinheli: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@github.com/green-dill/turbo-mailer.git --depth 1
 
 # Navigate to the install directory
