@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"turbo-mailer-server/internal/initialize"
 
 	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog/log"
@@ -28,7 +27,6 @@ var Cmd = &cobra.Command{
 	Use:   "postfix",
 	Short: "Postfix dns record auto setup",
 	Run: func(cmd *cobra.Command, args []string) {
-		initialize.Do(cmd.Context())
 		boot()
 	},
 }
