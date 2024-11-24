@@ -1,24 +1,24 @@
 frontend:
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     repository: turbo-mailer-frontend
     pullPolicy: Always
-    tag: ""
+    tag: "master"
 
   ingress:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:
-      - host: dashboard.turbomx.org
+      - host: dashboard.degb.cc
         paths:
           - path: /
             pathType: ImplementationSpecific
     tls:
       - secretName: turbo-mailer-tls
         hosts:
-          - dashboard.turbomx.org
+          - dashboard.degb.cc
 
 api:
   replicaCount: 2
@@ -34,7 +34,7 @@ worker:
   image:
     repository: turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "master"
 
 
 dispatcher:
@@ -43,4 +43,4 @@ dispatcher:
   image:
     repository: turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "master"
