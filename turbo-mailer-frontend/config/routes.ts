@@ -102,10 +102,11 @@ export default [
   },
   {
     // path 支持为一个 url，必须要以 http 开头
-    path: 'https://metabase.turbomx.org',
+    path: '/metabase',
     target: '_blank', // 点击新窗口打开
     name: 'analysis',
     icon: 'AreaChartOutlined',
+    component: './Metabase',
   },
   {
     path: '/',
