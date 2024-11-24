@@ -191,7 +191,6 @@ async function checkK3sInstallation(): Promise<void> {
 
 async function installBaseServices(): Promise<void> {
   console.log('Installing base services...');
-  process.chdir('infra/cluster');
   await runCommand('make sync cert-manager');
   await runCommand('make sync ingress-nginx');
 
@@ -207,13 +206,16 @@ async function installApplications(): Promise<void> {
 
 async function main(): Promise<void> {
   console.log('Starting installation process...');
+  const workingDir = process.cwd();
 
   await installPackages();
   await installK3s();
 
   await checkK3sInstallation();
 
+  process.chdir('../infra/cluster');
   await installBaseServices();
+  process.chdir(workingDir);
   await installApplications();
 
   console.log('Installation process completed successfully!');
