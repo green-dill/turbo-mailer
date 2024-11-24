@@ -1,6 +1,32 @@
-emailDomains: []
-  # - domain: mail.example.com
-  #   serverLabels:
-  #     - server-1
-  #     - server-2
+domains:
+  - domain: mail.degb.cc
+    zone_id: "8b9ddec10aa5021580de8930c429ce9d"
+    server_labels:
+      - postfix/mail-degb-cc
 
+cloudflare:
+  api_key: "camqoJ2IKqENUqy6XJDKMHEsdpLPhZqO183E2pIN"
+
+config: |
+  server:
+    address: :5000
+
+  database:
+    turbo-mailer:
+      uri: "postgres://turbomailer:password@turbo-mailer-postgresql:5432/turbo-mailer?sslmode=disable"
+
+  redis:
+    turbo-mailer:
+      name: "turbo-mailer"
+      addr: "turbo-mailer-redis-master:6379"
+      password: "password"
+      db: 0
+      poolSize: 10
+      maxRetries: 3
+      prefix: "dev"
+
+  rabbitmq:
+    url: "amqp://user:password@turbo-mailer-rabbitmq:5672"
+
+  log:
+    level: debug

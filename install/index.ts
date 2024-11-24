@@ -183,7 +183,6 @@ async function installBaseServices(): Promise<void> {
   process.chdir('infra/cluster');
   await runCommand('make sync cert-manager');
   await runCommand('make sync ingress-nginx');
-  await runCommand('make sync openobserve');
 
   console.log('Applying kustomizations...');
   process.chdir('kustomize');
