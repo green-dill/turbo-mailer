@@ -108,6 +108,17 @@ async function getInternalIP(): Promise<string> {
 
 async function installK3s(): Promise<void> {
   console.log('Installing K3s...');
+
+  try {
+    const k3sStatus = await runCommand('systemctl status k3s');
+    if (k3sStatus.includes('Active: active')) {
+      console.log('K3s is already installed and running. Skipping installation...');
+      return;
+    }
+  } catch (error) {
+    console.log('K3s is not installed. Proceeding with installation...');
+  }
+
   const k3sVersion = "v1.30.1+k3s1";
   const k3sToken = "09ffc3c3f9badaa9297";
   const internalIP = await getInternalIP();
