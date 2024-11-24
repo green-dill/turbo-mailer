@@ -15,6 +15,7 @@ on:
       - "docs/**"
       - "helps/**"
       - "infra/**"
+      - "install/**"
   workflow_dispatch:
     inputs:
       env_input:
