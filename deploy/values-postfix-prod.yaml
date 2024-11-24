@@ -3,4 +3,4 @@ setupDNS:
   image:
     repository: yinheli/turbo-mailer-server
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "master"

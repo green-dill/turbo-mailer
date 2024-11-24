@@ -2,7 +2,7 @@ frontend:
   replicaCount: 1
 
   image:
-    repository: turbo-mailer-frontend
+    repository: yinheli/turbo-mailer-frontend
     pullPolicy: Always
     tag: "master"
 
@@ -24,15 +24,15 @@ api:
   replicaCount: 2
 
   image:
-    repository: turbo-mailer-server
+    repository: yinheli/turbo-mailer-server
     pullPolicy: Always
-    tag: ""
+    tag: "master"
 
 worker:
   replicaCount: 4
 
   image:
-    repository: turbo-mailer-server
+    repository: yinheli/turbo-mailer-server
     pullPolicy: Always
     tag: "master"
 
