@@ -173,7 +173,7 @@ const EmailTaskList: React.FC = () => {
               tooltip='上传 HTML/TXT/EML 文件，支持模板语法'
               help={helpContent}
               name="content"
-              accept={'.html, .eml .txt'}
+              accept={'.html,.eml,.txt'}
               max={1}
               fieldProps={{
                 beforeUpload: () => {
