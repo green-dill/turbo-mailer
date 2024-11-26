@@ -242,17 +242,18 @@ jobs:
           if [[ "${{ github.event.inputs.env_input }}" =~ ^(dev|test|prod)$ ]] || \
              [[ "${{ github.ref }}" =~ ^refs/heads/(develop|test)$ ]] || \
              [[ "${{ github.ref_type }}" == "tag" ]]; then
-            if [[ -n "${{ secrets.KUBECONFIG }}" ]]; then
-              echo "SHOULD_DEPLOY=true" >> $GITHUB_ENV
-            else
+            if [[ "${{ env.ENVIRONMENT }}" == "prod" && -z "${{ secrets.KUBECONFIG_PROD }}" ]] || \
+               [[ "${{ env.ENVIRONMENT }}" == "dev" && -z "${{ secrets.KUBECONFIG_DEV }}" ]] || \
+               [[ "${{ env.ENVIRONMENT }}" == "test" && -z "${{ secrets.KUBECONFIG_TEST }}" ]]; then
               echo "SHOULD_DEPLOY=false" >> $GITHUB_ENV
               echo "Deployment skipped: KUBECONFIG is not set"
+            else
+              echo "SHOULD_DEPLOY=true" >> $GITHUB_ENV
             fi
           else
             echo "SHOULD_DEPLOY=false" >> $GITHUB_ENV
             echo "Deployment skipped: Environment condition not met"
           fi
-
       - uses: green-dill/turbo-mailer/.github/actions/checkout@develop
         if: env.SHOULD_DEPLOY == 'true'
 
@@ -260,7 +261,15 @@ jobs:
         if: env.SHOULD_DEPLOY == 'true'
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          if [[ "${{ env.ENVIRONMENT }}" == "prod" ]]; then
+            echo "${{ secrets.KUBECONFIG_PROD }}" > $HOME/.kube/config
+          elif [[ "${{ env.ENVIRONMENT }}" == "dev" ]]; then
+            echo "${{ secrets.KUBECONFIG_DEV }}" > $HOME/.kube/config
+          elif [[ "${{ env.ENVIRONMENT }}" == "test" ]]; then
+            echo "${{ secrets.KUBECONFIG_TEST }}" > $HOME/.kube/config
+          else
+            echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          fi
           chmod 600 $HOME/.kube/config
 
       - name: Helmfile | Diff
