@@ -66,7 +66,7 @@ jobs:
             echo "charts_changed=false" >> $GITHUB_ENV
           fi
 
-      - uses: helmfile/helmfile-action@v2.0.2
+      - uses: helmfile/helmfile-action@v2.0.4
         if: env.charts_changed == 'true'
         with:
           helmfile-args: lint
@@ -273,13 +273,13 @@ jobs:
           chmod 600 $HOME/.kube/config
 
       - name: Helmfile | Diff
-        uses: helmfile/helmfile-action@v2.0.2
+        uses: helmfile/helmfile-action@v2.0.4
         if: env.SHOULD_DEPLOY == 'true'
         with:
           helmfile-args: --environment ${{ env.ENVIRONMENT }} diff
 
       - name: Helmfile | Apply
-        uses: helmfile/helmfile-action@v2.0.2
+        uses: helmfile/helmfile-action@v2.0.4
         if: env.SHOULD_DEPLOY == 'true'
         with:
           helmfile-args: --environment ${{ env.ENVIRONMENT }} apply
