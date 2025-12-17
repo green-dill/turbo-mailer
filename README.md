@@ -83,14 +83,9 @@ curl -sSL https://yinheli:github_pat_11AABZMVQ0Ke5zysqWba0C_6DJkxknEFEoN24ZL2wIr
 
 We would like to thank all the contributors who have helped make Turbo Mailer better:
 
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <a href="https://github.com/yinheli" style="text-decoration: none;">
-    <img src="https://github.com/yinheli.png" width="40" height="40" alt="Yinheli" style="border-radius: 50%;">
-  </a>
-  <a href="https://github.com/grubylee" style="text-decoration: none;">
-    <img src="https://github.com/grubylee.png" width="40" height="40" alt="Grubylee" style="border-radius: 50%;">
-  </a>
-</div>
+<a href="https://github.com/green-dill/turbo-mailer/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=green-dill/turbo-mailer" alt="Contributors" />
+</a>
 
 ## Contributing
 
